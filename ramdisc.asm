@@ -246,7 +246,7 @@ lfd17                       = &fd17
 lfd28                       = &fd28
 lfd2b                       = &fd2b
 lfd3c                       = &fd3c
-lfd3e                       = &fd3e
+directory_letter            = &fd3e
 lfd4e                       = &fd4e
 lfd4f                       = &fd4f
 lfd56                       = &fd56
@@ -803,7 +803,7 @@ l8058 = command_list+1
     nop                                                               ; 8319: ea          .
     nop                                                               ; 831a: ea          .
     lda #&24 ; '$'                                                    ; 831b: a9 24       .$
-    sta lfd3e                                                         ; 831d: 8d 3e fd    .>.
+    sta directory_letter                                              ; 831d: 8d 3e fd    .>.
 ; &8320 referenced 1 time by &8310
 .return_2
     rts                                                               ; 8320: 60          `
@@ -1187,25 +1187,27 @@ l8058 = command_list+1
     sta l0088                                                         ; 8515: 85 88       ..
     nop                                                               ; 8517: ea          .
     nop                                                               ; 8518: ea          .
-    lda lfd3e                                                         ; 8519: ad 3e fd    .>.
+    lda directory_letter                                              ; 8519: ad 3e fd    .>.
     sta l0087                                                         ; 851c: 85 87       ..
     ldy #0                                                            ; 851e: a0 00       ..
     jsr sub_c85a1                                                     ; 8520: 20 a1 85     ..
     cmp #&0d                                                          ; 8523: c9 0d       ..
-    bne c852a                                                         ; 8525: d0 03       ..
+    bne check_for_double_quotes                                       ; 8525: d0 03       ..
     jmp error_bad_filename                                            ; 8527: 4c da 8a    L..
 
+; ***************************************************************************************
 ; &852a referenced 1 time by &8525
-.c852a
+.check_for_double_quotes
     cmp #&22 ; '"'                                                    ; 852a: c9 22       ."
-    bne c8538                                                         ; 852c: d0 0a       ..
+    bne check_for_drive_token                                         ; 852c: d0 0a       ..
     jsr get_next_char_ptr2                                            ; 852e: 20 aa 85     ..
     cmp #&22 ; '"'                                                    ; 8531: c9 22       ."             ; A=character from string
-    bne c8538                                                         ; 8533: d0 03       ..
+    bne check_for_drive_token                                         ; 8533: d0 03       ..
     jmp error_bad_filename                                            ; 8535: 4c da 8a    L..
 
+; ***************************************************************************************
 ; &8538 referenced 2 times by &852c, &8533
-.c8538
+.check_for_drive_token
     cmp #&3a ; ':'                                                    ; 8538: c9 3a       .:
     bne get_directory_letter                                          ; 853a: d0 1d       ..
     jsr get_next_char_ptr2                                            ; 853c: 20 aa 85     ..
@@ -1243,7 +1245,7 @@ l8058 = command_list+1
 
 ; &856a referenced 1 time by &8563
 .c856a
-    lda lfd3e                                                         ; 856a: ad 3e fd    .>.
+    lda directory_letter                                              ; 856a: ad 3e fd    .>.
     dey                                                               ; 856d: 88          .
 ; &856e referenced 1 time by &8567
 .c856e
@@ -4131,7 +4133,7 @@ l8058 = command_list+1
     jsr sub_c96f6                                                     ; 960e: 20 f6 96     ..
     lda #1                                                            ; 9611: a9 01       ..
     jsr sub_c96f6                                                     ; 9613: 20 f6 96     ..
-    lda lfd3e                                                         ; 9616: ad 3e fd    .>.
+    lda directory_letter                                              ; 9616: ad 3e fd    .>.
     jsr sub_c96f6                                                     ; 9619: 20 f6 96     ..
     jmp c96dc                                                         ; 961c: 4c dc 96    L..
 
@@ -4149,7 +4151,7 @@ l8058 = command_list+1
 
 ; &962d referenced 1 time by &9623
 .c962d
-    lda lfd3e                                                         ; 962d: ad 3e fd    .>.
+    lda directory_letter                                              ; 962d: ad 3e fd    .>.
     jsr sub_c9d06                                                     ; 9630: 20 06 9d     ..
     sta osrdsc_ptr                                                    ; 9633: 85 f6       ..
     lda lfd56                                                         ; 9635: ad 56 fd    .V.
@@ -5122,7 +5124,7 @@ table_5 = sub_c9863+1
     lda lfd56                                                         ; 9be7: ad 56 fd    .V.
     sta l0080                                                         ; 9bea: 85 80       ..
     nop                                                               ; 9bec: ea          .
-    lda lfd3e                                                         ; 9bed: ad 3e fd    .>.
+    lda directory_letter                                              ; 9bed: ad 3e fd    .>.
     jsr sub_c9d06                                                     ; 9bf0: 20 06 9d     ..
     sta l0081                                                         ; 9bf3: 85 81       ..
     jsr change_to_ramdisk_catalogue_page                              ; 9bf5: 20 b3 87     ..
@@ -6074,7 +6076,7 @@ table_5 = sub_c9863+1
     lda #&24 ; '$'                                                    ; a190: a9 24       .$
     nop                                                               ; a192: ea          .
     nop                                                               ; a193: ea          .
-    sta lfd3e                                                         ; a194: 8d 3e fd    .>.
+    sta directory_letter                                              ; a194: 8d 3e fd    .>.
     jmp restore_register_a_x_y                                        ; a197: 4c b9 82    L..
 
 ; &a19a referenced 1 time by &a189
@@ -6119,7 +6121,7 @@ table_5 = sub_c9863+1
     nop                                                               ; a1d4: ea          .
     nop                                                               ; a1d5: ea          .
     nop                                                               ; a1d6: ea          .
-    sta lfd3e                                                         ; a1d7: 8d 3e fd    .>.
+    sta directory_letter                                              ; a1d7: 8d 3e fd    .>.
     jmp restore_register_a_x_y                                        ; a1da: 4c b9 82    L..
 
 ; ***************************************************************************************
@@ -10088,6 +10090,7 @@ save pydis_start, pydis_end
 ;     c8f4e:                                                8
 ;     c9cfd:                                                8
 ;     cacf4:                                                8
+;     directory_letter:                                     8
 ;     error_escape_pressed:                                 8
 ;     error_file_locked:                                    8
 ;     error_file_open:                                      8
@@ -10097,7 +10100,6 @@ save pydis_start, pydis_end
 ;     l0d80:                                                8
 ;     l78a2:                                                8
 ;     l78a3:                                                8
-;     lfd3e:                                                8
 ;     set_carry_if_not_alpha:                               8
 ;     defaults_in_ramdisc_vector_page:                      7
 ;     l0077:                                                7
@@ -10280,7 +10282,6 @@ save pydis_start, pydis_end
 ;     title:                                                3
 ;     validate_ramdisc_control_byte_ffc1:                   3
 ;     c8239:                                                2
-;     c8538:                                                2
 ;     c8634:                                                2
 ;     c86ea:                                                2
 ;     c8c55:                                                2
@@ -10354,6 +10355,7 @@ save pydis_start, pydis_end
 ;     cba79:                                                2
 ;     cbb22:                                                2
 ;     change_to_ramdisc_vector_page:                        2
+;     check_for_drive_token:                                2
 ;     check_for_period_in_string_at_ptr2:                   2
 ;     clear_carry_and_return_84b5:                          2
 ;     convert_ascii_to_number:                              2
@@ -10497,7 +10499,6 @@ save pydis_start, pydis_end
 ;     c845e:                                                1
 ;     c84c7:                                                1
 ;     c84d9:                                                1
-;     c852a:                                                1
 ;     c856a:                                                1
 ;     c856e:                                                1
 ;     c857c:                                                1
@@ -10828,6 +10829,7 @@ save pydis_start, pydis_end
 ;     cbc0b:                                                1
 ;     cbc57:                                                1
 ;     cbcc0:                                                1
+;     check_for_double_quotes:                              1
 ;     check_if_file_exists:                                 1
 ;     check_if_file_locked:                                 1
 ;     check_title_syntax:                                   1

@@ -342,7 +342,9 @@ subroutine(0x9fbc, "setup_transfer_address_data", None, "Transfer data to or fro
 comment(0x8a3d, "get the number of sectors on the disk", align=Align.AFTER_LINE)
 comment(0x8a73, "memory size is 1MB", align=Align.INLINE)
 comment(0x8a78, "memory size is 2MB", align=Align.INLINE)
-
+label(0xfd3e, "directory_letter")
+subroutine(0x852a, "check_for_double_quotes")
+subroutine(0x8538, "check_for_drive_token")
 
 label(0x8f, "Y_register_save")
 label(0x8e, "X_register_save")
