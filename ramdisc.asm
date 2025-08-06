@@ -694,7 +694,7 @@ l8058 = command_list+1
 
 ; &8298 referenced 1 time by &8293
 .c8298
-    jsr save_zp_variables_to_ramdisc_variable_page                    ; 8298: 20 d9 87     ..
+    jsr save_zp_variables_to_ramdisc_variable_page                    ; 8298: 20 d9 87     ..            ; save zero page variables to the ramdisc varable page
     pla                                                               ; 829b: 68          h
     sta Y_register_save                                               ; 829c: 85 8f       ..
     pla                                                               ; 829e: 68          h
@@ -702,11 +702,11 @@ l8058 = command_list+1
     pla                                                               ; 82a1: 68          h
     sta A_register_save                                               ; 82a2: 85 8d       ..
     plp                                                               ; 82a4: 28          (
-    lda command_list,x                                                ; 82a5: bd 57 80    .W.
+    lda command_list,x                                                ; 82a5: bd 57 80    .W.            ; X=Preserved
     pha                                                               ; 82a8: 48          H
     lda l8058,x                                                       ; 82a9: bd 58 80    .X.
     pha                                                               ; 82ac: 48          H
-    lda (os_text_ptr),y                                               ; 82ad: b1 f2       ..
+    lda (os_text_ptr),y                                               ; 82ad: b1 f2       ..             ; Y=preserved
     cmp #&2e ; '.'                                                    ; 82af: c9 2e       ..
     bne return_1                                                      ; 82b1: d0 01       ..
     iny                                                               ; 82b3: c8          .
@@ -725,7 +725,7 @@ l8058 = command_list+1
     lda A_register_save                                               ; 82b9: a5 8d       ..
     ldx X_register_save                                               ; 82bb: a6 8e       ..
     ldy Y_register_save                                               ; 82bd: a4 8f       ..
-    jsr save_ramdisc_variables_to_zp_variables                        ; 82bf: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 82bf: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     rts                                                               ; 82c2: 60          `
 
 ; &82c3 referenced 1 time by &8243
@@ -743,9 +743,9 @@ l8058 = command_list+1
     sta lfd61                                                         ; 82d0: 8d 61 fd    .a.
     tya                                                               ; 82d3: 98          .
     pha                                                               ; 82d4: 48          H
-    jsr save_zp_variables_to_ramdisc_variable_page                    ; 82d5: 20 d9 87     ..
+    jsr save_zp_variables_to_ramdisc_variable_page                    ; 82d5: 20 d9 87     ..            ; save zero page variables to the ramdisc varable page
     jsr sub_c9a24                                                     ; 82d8: 20 24 9a     $.
-    jsr save_ramdisc_variables_to_zp_variables                        ; 82db: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 82db: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     pla                                                               ; 82de: 68          h
     tay                                                               ; 82df: a8          .
     jsr change_to_ramdisc_variable_page                               ; 82e0: 20 cc 87     ..
@@ -819,7 +819,7 @@ l8058 = command_list+1
     pha                                                               ; 8340: 48          H
     lda l0071                                                         ; 8341: a5 71       .q
     pha                                                               ; 8343: 48          H
-    jsr change_to_ramdisc_vector_page                                 ; 8344: 20 bf 87     ..
+    jsr change_to_ramdisc_vector_page                                 ; 8344: 20 bf 87     ..            ; change to ramdisc vector page
     lda #osbyte_read_rom_ptr_table_low                                ; 8347: a9 a8       ..
     ldx #0                                                            ; 8349: a2 00       ..
     ldy #&ff                                                          ; 834b: a0 ff       ..
@@ -883,14 +883,14 @@ l8058 = command_list+1
 
 ; &83a8 referenced 1 time by &83a5
 .c83a8
-    jsr save_zp_variables_to_ramdisc_variable_page                    ; 83a8: 20 d9 87     ..
+    jsr save_zp_variables_to_ramdisc_variable_page                    ; 83a8: 20 d9 87     ..            ; save zero page variables to the ramdisc varable page
     lda #<(boot_file)                                                 ; 83ab: a9 0e       ..
     sta ptr2                                                          ; 83ad: 85 8b       ..
     lda #>(boot_file)                                                 ; 83af: a9 84       ..
     sta ptr2+1                                                        ; 83b1: 85 8c       ..
     jsr sub_c850f                                                     ; 83b3: 20 0f 85     ..
     beq check_if_file_exists                                          ; 83b6: f0 04       ..
-    jsr save_ramdisc_variables_to_zp_variables                        ; 83b8: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 83b8: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     rts                                                               ; 83bb: 60          `
 
 ; ***************************************************************************************
@@ -902,13 +902,13 @@ l8058 = command_list+1
     equs "File not found.."                                           ; 83c4: 46 69 6c... Fil
     equb &0d, &0d, &ea                                                ; 83d4: 0d 0d ea    ...
 
-    jsr save_ramdisc_variables_to_zp_variables                        ; 83d7: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 83d7: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     rts                                                               ; 83da: 60          `
 
 ; ***************************************************************************************
 ; &83db referenced 1 time by &83bf
 .file_found
-    jsr save_ramdisc_variables_to_zp_variables                        ; 83db: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 83db: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     ldx #0                                                            ; 83de: a2 00       ..
 ; &83e0 referenced 1 time by &83ef
 .loop_c83e0
@@ -955,7 +955,7 @@ l8058 = command_list+1
     jsr toggle_control_registers                                      ; 8418: 20 24 84     $.
     lda #&ff                                                          ; 841b: a9 ff       ..
     jsr toggle_control_registers                                      ; 841d: 20 24 84     $.
-    jsr change_to_ramdisc_vector_page                                 ; 8420: 20 bf 87     ..
+    jsr change_to_ramdisc_vector_page                                 ; 8420: 20 bf 87     ..            ; change to ramdisc vector page
     rts                                                               ; 8423: 60          `
 
 ; ***************************************************************************************
@@ -1165,7 +1165,7 @@ l8058 = command_list+1
     sta l0101,y                                                       ; 84f6: 99 01 01    ...
     lda #0                                                            ; 84f9: a9 00       ..
     sta l0102,y                                                       ; 84fb: 99 02 01    ...
-    jsr save_ramdisc_variables_to_zp_variables                        ; 84fe: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 84fe: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     jmp l0100                                                         ; 8501: 4c 00 01    L..
 
 ; &8504 referenced 3 times by &8b83, &8b95, &8ba3
@@ -1496,12 +1496,12 @@ l8058 = command_list+1
     lda l0071                                                         ; 86a2: a5 71       .q
     and #&7f                                                          ; 86a4: 29 7f       ).
     cmp l0087                                                         ; 86a6: c5 87       ..
-    beq c86c6                                                         ; 86a8: f0 1c       ..
+    beq deal_with_wildcards                                           ; 86a8: f0 1c       ..
     lda l0087                                                         ; 86aa: a5 87       ..
     cmp #&2a ; '*'                                                    ; 86ac: c9 2a       .*
-    beq c86c6                                                         ; 86ae: f0 16       ..
+    beq deal_with_wildcards                                           ; 86ae: f0 16       ..
     cmp #&23 ; '#'                                                    ; 86b0: c9 23       .#
-    beq c86c6                                                         ; 86b2: f0 12       ..
+    beq deal_with_wildcards                                           ; 86b2: f0 12       ..
     jsr set_carry_if_not_alpha                                        ; 86b4: 20 67 86     g.
     bcs load_a_zero_clear_carry_return                                ; 86b7: b0 43       .C
     sta to_address                                                    ; 86b9: 85 7c       .|
@@ -1510,8 +1510,9 @@ l8058 = command_list+1
     bcs load_a_zero_clear_carry_return                                ; 86c0: b0 3a       .:
     cmp to_address                                                    ; 86c2: c5 7c       .|
     bne load_a_zero_clear_carry_return                                ; 86c4: d0 36       .6
+; ***************************************************************************************
 ; &86c6 referenced 3 times by &86a8, &86ae, &86b2
-.c86c6
+.deal_with_wildcards
     ldx #0                                                            ; 86c6: a2 00       ..
 ; &86c8 referenced 1 time by &86ee
 .c86c8
@@ -1671,6 +1672,13 @@ l8058 = command_list+1
     rts                                                               ; 87be: 60          `
 
 ; ***************************************************************************************
+; change to ramdisc vector page
+; 
+; Change the ramdisc page to 00fd
+; 
+; On Exit:
+;     A: preserved
+; ***************************************************************************************
 ; &87bf referenced 2 times by &8344, &8420
 .change_to_ramdisc_vector_page
     pha                                                               ; 87bf: 48          H
@@ -1696,6 +1704,15 @@ l8058 = command_list+1
     rts                                                               ; 87d8: 60          `
 
 ; ***************************************************************************************
+; save zero page variables to the ramdisc varable page
+; 
+; stores a bunch of zero page locations to the randisc variable page 00fe
+; 
+; On Exit:
+;     A: Preserved
+;     X: Preserved
+;     Y: preserved
+; ***************************************************************************************
 ; &87d9 referenced 6 times by &8298, &82d5, &83a8, &8a80, &8af9, &b251
 .save_zp_variables_to_ramdisc_variable_page
     pha                                                               ; 87d9: 48          H
@@ -1715,6 +1732,14 @@ l8058 = command_list+1
     pla                                                               ; 87ee: 68          h
     rts                                                               ; 87ef: 60          `
 
+; ***************************************************************************************
+; save to ramdisc variables back to the zero page locations
+; 
+; Returns a bunch of zero page values back to their original location from the saved
+; version on the ramdisc
+; 
+; On Exit:
+;     A,X,Y: Preserved
 ; ***************************************************************************************
 ; &87f0 referenced 13 times by &82bf, &82db, &83b8, &83d7, &83db, &84fe, &8aa7, &8b17, &8c8e, &9832, &9b63, &9cfd, &b245
 .save_ramdisc_variables_to_zp_variables
@@ -1743,6 +1768,15 @@ l8058 = command_list+1
     rts                                                               ; 880e: 60          `
 
 ; ***************************************************************************************
+; Write zero page variables to ramdisc tempoary workspace page
+; 
+; Write zero page variables to ramdisc tempoary workspace page 00fc
+; 
+; On Exit:
+;     A: Preserved
+;     X: Preserved
+;     Y: Preserved
+; ***************************************************************************************
 ; &880f referenced 1 time by &a9a4
 .write_zp_variables_ramdisk_tempoary_workspace_page
     pha                                                               ; 880f: 48          H
@@ -1763,8 +1797,17 @@ l8058 = command_list+1
     inx                                                               ; 8829: e8          .
     cpx #&20 ; ' '                                                    ; 882a: e0 20       .
     bne loop_c8824                                                    ; 882c: d0 f6       ..
-    jmp swap_to_previous_ramdisc_page                                 ; 882e: 4c 50 88    LP.
+    jmp swap_to_previous_ramdisc_page                                 ; 882e: 4c 50 88    LP.            ; swap to previous ramdisc page
 
+; ***************************************************************************************
+; Write ramdisc tempoary workspace variables to zero page
+; 
+; Return the zero page variables back from the tempoary workspace 00fc
+; 
+; On Exit:
+;     A: Preserved
+;     X: Preserved
+;     Y: Preserved
 ; ***************************************************************************************
 ; &8831 referenced 1 time by &a9c0
 .write_ramdisc_temp_workspace_to_zero_page
@@ -1786,6 +1829,14 @@ l8058 = command_list+1
     inx                                                               ; 884b: e8          .
     cpx #&20 ; ' '                                                    ; 884c: e0 20       .
     bne loop_c8846                                                    ; 884e: d0 f6       ..
+; ***************************************************************************************
+; swap to previous ramdisc page
+; 
+; Swap back to ramdisc page which had been saved onto the stack
+; 
+; On Exit:
+;     A: corrupted
+;     X: corrupted
 ; ***************************************************************************************
 ; &8850 referenced 1 time by &882e
 .swap_to_previous_ramdisc_page
@@ -2216,7 +2267,7 @@ l8058 = command_list+1
 ; ***************************************************************************************
 ; &8a80 referenced 1 time by &8a3b
 .osword_bb_read_write_ramdrive
-    jsr save_zp_variables_to_ramdisc_variable_page                    ; 8a80: 20 d9 87     ..
+    jsr save_zp_variables_to_ramdisc_variable_page                    ; 8a80: 20 d9 87     ..            ; save zero page variables to the ramdisc varable page
     ldy #0                                                            ; 8a83: a0 00       ..
     lda (ptr3),y                                                      ; 8a85: b1 f0       ..             ; osblk - 0 read - &80 write
     pha                                                               ; 8a87: 48          H
@@ -2241,7 +2292,7 @@ l8058 = command_list+1
     tax                                                               ; 8aa2: aa          .              ; X=lsb_ramdisc_page
     pla                                                               ; 8aa3: 68          h              ; A=Read/Write flag &00/&80
     jsr setup_transfer_address_data                                   ; 8aa4: 20 bc 9f     ..
-    jsr save_ramdisc_variables_to_zp_variables                        ; 8aa7: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 8aa7: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     sec                                                               ; 8aaa: 38          8
     rts                                                               ; 8aab: 60          `
 
@@ -2288,7 +2339,7 @@ l8058 = command_list+1
 ; ***************************************************************************************
 ; &8af9 referenced 3 times by &8b7c, &975d, &9a4a
 .pull_registers_from_stack
-    jsr save_zp_variables_to_ramdisc_variable_page                    ; 8af9: 20 d9 87     ..
+    jsr save_zp_variables_to_ramdisc_variable_page                    ; 8af9: 20 d9 87     ..            ; save zero page variables to the ramdisc varable page
     tsx                                                               ; 8afc: ba          .
     lda l0103,x                                                       ; 8afd: bd 03 01    ...
     sta Y_register_save                                               ; 8b00: 85 8f       ..
@@ -2307,7 +2358,7 @@ l8058 = command_list+1
     lda A_register_save                                               ; 8b11: a5 8d       ..
     ldx X_register_save                                               ; 8b13: a6 8e       ..
     ldy Y_register_save                                               ; 8b15: a4 8f       ..
-    jsr save_ramdisc_variables_to_zp_variables                        ; 8b17: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 8b17: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     rts                                                               ; 8b1a: 60          `
 
 ; ***************************************************************************************
@@ -2557,7 +2608,7 @@ l8058 = command_list+1
 
 ; &8c8e referenced 4 times by &8b88, &8b9a, &8ba8, &8c7f
 .c8c8e
-    jsr save_ramdisc_variables_to_zp_variables                        ; 8c8e: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 8c8e: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     ldx single_byte_table_3_value_0                                   ; 8c91: ae 75 8b    .u.            ; X=Offset for fd01 and fd02
     jmp defaults_in_ramdisc_vector_page                               ; 8c94: 4c 1b 8b    L..            ; default ramdisc vector page
 
@@ -4512,7 +4563,7 @@ l8058 = command_list+1
 
 ; &9832 referenced 3 times by &9775, &97b1, &97d5
 .c9832
-    jsr save_ramdisc_variables_to_zp_variables                        ; 9832: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 9832: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     ldx single_byte_table_6_value_0f                                  ; 9835: ae 56 97    .V.            ; X=Offset for fd01 and fd02
     jmp defaults_in_ramdisc_vector_page                               ; 9838: 4c 1b 8b    L..            ; default ramdisc vector page
 
@@ -5054,7 +5105,7 @@ table_5 = sub_c9863+1
     ldy l00bd                                                         ; 9b5c: a4 bd       ..
     jsr sub_c8eae                                                     ; 9b5e: 20 ae 8e     ..
     lda l0074                                                         ; 9b61: a5 74       .t
-    jsr save_ramdisc_variables_to_zp_variables                        ; 9b63: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 9b63: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     ror a                                                             ; 9b66: 6a          j
     bcc c9b8d                                                         ; 9b67: 90 24       .$
     jsr check_for_tube                                                ; 9b69: 20 25 9d     %.            ; check for tube
@@ -5313,7 +5364,7 @@ table_5 = sub_c9863+1
 
 ; &9cfd referenced 8 times by &9a7f, &9ae8, &9af9, &9b31, &9b4d, &9bb4, &9ce2, &9cf0
 .c9cfd
-    jsr save_ramdisc_variables_to_zp_variables                        ; 9cfd: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; 9cfd: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     ldx single_byte_table_2_value_18                                  ; 9d00: ae 43 9a    .C.            ; X=Offset for fd01 and fd02
     jmp defaults_in_ramdisc_vector_page                               ; 9d03: 4c 1b 8b    L..            ; default ramdisc vector page
 
@@ -7267,11 +7318,11 @@ table_5 = sub_c9863+1
     lda #&3a ; ':'                                                    ; a99c: a9 3a       .:
     jsr oswrch                                                        ; a99e: 20 ee ff     ..            ; Write character 58
     jsr restore_copy_of_address_register                              ; a9a1: 20 69 88     i.
-    jsr write_zp_variables_ramdisk_tempoary_workspace_page            ; a9a4: 20 0f 88     ..
+    jsr write_zp_variables_ramdisk_tempoary_workspace_page            ; a9a4: 20 0f 88     ..            ; Write zero page variables to ramdisc tempoary workspace page
     ldx #0                                                            ; a9a7: a2 00       ..
 ; &a9a9 referenced 1 time by &a9b2
 .loop_ca9a9
-    lda jim,y                                                         ; a9a9: b9 00 fd    ...
+    lda jim,y                                                         ; a9a9: b9 00 fd    ...            ; Y=Preserved
     sta l0080,x                                                       ; a9ac: 95 80       ..
     iny                                                               ; a9ae: c8          .
     inx                                                               ; a9af: e8          .
@@ -7283,7 +7334,7 @@ table_5 = sub_c9863+1
     pha                                                               ; a9bb: 48          H
     jsr sub_c85ae                                                     ; a9bc: 20 ae 85     ..
     php                                                               ; a9bf: 08          .
-    jsr write_ramdisc_temp_workspace_to_zero_page                     ; a9c0: 20 31 88     1.
+    jsr write_ramdisc_temp_workspace_to_zero_page                     ; a9c0: 20 31 88     1.            ; Write ramdisc tempoary workspace variables to zero page
     plp                                                               ; a9c3: 28          (
     pla                                                               ; a9c4: 68          h
     sta lsb_ramdisc_page                                              ; a9c5: 8d c0 fc    ...
@@ -8422,12 +8473,12 @@ lb03f = sub_cb03e+1
     inx                                                               ; b240: e8          .
     cpx #&20 ; ' '                                                    ; b241: e0 20       .
     bne loop_cb23b                                                    ; b243: d0 f6       ..
-    jsr save_ramdisc_variables_to_zp_variables                        ; b245: 20 f0 87     ..
+    jsr save_ramdisc_variables_to_zp_variables                        ; b245: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
     ldx #<(l780d)                                                     ; b248: a2 0d       ..
     ldy #>(l780d)                                                     ; b24a: a0 78       .x
     lda #osfile_save                                                  ; b24c: a9 00       ..
     jsr osfile                                                        ; b24e: 20 dd ff     ..            ; Save a block of memory (returning file length and attributes) (A=0)
-    jsr save_zp_variables_to_ramdisc_variable_page                    ; b251: 20 d9 87     ..
+    jsr save_zp_variables_to_ramdisc_variable_page                    ; b251: 20 d9 87     ..            ; save zero page variables to the ramdisc varable page
     ldx #0                                                            ; b254: a2 00       ..
 ; &b256 referenced 1 time by &b25e
 .loop_cb256
@@ -10218,7 +10269,6 @@ save pydis_start, pydis_end
 ;     sub_cb9b7:                                            4
 ;     sub_cba1d:                                            4
 ;     table_5:                                              4
-;     c86c6:                                                3
 ;     c8dce:                                                3
 ;     c8eef:                                                3
 ;     c8f50:                                                3
@@ -10249,6 +10299,7 @@ save pydis_start, pydis_end
 ;     check_for_tube:                                       3
 ;     check_rom_service_calls:                              3
 ;     clear_carry_and_return_8a64:                          3
+;     deal_with_wildcards:                                  3
 ;     default_drive_flag:                                   3
 ;     error_bad_hex:                                        3
 ;     error_file_too_big:                                   3
