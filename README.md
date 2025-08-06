@@ -2,4 +2,4 @@
 6502 disassembly of the Morley RAMDisc rom using py8dis to decompile the executable.
 
 1.04 rom is compatible with BBC B, B+ and Master series
-1.01 rom is compatible with BBC B and B+ machines.  1.01 Rom is not included here (yet?)
+1.01 rom is compatible with BBC B and B+ machines.  
