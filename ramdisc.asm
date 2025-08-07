@@ -226,7 +226,7 @@ lfd14                       = &fd14
 lfd15                       = &fd15
 lfd16                       = &fd16
 lfd17                       = &fd17
-lfd28                       = &fd28
+boot_option                 = &fd28
 lfd2b                       = &fd2b
 current_drive_number        = &fd3c
 directory_letter            = &fd3e
@@ -757,7 +757,7 @@ l8058 = command_list+1
     bne c830c                                                         ; 82ec: d0 1e       ..
     cpy #0                                                            ; 82ee: c0 00       ..
     bne c830c                                                         ; 82f0: d0 1a       ..
-    lda lfd28                                                         ; 82f2: ad 28 fd    .(.
+    lda boot_option                                                   ; 82f2: ad 28 fd    .(.
     cmp #&30 ; '0'                                                    ; 82f5: c9 30       .0
     bcc c830c                                                         ; 82f7: 90 13       ..
     cmp #&34 ; '4'                                                    ; 82f9: c9 34       .4
@@ -872,7 +872,7 @@ l8058 = command_list+1
     nop                                                               ; 8399: ea          .
     nop                                                               ; 839a: ea          .
     nop                                                               ; 839b: ea          .
-    lda lfd28                                                         ; 839c: ad 28 fd    .(.
+    lda boot_option                                                   ; 839c: ad 28 fd    .(.
     cmp #&31 ; '1'                                                    ; 839f: c9 31       .1
     bcc return_4                                                      ; 83a1: 90 04       ..
     cmp #&34 ; '4'                                                    ; 83a3: c9 34       .4
@@ -4186,7 +4186,7 @@ l8058 = command_list+1
     jsr sub_c96f6                                                     ; 95e6: 20 f6 96     ..
     cpy #&0d                                                          ; 95e9: c0 0d       ..
     bne loop_c95e3                                                    ; 95eb: d0 f6       ..
-    lda lfd28                                                         ; 95ed: ad 28 fd    .(.
+    lda boot_option                                                   ; 95ed: ad 28 fd    .(.
     sec                                                               ; 95f0: 38          8
     sbc #&30 ; '0'                                                    ; 95f1: e9 30       .0
     jsr sub_c96f6                                                     ; 95f3: 20 f6 96     ..
@@ -4999,7 +4999,7 @@ table_5 = sub_c9863+1
     bne c9ae8                                                         ; 9ac8: d0 1e       ..
     nop                                                               ; 9aca: ea          .
     nop                                                               ; 9acb: ea          .
-    sta lfd28                                                         ; 9acc: 8d 28 fd    .(.
+    sta boot_option                                                   ; 9acc: 8d 28 fd    .(.
     tya                                                               ; 9acf: 98          .
     sta l0070                                                         ; 9ad0: 85 70       .p
     asl a                                                             ; 9ad2: 0a          .
@@ -10231,6 +10231,7 @@ save pydis_start, pydis_end
 ;     lfd61:                                                5
 ;     sub_cb981:                                            5
 ;     tube_data_register_3:                                 5
+;     boot_option:                                          4
 ;     c830c:                                                4
 ;     c8c8e:                                                4
 ;     c96d6:                                                4
@@ -10258,7 +10259,6 @@ save pydis_start, pydis_end
 ;     l7a02:                                                4
 ;     lfd05:                                                4
 ;     lfd08:                                                4
-;     lfd28:                                                4
 ;     lfdfc:                                                4
 ;     return_14:                                            4
 ;     return_15:                                            4
