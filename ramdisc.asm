@@ -62,17 +62,17 @@ l00bc                       = &00bc
 l00bd                       = &00bd
 l00be                       = &00be
 l00bf                       = &00bf
-l00ef                       = &00ef
+last_osword_osbyte_a_reg    = &00ef
+last_osword_osbyte_x_reg    = &00f0
 ptr3                        = &00f0
+last_osword_osbyte_y_reg    = &00f1
 os_text_ptr                 = &00f2
 romsel_copy                 = &00f4
 osrdsc_ptr                  = &00f6
 l00f7                       = &00f7
 ptr1                        = &00fd
 os_escape_flag              = &00ff
-l0100                       = &0100
-l0101                       = &0101
-l0102                       = &0102
+stack                       = &0100
 l0103                       = &0103
 l0104                       = &0104
 l0105                       = &0105
@@ -484,34 +484,35 @@ l8058 = command_list+1
     cpx #&fb                                                          ; 8173: e0 fb       ..
     beq bbc_b_plus                                                    ; 8175: f0 0e       ..
     cmp #3                                                            ; 8177: c9 03       ..
-    beq reset_rom_service_call                                        ; 8179: f0 11       ..
+    beq rom_autoboot_service_call                                     ; 8179: f0 11       ..
     jmp check_rom_service_calls                                       ; 817b: 4c 13 82    L..
 
 ; ***************************************************************************************
 ; &817e referenced 1 time by &8171
 .bbc_master
     cmp #&27 ; '''                                                    ; 817e: c9 27       .'
-    beq reset_rom_service_call                                        ; 8180: f0 0a       ..
+    beq rom_autoboot_service_call                                     ; 8180: f0 0a       ..
     jmp check_rom_service_calls                                       ; 8182: 4c 13 82    L..
 
 ; ***************************************************************************************
 ; &8185 referenced 1 time by &8175
 .bbc_b_plus
     cmp #1                                                            ; 8185: c9 01       ..
-    beq reset_rom_service_call                                        ; 8187: f0 03       ..
+    beq rom_autoboot_service_call                                     ; 8187: f0 03       ..
     jmp check_rom_service_calls                                       ; 8189: 4c 13 82    L..
 
 ; ***************************************************************************************
 ; &818c referenced 3 times by &8179, &8180, &8187
-.reset_rom_service_call
+.rom_autoboot_service_call
     ldx #0                                                            ; 818c: a2 00       ..
+; ***************************************************************************************
 ; &818e referenced 1 time by &8197
-.loop_c818e
+.print_banner
     lda print_ramdisc_fs,x                                            ; 818e: bd 99 81    ...
     beq end_of_banner_text                                            ; 8191: f0 15       ..
     jsr oswrch                                                        ; 8193: 20 ee ff     ..            ; Write character
     inx                                                               ; 8196: e8          .
-    bne loop_c818e                                                    ; 8197: d0 f5       ..
+    bne print_banner                                                  ; 8197: d0 f5       ..
 ; ***************************************************************************************
 ; &8199 referenced 1 time by &818e
 .print_ramdisc_fs
@@ -521,7 +522,7 @@ l8058 = command_list+1
 ; ***************************************************************************************
 ; &81a8 referenced 1 time by &8191
 .end_of_banner_text
-    jsr sub_c8416                                                     ; 81a8: 20 16 84     ..
+    jsr toggle_control_bytes_switch_to_vector_page                    ; 81a8: 20 16 84     ..
     jsr validate_ramdisc_control_byte_ffc1                            ; 81ab: 20 3b 84     ;.
     beq c81d1                                                         ; 81ae: f0 21       .!
     ldx #0                                                            ; 81b0: a2 00       ..
@@ -554,13 +555,14 @@ l8058 = command_list+1
     nop                                                               ; 81db: ea          .
     lda ramdisc_drive_number                                          ; 81dc: ad 13 fd    ...
     cmp #&30 ; '0'                                                    ; 81df: c9 30       .0
-    bcc c81e7                                                         ; 81e1: 90 04       ..
+    bcc drive_number_below_0                                          ; 81e1: 90 04       ..
     cmp #&3a ; ':'                                                    ; 81e3: c9 3a       .:
-    bcc write_character_then_2xNL                                     ; 81e5: 90 23       .#
+    bcc write_drive_number_then_2xNL                                  ; 81e5: 90 23       .#
+; ***************************************************************************************
 ; &81e7 referenced 1 time by &81e1
-.c81e7
+.drive_number_below_0
     lda #&3f ; '?'                                                    ; 81e7: a9 3f       .?
-    bne write_character_then_2xNL                                     ; 81e9: d0 1f       ..             ; ALWAYS branch
+    bne write_drive_number_then_2xNL                                  ; 81e9: d0 1f       ..             ; ALWAYS branch
 
 ; ***************************************************************************************
 ; &81eb referenced 1 time by &81d9
@@ -585,7 +587,7 @@ l8058 = command_list+1
 
 ; ***************************************************************************************
 ; &820a referenced 2 times by &81e5, &81e9
-.write_character_then_2xNL
+.write_drive_number_then_2xNL
     jsr oswrch                                                        ; 820a: 20 ee ff     ..            ; Write character
     jsr osnewl                                                        ; 820d: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
     jsr osnewl                                                        ; 8210: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
@@ -595,9 +597,9 @@ l8058 = command_list+1
     pla                                                               ; 8213: 68          h
 ; &8214 referenced 1 time by &8160
 .c8214
-    cmp #3                                                            ; 8214: c9 03       ..             ; boot filing system
+    cmp #3                                                            ; 8214: c9 03       ..             ; Rom Autoboot service call
     beq service_rom_service_call                                      ; 8216: f0 0f       ..
-    cmp #4                                                            ; 8218: c9 04       ..             ; unknown start command
+    cmp #4                                                            ; 8218: c9 04       ..             ; unknown star command
     beq service_rom_service_call                                      ; 821a: f0 0b       ..
     cmp #8                                                            ; 821c: c9 08       ..             ; unknown osword command
     beq service_rom_service_call                                      ; 821e: f0 07       ..
@@ -611,7 +613,7 @@ l8058 = command_list+1
     pha                                                               ; 8227: 48          H
     jsr validate_ramdisc_control_byte_ffc1                            ; 8228: 20 3b 84     ;.
     beq c8239                                                         ; 822b: f0 0c       ..
-    jsr sub_c8416                                                     ; 822d: 20 16 84     ..
+    jsr toggle_control_bytes_switch_to_vector_page                    ; 822d: 20 16 84     ..
     jsr validate_ramdisc_control_byte_ffc1                            ; 8230: 20 3b 84     ;.
     beq c8239                                                         ; 8233: f0 04       ..
     pla                                                               ; 8235: 68          h
@@ -819,7 +821,7 @@ l8058 = command_list+1
     pha                                                               ; 8340: 48          H
     lda l0071                                                         ; 8341: a5 71       .q
     pha                                                               ; 8343: 48          H
-    jsr change_to_ramdisc_vector_page                                 ; 8344: 20 bf 87     ..            ; change to ramdisc vector page
+    jsr switch_to_ramdisc_vector_page                                 ; 8344: 20 bf 87     ..            ; change to ramdisc vector page
     lda #osbyte_read_rom_ptr_table_low                                ; 8347: a9 a8       ..
     ldx #0                                                            ; 8349: a2 00       ..
     ldy #&ff                                                          ; 834b: a0 ff       ..
@@ -840,11 +842,11 @@ l8058 = command_list+1
     ldy #&1b                                                          ; 8365: a0 1b       ..
 ; &8367 referenced 1 time by &837c
 .loop_c8367
-    lda jump_table,x                                                  ; 8367: bd 86 83    ...
+    lda new_extended_vector_table,x                                   ; 8367: bd 86 83    ...
     sta (l0070),y                                                     ; 836a: 91 70       .p
     inx                                                               ; 836c: e8          .
     iny                                                               ; 836d: c8          .
-    lda jump_table,x                                                  ; 836e: bd 86 83    ...
+    lda new_extended_vector_table,x                                   ; 836e: bd 86 83    ...
     sta (l0070),y                                                     ; 8371: 91 70       .p
     inx                                                               ; 8373: e8          .
     iny                                                               ; 8374: c8          .
@@ -861,7 +863,7 @@ l8058 = command_list+1
     rts                                                               ; 8385: 60          `
 
 ; &8386 referenced 2 times by &8367, &836e
-.jump_table
+.new_extended_vector_table
     equw sub_m8b76, sub_c90b0, sub_c91e9, sub_c929c, sub_m949c        ; 8386: 76 8b b0... v..
     equw sub_m9757, sub_c9a44                                         ; 8390: 57 97 44... W.D
 
@@ -949,13 +951,14 @@ l8058 = command_list+1
     equs "$.!BOOT"                                                    ; 840e: 24 2e 21... $.!
     equb &0d                                                          ; 8415: 0d          .
 
+; ***************************************************************************************
 ; &8416 referenced 2 times by &81a8, &822d
-.sub_c8416
+.toggle_control_bytes_switch_to_vector_page
     lda #0                                                            ; 8416: a9 00       ..
     jsr toggle_control_registers                                      ; 8418: 20 24 84     $.
     lda #&ff                                                          ; 841b: a9 ff       ..
     jsr toggle_control_registers                                      ; 841d: 20 24 84     $.
-    jsr change_to_ramdisc_vector_page                                 ; 8420: 20 bf 87     ..            ; change to ramdisc vector page
+    jsr switch_to_ramdisc_vector_page                                 ; 8420: 20 bf 87     ..            ; change to ramdisc vector page
     rts                                                               ; 8423: 60          `
 
 ; ***************************************************************************************
@@ -1080,7 +1083,7 @@ l8058 = command_list+1
     inx                                                               ; 849b: e8          .
     iny                                                               ; 849c: c8          .
     lda (os_text_ptr),y                                               ; 849d: b1 f2       ..
-    cmp #&2e ; '.'                                                    ; 849f: c9 2e       ..
+    cmp #&2e ; '.'                                                    ; 849f: c9 2e       ..             ; check for abbreviation
     beq set_carry_and_return_84b3                                     ; 84a1: f0 10       ..
     lda command_list,x                                                ; 84a3: bd 57 80    .W.
     bmi set_carry_and_return_84b3                                     ; 84a6: 30 0b       0.
@@ -1112,32 +1115,34 @@ l8058 = command_list+1
 ; &84b7 referenced 30 times by &83c1, &9e10, &a40b, &a424, &a45e, &a589, &a5dc, &a5fd, &a611, &a636, &a676, &a6ba, &a6cf, &a76f, &a826, &afdd, &afec, &b00d, &b778, &b7f5, &b869, &b8aa, &b8c2, &b8fd, &ba40, &ba8f, &bace, &bc21, &bc59, &bc8a
 .print_inline_string
     pla                                                               ; 84b7: 68          h
-    sta l0070                                                         ; 84b8: 85 70       .p
+    sta l0070                                                         ; 84b8: 85 70       .p             ; lsb of (return address)-1
     pla                                                               ; 84ba: 68          h
-    sta l0071                                                         ; 84bb: 85 71       .q
+    sta l0071                                                         ; 84bb: 85 71       .q             ; msb of (return address)-1
     tya                                                               ; 84bd: 98          .
     pha                                                               ; 84be: 48          H
 ; &84bf referenced 1 time by &84d6
 .loop_c84bf
     ldy #0                                                            ; 84bf: a0 00       ..
-    inc l0070                                                         ; 84c1: e6 70       .p             ; increment pointer
-    bne c84c7                                                         ; 84c3: d0 02       ..             ; if 0, then there is a page boundary to accomodate
+    inc l0070                                                         ; 84c1: e6 70       .p             ; move pointer to next character
+    bne not_page_boundary                                             ; 84c3: d0 02       ..             ; if 0, then there is a page boundary to accomodate
     inc l0071                                                         ; 84c5: e6 71       .q             ; increment MSB
+; ***************************************************************************************
 ; &84c7 referenced 1 time by &84c3
-.c84c7
+.not_page_boundary
     lda (l0070),y                                                     ; 84c7: b1 70       .p
     cmp #&ea                                                          ; 84c9: c9 ea       ..             ; check for end of string marker
-    beq c84d9                                                         ; 84cb: f0 0c       ..
+    beq end_of_inline_string                                          ; 84cb: f0 0c       ..
     jsr save_copy_of_address_register                                 ; 84cd: 20 5c 88     \.
     jsr osasci                                                        ; 84d0: 20 e3 ff     ..            ; Write character
     jsr restore_copy_of_address_register                              ; 84d3: 20 69 88     i.
     jmp loop_c84bf                                                    ; 84d6: 4c bf 84    L..
 
+; ***************************************************************************************
 ; &84d9 referenced 1 time by &84cb
-.c84d9
+.end_of_inline_string
     pla                                                               ; 84d9: 68          h
     tay                                                               ; 84da: a8          .
-    jmp (l0070)                                                       ; 84db: 6c 70 00    lp.
+    jmp (l0070)                                                       ; 84db: 6c 70 00    lp.            ; just to instruction after string
 
 ; ***************************************************************************************
 ; Print inline error
@@ -1149,24 +1154,24 @@ l8058 = command_list+1
 ; &84de referenced 28 times by &8917, &8aac, &8ab7, &8aca, &8ada, &8aeb, &8ccc, &8dfe, &8ef3, &8f33, &8fe6, &925f, &92d8, &93d6, &987a, &9914, &9941, &a1dd, &a20a, &a2c8, &a2ef, &a31a, &a817, &a8c9, &afc4, &b39b, &b7ca, &b9cf
 .print_inline_error
     pla                                                               ; 84de: 68          h
-    sta ptr1                                                          ; 84df: 85 fd       ..
+    sta ptr1                                                          ; 84df: 85 fd       ..             ; lsb of (return address)-1
     pla                                                               ; 84e1: 68          h
-    sta ptr1+1                                                        ; 84e2: 85 fe       ..
-    ldy #0                                                            ; 84e4: a0 00       ..
-    sty l0100                                                         ; 84e6: 8c 00 01    ...
+    sta ptr1+1                                                        ; 84e2: 85 fe       ..             ; msb of (return address)-1
+    ldy #0                                                            ; 84e4: a0 00       ..             ; store brk on stack
+    sty stack                                                         ; 84e6: 8c 00 01    ...
 ; &84e9 referenced 1 time by &84ef
 .loop_c84e9
     iny                                                               ; 84e9: c8          .
-    lda (ptr1),y                                                      ; 84ea: b1 fd       ..
-    sta l0100,y                                                       ; 84ec: 99 00 01    ...
+    lda (ptr1),y                                                      ; 84ea: b1 fd       ..             ; store address of error string
+    sta stack,y                                                       ; 84ec: 99 00 01    ...
     bne loop_c84e9                                                    ; 84ef: d0 f8       ..
     lda #&2e ; '.'                                                    ; 84f1: a9 2e       ..
-    sta l0100,y                                                       ; 84f3: 99 00 01    ...
-    sta l0101,y                                                       ; 84f6: 99 01 01    ...
-    lda #0                                                            ; 84f9: a9 00       ..
-    sta l0102,y                                                       ; 84fb: 99 02 01    ...
+    sta stack,y                                                       ; 84f3: 99 00 01    ...
+    sta stack+1,y                                                     ; 84f6: 99 01 01    ...            ; add the two full stops after the error
+    lda #0                                                            ; 84f9: a9 00       ..             ; add the final brk
+    sta stack+2,y                                                     ; 84fb: 99 02 01    ...
     jsr save_ramdisc_variables_to_zp_variables                        ; 84fe: 20 f0 87     ..            ; save to ramdisc variables back to the zero page locations
-    jmp l0100                                                         ; 8501: 4c 00 01    L..
+    jmp stack                                                         ; 8501: 4c 00 01    L..            ; invoke the brk handler
 
 ; &8504 referenced 3 times by &8b83, &8b95, &8ba3
 .sub_c8504
@@ -1245,7 +1250,7 @@ l8058 = command_list+1
     dey                                                               ; 856d: 88          .
 ; &856e referenced 1 time by &8567
 .c856e
-    and #&7f                                                          ; 856e: 29 7f       ).
+    and #&7f                                                          ; 856e: 29 7f       ).             ; strip bit 7
     sta l0087                                                         ; 8570: 85 87       ..
     ldx #0                                                            ; 8572: a2 00       ..
 ; &8574 referenced 1 time by &858f
@@ -1262,28 +1267,30 @@ l8058 = command_list+1
 ; &8582 referenced 1 time by &857e
 .c8582
     cmp #&20 ; ' '                                                    ; 8582: c9 20       .
-    bne c8587                                                         ; 8584: d0 01       ..
+    bne store_filename_in_zp                                          ; 8584: d0 01       ..
     dey                                                               ; 8586: 88          .
+; ***************************************************************************************
 ; &8587 referenced 1 time by &8584
-.c8587
-    and #&7f                                                          ; 8587: 29 7f       ).
+.store_filename_in_zp
+    and #&7f                                                          ; 8587: 29 7f       ).             ; clear bit 7 for ASCII
     sta l0080,x                                                       ; 8589: 95 80       ..
     iny                                                               ; 858b: c8          .
     inx                                                               ; 858c: e8          .
-    cpx #7                                                            ; 858d: e0 07       ..
+    cpx #7                                                            ; 858d: e0 07       ..             ; filename length is 7 characters (without directory)
     bne loop_c8574                                                    ; 858f: d0 e3       ..
 ; &8591 referenced 1 time by &859f
 .loop_c8591
     dex                                                               ; 8591: ca          .
     lda l0080,x                                                       ; 8592: b5 80       ..
     cmp #&20 ; ' '                                                    ; 8594: c9 20       .
-    beq c859e                                                         ; 8596: f0 06       ..
+    beq pad_filename_with_spaces                                      ; 8596: f0 06       ..
     lda l0088                                                         ; 8598: a5 88       ..
     cmp ramdisc_drive_number                                          ; 859a: cd 13 fd    ...
     rts                                                               ; 859d: 60          `
 
+; ***************************************************************************************
 ; &859e referenced 1 time by &8596
-.c859e
+.pad_filename_with_spaces
     dex                                                               ; 859e: ca          .
     bpl loop_c8591                                                    ; 859f: 10 f0       ..
 ; ***************************************************************************************
@@ -1331,7 +1338,7 @@ l8058 = command_list+1
     jsr change_to_ramdisc_variable_page                               ; 85ae: 20 cc 87     ..
     lda subdrive_number                                               ; 85b1: ad 56 fd    .V.
     sta l0071                                                         ; 85b4: 85 71       .q
-    jsr change_to_ramdisk_catalogue_page                              ; 85b6: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; 85b6: 20 b3 87     ..
     ldy #0                                                            ; 85b9: a0 00       ..
     sty l0070                                                         ; 85bb: 84 70       .p
     sty l00bf                                                         ; 85bd: 84 bf       ..
@@ -1427,7 +1434,7 @@ l8058 = command_list+1
 .c864d
     jsr sub_c88e7                                                     ; 864d: 20 e7 88     ..
     bne jmp_to_c85bf                                                  ; 8650: d0 12       ..
-    jsr sub_c88f0                                                     ; 8652: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; 8652: 20 f0 88     ..
     bcc jmp_to_c85bf                                                  ; 8655: 90 0d       ..
     lda #1                                                            ; 8657: a9 01       ..
 ; &8659 referenced 1 time by &85c6
@@ -1494,7 +1501,7 @@ l8058 = command_list+1
     dec lsb_ramdisc_page                                              ; 869e: ce c0 fc    ...
     nop                                                               ; 86a1: ea          .
     lda l0071                                                         ; 86a2: a5 71       .q
-    and #&7f                                                          ; 86a4: 29 7f       ).
+    and #&7f                                                          ; 86a4: 29 7f       ).             ; string locked flag bit 7
     cmp l0087                                                         ; 86a6: c5 87       ..
     beq deal_with_wildcards                                           ; 86a8: f0 1c       ..
     lda l0087                                                         ; 86aa: a5 87       ..
@@ -1542,11 +1549,12 @@ l8058 = command_list+1
     ldx #1                                                            ; 86f0: a2 01       ..
     lda l0078                                                         ; 86f2: a5 78       .x
     ror a                                                             ; 86f4: 6a          j
-    bcc c86f9                                                         ; 86f5: 90 02       ..
+    bcc transfer_x_to_a_clear_carry_return                            ; 86f5: 90 02       ..
     inx                                                               ; 86f7: e8          .              ; X=&02
     inx                                                               ; 86f8: e8          .              ; X=&03
+; ***************************************************************************************
 ; &86f9 referenced 1 time by &86f5
-.c86f9
+.transfer_x_to_a_clear_carry_return
     txa                                                               ; 86f9: 8a          .
     clc                                                               ; 86fa: 18          .
     rts                                                               ; 86fb: 60          `
@@ -1563,35 +1571,37 @@ l8058 = command_list+1
     tya                                                               ; 8700: 98          .
     pha                                                               ; 8701: 48          H
     lda l0071                                                         ; 8702: a5 71       .q
-    and #&7f                                                          ; 8704: 29 7f       ).
+    and #&7f                                                          ; 8704: 29 7f       ).             ; clear bit 7 of character
     jsr save_copy_of_address_register                                 ; 8706: 20 5c 88     \.
-    jsr oswrch                                                        ; 8709: 20 ee ff     ..            ; Write character
+    jsr oswrch                                                        ; 8709: 20 ee ff     ..            ; print directory name
     lda #&2e ; '.'                                                    ; 870c: a9 2e       ..
-    jsr oswrch                                                        ; 870e: 20 ee ff     ..            ; Write character 46
+    jsr oswrch                                                        ; 870e: 20 ee ff     ..            ; print full stop between directory and filename
     jsr restore_copy_of_address_register                              ; 8711: 20 69 88     i.
     ldx #0                                                            ; 8714: a2 00       ..
+; ***************************************************************************************
 ; &8716 referenced 1 time by &8726
-.loop_c8716
+.print_filename
     lda jim,y                                                         ; 8716: b9 00 fd    ...
     jsr save_copy_of_address_register                                 ; 8719: 20 5c 88     \.
-    jsr oswrch                                                        ; 871c: 20 ee ff     ..            ; Write character
+    jsr oswrch                                                        ; 871c: 20 ee ff     ..
     jsr restore_copy_of_address_register                              ; 871f: 20 69 88     i.
     iny                                                               ; 8722: c8          .
     inx                                                               ; 8723: e8          .
     cpx #7                                                            ; 8724: e0 07       ..
-    bne loop_c8716                                                    ; 8726: d0 ee       ..
+    bne print_filename                                                ; 8726: d0 ee       ..
     lda #&20 ; ' '                                                    ; 8728: a9 20       .
     jsr save_copy_of_address_register                                 ; 872a: 20 5c 88     \.
-    jsr oswrch                                                        ; 872d: 20 ee ff     ..            ; Write character
-    jsr oswrch                                                        ; 8730: 20 ee ff     ..            ; Write character
+    jsr oswrch                                                        ; 872d: 20 ee ff     ..
+    jsr oswrch                                                        ; 8730: 20 ee ff     ..            ; print 2 spaces
     jsr restore_copy_of_address_register                              ; 8733: 20 69 88     i.
     ldx l0076                                                         ; 8736: a6 76       .v
     beq c8751                                                         ; 8738: f0 17       ..
     ldx l0071                                                         ; 873a: a6 71       .q             ; Locked flag
-    bpl c8740                                                         ; 873c: 10 02       ..
+    bpl jump_lock_attribute                                           ; 873c: 10 02       ..
     lda #&4c ; 'L'                                                    ; 873e: a9 4c       .L             ; File is Locked
+; ***************************************************************************************
 ; &8740 referenced 1 time by &873c
-.c8740
+.jump_lock_attribute
     jsr save_copy_of_address_register                                 ; 8740: 20 5c 88     \.
     jsr oswrch                                                        ; 8743: 20 ee ff     ..            ; Write character
     lda #&20 ; ' '                                                    ; 8746: a9 20       .
@@ -1662,7 +1672,7 @@ l8058 = command_list+1
 
 ; ***************************************************************************************
 ; &87b3 referenced 11 times by &85b6, &963a, &9bf5, &9da1, &9e44, &a0d4, &a234, &a373, &a3ed, &a956, &b331
-.change_to_ramdisk_catalogue_page
+.switch_to_ramdisk_catalogue_page
     pha                                                               ; 87b3: 48          H
     lda #0                                                            ; 87b4: a9 00       ..
     sta msb_ramdisc_page                                              ; 87b6: 8d c2 fc    ...
@@ -1680,7 +1690,7 @@ l8058 = command_list+1
 ;     A: preserved
 ; ***************************************************************************************
 ; &87bf referenced 2 times by &8344, &8420
-.change_to_ramdisc_vector_page
+.switch_to_ramdisc_vector_page
     pha                                                               ; 87bf: 48          H
     lda #<(jim)                                                       ; 87c0: a9 00       ..
     sta msb_ramdisc_page                                              ; 87c2: 8d c2 fc    ...
@@ -1720,12 +1730,13 @@ l8058 = command_list+1
     pha                                                               ; 87db: 48          H
     jsr change_to_ramdisc_variable_page                               ; 87dc: 20 cc 87     ..
     ldx #&1f                                                          ; 87df: a2 1f       ..
+; ***************************************************************************************
 ; &87e1 referenced 1 time by &87e7
-.loop_c87e1
+.write_zp_varaibles_to_ramdisc
     lda l0070,x                                                       ; 87e1: b5 70       .p
     sta lfde0,x                                                       ; 87e3: 9d e0 fd    ...
     dex                                                               ; 87e6: ca          .
-    bpl loop_c87e1                                                    ; 87e7: 10 f8       ..
+    bpl write_zp_varaibles_to_ramdisc                                 ; 87e7: 10 f8       ..
     stx lfddf                                                         ; 87e9: 8e df fd    ...
     pla                                                               ; 87ec: 68          h
     tax                                                               ; 87ed: aa          .
@@ -1752,12 +1763,13 @@ l8058 = command_list+1
     inx                                                               ; 87fa: e8          .
     bne c880b                                                         ; 87fb: d0 0e       ..
     ldx #&1f                                                          ; 87fd: a2 1f       ..
+; ***************************************************************************************
 ; &87ff referenced 1 time by &8805
-.loop_c87ff
+.write_ramdisc_variables_to_zp
     lda lfde0,x                                                       ; 87ff: bd e0 fd    ...
     sta l0070,x                                                       ; 8802: 95 70       .p
     dex                                                               ; 8804: ca          .
-    bpl loop_c87ff                                                    ; 8805: 10 f8       ..
+    bpl write_ramdisc_variables_to_zp                                 ; 8805: 10 f8       ..
     inx                                                               ; 8807: e8          .              ; X = 01
     stx lfddf                                                         ; 8808: 8e df fd    ...
 ; &880b referenced 1 time by &87fb
@@ -1998,8 +2010,9 @@ l8058 = command_list+1
     tay                                                               ; 88ee: a8          .
     rts                                                               ; 88ef: 60          `
 
+; ***************************************************************************************
 ; &88f0 referenced 11 times by &8652, &96ce, &9cba, &9dc7, &9ebf, &a105, &a25c, &a39d, &a43d, &a97c, &b355
-.sub_c88f0
+.enough_catalogue_pages_left
     clc                                                               ; 88f0: 18          .
     lda lsb_ramdisc_page                                              ; 88f1: ad c0 fc    ...
     adc #3                                                            ; 88f4: 69 03       i.
@@ -2167,13 +2180,14 @@ l8058 = command_list+1
     tay                                                               ; 89cc: a8          .
     pha                                                               ; 89cd: 48          H
     ldx parameter_list_offset,y                                       ; 89ce: be e2 89    ...
+; ***************************************************************************************
 ; &89d1 referenced 1 time by &89da
-.loop_c89d1
+.print_parameters
     lda parameter_list,x                                              ; 89d1: bd f2 89    ...
     beq no_parameters_for_this_command                                ; 89d4: f0 06       ..
     jsr oswrch                                                        ; 89d6: 20 ee ff     ..            ; Write character
     inx                                                               ; 89d9: e8          .
-    bne loop_c89d1                                                    ; 89da: d0 f5       ..
+    bne print_parameters                                              ; 89da: d0 f5       ..
 ; ***************************************************************************************
 ; &89dc referenced 2 times by &89b6, &89d4
 .no_parameters_for_this_command
@@ -2205,7 +2219,7 @@ l8058 = command_list+1
 ; ***************************************************************************************
 ; &8a37 referenced 1 time by &826f
 .unknown_osword_routine
-    lda l00ef                                                         ; 8a37: a5 ef       ..
+    lda last_osword_osbyte_a_reg                                      ; 8a37: a5 ef       ..
     cmp #&bb                                                          ; 8a39: c9 bb       ..
 ; Read/Write the RAMdisc (not available with tube)
     beq osword_bb_read_write_ramdrive                                 ; 8a3b: f0 43       .C
@@ -2916,7 +2930,7 @@ l8058 = command_list+1
     lda jim,y                                                         ; 8e69: b9 00 fd    ...
     sta zp_free_sector_count+1                                        ; 8e6c: 85 b3       ..
     lda l0077                                                         ; 8e6e: a5 77       .w
-    beq c8e8c                                                         ; 8e70: f0 1a       ..
+    beq update_zp_free_sector_count                                   ; 8e70: f0 1a       ..
     jsr change_to_ramdisc_variable_page                               ; 8e72: 20 cc 87     ..
     clc                                                               ; 8e75: 18          .
     lda lfd68                                                         ; 8e76: ad 68 fd    .h.
@@ -2931,8 +2945,9 @@ l8058 = command_list+1
     nop                                                               ; 8e86: ea          .
     adc free_sector_count_msb                                         ; 8e87: 6d 6b fd    mk.
     sta zp_free_sector_count+1                                        ; 8e8a: 85 b3       ..
+; ***************************************************************************************
 ; &8e8c referenced 1 time by &8e70
-.c8e8c
+.update_zp_free_sector_count
     sec                                                               ; 8e8c: 38          8
     lda zp_free_sector_count                                          ; 8e8d: a5 b2       ..
     sbc l00b0                                                         ; 8e8f: e5 b0       ..
@@ -4229,7 +4244,7 @@ l8058 = command_list+1
     sta osrdsc_ptr                                                    ; 9633: 85 f6       ..
     lda subdrive_number                                               ; 9635: ad 56 fd    .V.
     sta l00bc                                                         ; 9638: 85 bc       ..
-    jsr change_to_ramdisk_catalogue_page                              ; 963a: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; 963a: 20 b3 87     ..
     ldx #0                                                            ; 963d: a2 00       ..
     stx l00bb                                                         ; 963f: 86 bb       ..
 ; &9641 referenced 1 time by &96d3
@@ -4317,7 +4332,7 @@ l8058 = command_list+1
     adc #8                                                            ; 96c9: 69 08       i.
     tax                                                               ; 96cb: aa          .
     bne c96d3                                                         ; 96cc: d0 05       ..
-    jsr sub_c88f0                                                     ; 96ce: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; 96ce: 20 f0 88     ..
     bcs c96d6                                                         ; 96d1: b0 03       ..
 ; &96d3 referenced 1 time by &96cc
 .c96d3
@@ -4574,8 +4589,9 @@ l8058 = command_list+1
     bpl c988c                                                         ; 983f: 10 4b       .K
     cmp #&40 ; '@'                                                    ; 9841: c9 40       .@
     beq c9848                                                         ; 9843: f0 03       ..
+; ***************************************************************************************
 ; &9845 referenced 1 time by &9868
-.c9845
+.jump_to_error_file_open2
     jmp error_file_open                                               ; 9845: 4c eb 8a    L..
 
 ; &9848 referenced 1 time by &9843
@@ -4603,7 +4619,7 @@ table_5 = sub_c9863+1
     lda lfd04,y                                                       ; 9863: b9 04 fd    ...
 ; &9864 referenced 4 times by &9100, &920c, &92bd, &9aff
     cmp #&40 ; '@'                                                    ; 9866: c9 40       .@
-    bne c9845                                                         ; 9868: d0 db       ..
+    bne jump_to_error_file_open2                                      ; 9868: d0 db       ..
     pla                                                               ; 986a: 68          h
     pla                                                               ; 986b: 68          h
     sta lsb_ramdisc_page                                              ; 986c: 8d c0 fc    ...
@@ -5200,7 +5216,7 @@ table_5 = sub_c9863+1
     lda directory_letter                                              ; 9bed: ad 3e fd    .>.
     jsr sub_c9d06                                                     ; 9bf0: 20 06 9d     ..
     sta l0081                                                         ; 9bf3: 85 81       ..
-    jsr change_to_ramdisk_catalogue_page                              ; 9bf5: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; 9bf5: 20 b3 87     ..
     ldy #7                                                            ; 9bf8: a0 07       ..
     sty l0083                                                         ; 9bfa: 84 83       ..
 ; &9bfc referenced 1 time by &9cbf
@@ -5318,7 +5334,7 @@ table_5 = sub_c9863+1
     sta l0083                                                         ; 9cb5: 85 83       ..
     tay                                                               ; 9cb7: a8          .
     bcc c9cbf                                                         ; 9cb8: 90 05       ..
-    jsr sub_c88f0                                                     ; 9cba: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; 9cba: 20 f0 88     ..
     bcs c9cc2                                                         ; 9cbd: b0 03       ..
 ; &9cbf referenced 1 time by &9cb8
 .c9cbf
@@ -5508,7 +5524,7 @@ table_5 = sub_c9863+1
     jsr change_to_ramdisc_variable_page                               ; 9d99: 20 cc 87     ..
     lda subdrive_number                                               ; 9d9c: ad 56 fd    .V.
     sta l0073                                                         ; 9d9f: 85 73       .s
-    jsr change_to_ramdisk_catalogue_page                              ; 9da1: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; 9da1: 20 b3 87     ..
     ldy #0                                                            ; 9da4: a0 00       ..
     sty l0070                                                         ; 9da6: 84 70       .p
     sty l0074                                                         ; 9da8: 84 74       .t
@@ -5529,7 +5545,7 @@ table_5 = sub_c9863+1
 .c9dc2
     jsr sub_c88e7                                                     ; 9dc2: 20 e7 88     ..
     bne c9daa                                                         ; 9dc5: d0 e3       ..
-    jsr sub_c88f0                                                     ; 9dc7: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; 9dc7: 20 f0 88     ..
     bcc c9daa                                                         ; 9dca: 90 de       ..
 ; &9dcc referenced 1 time by &9dad
 .c9dcc
@@ -5606,7 +5622,7 @@ table_5 = sub_c9863+1
     dey                                                               ; 9e3f: 88          .              ; Y=&00
     sty l0074                                                         ; 9e40: 84 74       .t
     sty l0070                                                         ; 9e42: 84 70       .p
-    jsr change_to_ramdisk_catalogue_page                              ; 9e44: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; 9e44: 20 b3 87     ..
     nop                                                               ; 9e47: ea          .
 ; &9e48 referenced 2 times by &9ebd, &9ec2
 .c9e48
@@ -5681,7 +5697,7 @@ table_5 = sub_c9863+1
 .c9eba
     jsr sub_c88e7                                                     ; 9eba: 20 e7 88     ..
     bne c9e48                                                         ; 9ebd: d0 89       ..
-    jsr sub_c88f0                                                     ; 9ebf: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; 9ebf: 20 f0 88     ..
     bcc c9e48                                                         ; 9ec2: 90 84       ..
 ; &9ec4 referenced 1 time by &9e4b
 .c9ec4
@@ -5869,15 +5885,16 @@ table_5 = sub_c9863+1
     sta to_address+1                                                  ; 9fd3: 85 7d       .}
     stx from_address                                                  ; 9fd5: 86 7a       .z
     sty from_address+1                                                ; 9fd7: 84 7b       .{
-    jmp c9fe0                                                         ; 9fd9: 4c e0 9f    L..
+    jmp perform_transfer                                              ; 9fd9: 4c e0 9f    L..
 
 ; ***************************************************************************************
 ; &9fdc referenced 1 time by &9fcb
 .write_operation
     stx to_address                                                    ; 9fdc: 86 7c       .|
     sty to_address+1                                                  ; 9fde: 84 7d       .}
+; ***************************************************************************************
 ; &9fe0 referenced 1 time by &9fd9
-.c9fe0
+.perform_transfer
     ldy #0                                                            ; 9fe0: a0 00       ..
 ; ***************************************************************************************
 ; &9fe2 referenced 3 times by &9fe7, &9ffa, &9fff
@@ -5887,11 +5904,12 @@ table_5 = sub_c9863+1
     iny                                                               ; 9fe6: c8          .
     bne not_crossing_page_boundary                                    ; 9fe7: d0 f9       ..
     lda read_write_flag                                               ; 9fe9: a5 7e       .~
-    bpl c9ff1                                                         ; 9feb: 10 04       ..
+    bpl read_operation                                                ; 9feb: 10 04       ..
     inc from_address+1                                                ; 9fed: e6 7b       .{
     dec to_address+1                                                  ; 9fef: c6 7d       .}
+; ***************************************************************************************
 ; &9ff1 referenced 1 time by &9feb
-.c9ff1
+.read_operation
     inc to_address+1                                                  ; 9ff1: e6 7d       .}
     dec l007f                                                         ; 9ff3: c6 7f       ..
     beq return_19                                                     ; 9ff5: f0 0a       ..
@@ -6046,7 +6064,7 @@ table_5 = sub_c9863+1
     sta from_address                                                  ; a0d2: 85 7a       .z
 ; &a0d4 referenced 1 time by &a115
 .ca0d4
-    jsr change_to_ramdisk_catalogue_page                              ; a0d4: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; a0d4: 20 b3 87     ..
     ldy #0                                                            ; a0d7: a0 00       ..
     sty l0070                                                         ; a0d9: 84 70       .p
 ; &a0db referenced 2 times by &a103, &a108
@@ -6073,7 +6091,7 @@ table_5 = sub_c9863+1
 .ca100
     jsr sub_c88e7                                                     ; a100: 20 e7 88     ..
     bne ca0db                                                         ; a103: d0 d6       ..
-    jsr sub_c88f0                                                     ; a105: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; a105: 20 f0 88     ..
     bcc ca0db                                                         ; a108: 90 d1       ..
 ; &a10a referenced 1 time by &a0de
 .ca10a
@@ -6280,7 +6298,7 @@ table_5 = sub_c9863+1
     jsr change_to_ramdisc_variable_page                               ; a22c: 20 cc 87     ..
     lda subdrive_number                                               ; a22f: ad 56 fd    .V.
     sta l0073                                                         ; a232: 85 73       .s
-    jsr change_to_ramdisk_catalogue_page                              ; a234: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; a234: 20 b3 87     ..
     ldy #0                                                            ; a237: a0 00       ..
     sty l0070                                                         ; a239: 84 70       .p
     sty l0074                                                         ; a23b: 84 74       .t
@@ -6302,7 +6320,7 @@ table_5 = sub_c9863+1
 .ca257
     jsr sub_c88e7                                                     ; a257: 20 e7 88     ..
     bne ca23d                                                         ; a25a: d0 e1       ..
-    jsr sub_c88f0                                                     ; a25c: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; a25c: 20 f0 88     ..
     bcc ca23d                                                         ; a25f: 90 dc       ..
 ; &a261 referenced 1 time by &a240
 .ca261
@@ -6461,7 +6479,7 @@ table_5 = sub_c9863+1
     jsr change_to_ramdisc_variable_page                               ; a36b: 20 cc 87     ..
     lda subdrive_number                                               ; a36e: ad 56 fd    .V.
     sta l0073                                                         ; a371: 85 73       .s
-    jsr change_to_ramdisk_catalogue_page                              ; a373: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; a373: 20 b3 87     ..
     ldy #0                                                            ; a376: a0 00       ..
     sty l0070                                                         ; a378: 84 70       .p
     sty l0074                                                         ; a37a: 84 74       .t
@@ -6484,7 +6502,7 @@ table_5 = sub_c9863+1
 .ca398
     jsr sub_c88e7                                                     ; a398: 20 e7 88     ..
     bne ca37c                                                         ; a39b: d0 df       ..
-    jsr sub_c88f0                                                     ; a39d: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; a39d: 20 f0 88     ..
     bcc ca37c                                                         ; a3a0: 90 da       ..
 ; &a3a2 referenced 1 time by &a37f
 .ca3a2
@@ -6533,7 +6551,7 @@ table_5 = sub_c9863+1
     jsr check_if_ramdisc_formatted                                    ; a3e4: 20 0c 89     ..
     jsr store_copy_of_os_text_ptr                                     ; a3e7: 20 27 89     '.
     jsr sub_c850f                                                     ; a3ea: 20 0f 85     ..
-    jsr change_to_ramdisk_catalogue_page                              ; a3ed: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; a3ed: 20 b3 87     ..
     ldy #0                                                            ; a3f0: a0 00       ..
     sty l0070                                                         ; a3f2: 84 70       .p
     sty l0074                                                         ; a3f4: 84 74       .t
@@ -6572,7 +6590,7 @@ table_5 = sub_c9863+1
 .ca438
     jsr sub_c88e7                                                     ; a438: 20 e7 88     ..
     bne ca3f8                                                         ; a43b: d0 bb       ..
-    jsr sub_c88f0                                                     ; a43d: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; a43d: 20 f0 88     ..
     bcc ca3f8                                                         ; a440: 90 b6       ..
 ; &a442 referenced 1 time by &a3fb
 .ca442
@@ -7272,7 +7290,7 @@ table_5 = sub_c9863+1
     jsr change_to_ramdisc_variable_page                               ; a94e: 20 cc 87     ..
     lda subdrive_number                                               ; a951: ad 56 fd    .V.
     sta l0073                                                         ; a954: 85 73       .s
-    jsr change_to_ramdisk_catalogue_page                              ; a956: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; a956: 20 b3 87     ..
     ldy #0                                                            ; a959: a0 00       ..
     sty l0070                                                         ; a95b: 84 70       .p
     sty l0074                                                         ; a95d: 84 74       .t
@@ -7293,7 +7311,7 @@ table_5 = sub_c9863+1
 .ca977
     jsr sub_c88e7                                                     ; a977: 20 e7 88     ..
     bne ca95f                                                         ; a97a: d0 e3       ..
-    jsr sub_c88f0                                                     ; a97c: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; a97c: 20 f0 88     ..
     bcc ca95f                                                         ; a97f: 90 de       ..
 ; &a981 referenced 1 time by &a962
 .ca981
@@ -8602,7 +8620,7 @@ lb03f = sub_cb03e+1
     jsr change_to_ramdisc_variable_page                               ; b329: 20 cc 87     ..
     lda subdrive_number                                               ; b32c: ad 56 fd    .V.
     sta l0073                                                         ; b32f: 85 73       .s
-    jsr change_to_ramdisk_catalogue_page                              ; b331: 20 b3 87     ..
+    jsr switch_to_ramdisk_catalogue_page                              ; b331: 20 b3 87     ..
     ldy #0                                                            ; b334: a0 00       ..
     sty l0070                                                         ; b336: 84 70       .p
     sty l0074                                                         ; b338: 84 74       .t
@@ -8622,7 +8640,7 @@ lb03f = sub_cb03e+1
 .cb350
     jsr sub_c88e7                                                     ; b350: 20 e7 88     ..
     bne cb33a                                                         ; b353: d0 e5       ..
-    jsr sub_c88f0                                                     ; b355: 20 f0 88     ..
+    jsr enough_catalogue_pages_left                                   ; b355: 20 f0 88     ..
     bcc cb33a                                                         ; b358: 90 e0       ..
 ; &b35a referenced 1 time by &b33d
 .cb35a
@@ -10131,15 +10149,15 @@ save pydis_start, pydis_end
 ;     lfd10:                                               12
 ;     lfd68:                                               12
 ;     lfd69:                                               12
-;     change_to_ramdisk_catalogue_page:                    11
 ;     check_if_ramdisc_is_formatted:                       11
+;     enough_catalogue_pages_left:                         11
 ;     ignore_spaces_in_command_line:                       11
 ;     l0078:                                               11
 ;     l0088:                                               11
 ;     os_text_ptr+1:                                       11
 ;     ptr2:                                                11
 ;     ptr2+0:                                              11
-;     sub_c88f0:                                           11
+;     switch_to_ramdisk_catalogue_page:                    11
 ;     check_if_ramdisc_formatted:                          10
 ;     error_bad_drive:                                     10
 ;     l789c:                                               10
@@ -10153,6 +10171,7 @@ save pydis_start, pydis_end
 ;     error_escape_pressed:                                 9
 ;     l7a05:                                                9
 ;     l7a06:                                                9
+;     last_osword_osbyte_x_reg:                             9
 ;     lfd11:                                                9
 ;     lfd12:                                                9
 ;     pass_to_next_rom:                                     9
@@ -10244,7 +10263,6 @@ save pydis_start, pydis_end
 ;     jim_reset_address_high:                               4
 ;     l0001:                                                4
 ;     l00b1:                                                4
-;     l0100:                                                4
 ;     l2000:                                                4
 ;     l2008:                                                4
 ;     l2009:                                                4
@@ -10263,6 +10281,8 @@ save pydis_start, pydis_end
 ;     return_14:                                            4
 ;     return_15:                                            4
 ;     service_rom_service_call:                             4
+;     stack:                                                4
+;     stack+0:                                              4
 ;     sub_c8eae:                                            4
 ;     sub_cad22:                                            4
 ;     sub_caf66:                                            4
@@ -10334,9 +10354,9 @@ save pydis_start, pydis_end
 ;     osrdch:                                               3
 ;     print_x_spaces:                                       3
 ;     pull_registers_from_stack:                            3
-;     reset_rom_service_call:                               3
 ;     respond_to_service_call:                              3
 ;     return_12:                                            3
+;     rom_autoboot_service_call:                            3
 ;     set_carry_and_return:                                 3
 ;     set_carry_and_return_8677:                            3
 ;     sub_c8504:                                            3
@@ -10423,7 +10443,6 @@ save pydis_start, pydis_end
 ;     cb9cf:                                                2
 ;     cba79:                                                2
 ;     cbb22:                                                2
-;     change_to_ramdisc_vector_page:                        2
 ;     check_for_drive_token:                                2
 ;     check_for_period_in_string_at_ptr2:                   2
 ;     check_hex_number:                                     2
@@ -10442,7 +10461,6 @@ save pydis_start, pydis_end
 ;     jmp_error_bad_drive:                                  2
 ;     jmp_to_c85bf:                                         2
 ;     jmp_to_error_bad_drive:                               2
-;     jump_table:                                           2
 ;     l00b5:                                                2
 ;     l00be:                                                2
 ;     l0103:                                                2
@@ -10481,6 +10499,7 @@ save pydis_start, pydis_end
 ;     lfd7e:                                                2
 ;     lfd80:                                                2
 ;     lfde0:                                                2
+;     new_extended_vector_table:                            2
 ;     no_parameters_for_this_command:                       2
 ;     not_a_digit1:                                         2
 ;     oscli:                                                2
@@ -10508,7 +10527,6 @@ save pydis_start, pydis_end
 ;     return_6:                                             2
 ;     return_7:                                             2
 ;     set_carry_and_return_84b3:                            2
-;     sub_c8416:                                            2
 ;     sub_c8454:                                            2
 ;     sub_c8cc0:                                            2
 ;     sub_c8e36:                                            2
@@ -10550,15 +10568,16 @@ save pydis_start, pydis_end
 ;     sub_cbb84:                                            2
 ;     sub_cbbbd:                                            2
 ;     sub_cbc59:                                            2
+;     switch_to_ramdisc_vector_page:                        2
 ;     test_ramdisc_memory:                                  2
+;     toggle_control_bytes_switch_to_vector_page:           2
 ;     toggle_control_registers:                             2
 ;     validate_subdrive:                                    2
-;     write_character_then_2xNL:                            2
+;     write_drive_number_then_2xNL:                         2
 ;     bbc_b_plus:                                           1
 ;     bbc_master:                                           1
 ;     c81cd:                                                1
 ;     c81d1:                                                1
-;     c81e7:                                                1
 ;     c8206:                                                1
 ;     c8214:                                                1
 ;     c828c:                                                1
@@ -10568,14 +10587,10 @@ save pydis_start, pydis_end
 ;     c83a8:                                                1
 ;     c83e9:                                                1
 ;     c845e:                                                1
-;     c84c7:                                                1
-;     c84d9:                                                1
 ;     c856a:                                                1
 ;     c856e:                                                1
 ;     c857c:                                                1
 ;     c8582:                                                1
-;     c8587:                                                1
-;     c859e:                                                1
 ;     c85bf:                                                1
 ;     c85c1:                                                1
 ;     c85c9:                                                1
@@ -10587,8 +10602,6 @@ save pydis_start, pydis_end
 ;     c8682:                                                1
 ;     c86c8:                                                1
 ;     c86f0:                                                1
-;     c86f9:                                                1
-;     c8740:                                                1
 ;     c8751:                                                1
 ;     c8791:                                                1
 ;     c880b:                                                1
@@ -10620,7 +10633,6 @@ save pydis_start, pydis_end
 ;     c8e11:                                                1
 ;     c8e17:                                                1
 ;     c8e2f:                                                1
-;     c8e8c:                                                1
 ;     c8f04:                                                1
 ;     c8f15:                                                1
 ;     c8f5f:                                                1
@@ -10673,7 +10685,6 @@ save pydis_start, pydis_end
 ;     c97b4:                                                1
 ;     c97de:                                                1
 ;     c982b:                                                1
-;     c9845:                                                1
 ;     c9848:                                                1
 ;     c9853:                                                1
 ;     c9873:                                                1
@@ -10732,8 +10743,6 @@ save pydis_start, pydis_end
 ;     c9f50:                                                1
 ;     c9f5c:                                                1
 ;     c9f5e:                                                1
-;     c9fe0:                                                1
-;     c9ff1:                                                1
 ;     ca093:                                                1
 ;     ca09b:                                                1
 ;     ca0a0:                                                1
@@ -10900,9 +10909,11 @@ save pydis_start, pydis_end
 ;     compare_input_to_command_list:                        1
 ;     dir_command_has_directory:                            1
 ;     drive_is_0_to_3:                                      1
+;     drive_number_below_0:                                 1
 ;     drive_number_valid:                                   1
 ;     end_of_banner_text:                                   1
 ;     end_of_command_list:                                  1
+;     end_of_inline_string:                                 1
 ;     error_already_exists:                                 1
 ;     error_bad_command:                                    1
 ;     error_end_of_file:                                    1
@@ -10920,13 +10931,12 @@ save pydis_start, pydis_end
 ;     ignore_spaces:                                        1
 ;     jmp_escape_error:                                     1
 ;     jmp_to_error_file_not_found:                          1
+;     jump_lock_attribute:                                  1
 ;     jump_to_error_file_open:                              1
+;     jump_to_error_file_open2:                             1
 ;     l0007:                                                1
 ;     l0044:                                                1
 ;     l00b9:                                                1
-;     l00ef:                                                1
-;     l0101:                                                1
-;     l0102:                                                1
 ;     l0104:                                                1
 ;     l0105:                                                1
 ;     l02fe:                                                1
@@ -10958,6 +10968,7 @@ save pydis_start, pydis_end
 ;     lad69:                                                1
 ;     lae26:                                                1
 ;     lae35:                                                1
+;     last_osword_osbyte_a_reg:                             1
 ;     lb03f:                                                1
 ;     lfd0a:                                                1
 ;     lfd17:                                                1
@@ -10973,7 +10984,6 @@ save pydis_start, pydis_end
 ;     lfd8a:                                                1
 ;     lfd8b:                                                1
 ;     lfdbb:                                                1
-;     loop_c818e:                                           1
 ;     loop_c81ed:                                           1
 ;     loop_c8358:                                           1
 ;     loop_c8367:                                           1
@@ -10987,10 +10997,7 @@ save pydis_start, pydis_end
 ;     loop_c8574:                                           1
 ;     loop_c8591:                                           1
 ;     loop_c85a2:                                           1
-;     loop_c8716:                                           1
 ;     loop_c879d:                                           1
-;     loop_c87e1:                                           1
-;     loop_c87ff:                                           1
 ;     loop_c8824:                                           1
 ;     loop_c8846:                                           1
 ;     loop_c8897:                                           1
@@ -10998,7 +11005,6 @@ save pydis_start, pydis_end
 ;     loop_c8949:                                           1
 ;     loop_c8961:                                           1
 ;     loop_c8970:                                           1
-;     loop_c89d1:                                           1
 ;     loop_c8a59:                                           1
 ;     loop_c8a6c:                                           1
 ;     loop_c8bcd:                                           1
@@ -11115,19 +11121,25 @@ save pydis_start, pydis_end
 ;     morley_rom_turned_on:                                 1
 ;     not_a_digit:                                          1
 ;     not_help_service_call:                                1
+;     not_page_boundary:                                    1
 ;     not_unknown_osword:                                   1
 ;     not_unknown_osword_exit:                              1
 ;     os_text_ptr_does_cross_a_page_boundary:               1
 ;     osbyte_fa_settings:                                   1
 ;     osfile:                                               1
 ;     osword_bb_read_write_ramdrive:                        1
+;     pad_filename_with_spaces:                             1
 ;     page_ram_bank_select_b8_b15:                          1
 ;     parameter_list:                                       1
+;     perform_transfer:                                     1
 ;     populate_blank_catalogue:                             1
 ;     print_address_register_space:                         1
+;     print_banner:                                         1
 ;     print_command_parameters:                             1
 ;     print_compact_are_you_sure:                           1
+;     print_filename:                                       1
 ;     print_help_and_subcommand:                            1
+;     print_parameters:                                     1
 ;     print_ramdisc_fs:                                     1
 ;     print_searching_ram:                                  1
 ;     print_switched_off:                                   1
@@ -11136,6 +11148,7 @@ save pydis_start, pydis_end
 ;     ram_disc_commands:                                    1
 ;     ramdisc_switched_off:                                 1
 ;     read_command_line_next_char:                          1
+;     read_operation:                                       1
 ;     remove_return_address_from_stack:                     1
 ;     return_1:                                             1
 ;     return_10:                                            1
@@ -11169,7 +11182,10 @@ save pydis_start, pydis_end
 ;     single_byte_table_6_value_0f:                         1
 ;     single_byte_table_7_value_06:                         1
 ;     space_boot_file:                                      1
+;     stack+1:                                              1
+;     stack+2:                                              1
 ;     store_a_in_os_text_ptr:                               1
+;     store_filename_in_zp:                                 1
 ;     store_memory_size:                                    1
 ;     store_memory_with_size_1:                             1
 ;     store_sector_number:                                  1
@@ -11224,11 +11240,13 @@ save pydis_start, pydis_end
 ;     test_ramdisc_memory_from_page_0000:                   1
 ;     title_help_or_extended:                               1
 ;     transfer_0200_to_7e00:                                1
+;     transfer_x_to_a_clear_carry_return:                   1
 ;     tube_not_present:                                     1
 ;     tube_present:                                         1
 ;     tube_was_found:                                       1
 ;     unformatted_string:                                   1
 ;     unknown_osword_routine:                               1
+;     update_zp_free_sector_count:                          1
 ;     user_pressed_escape:                                  1
 ;     user_said_yes:                                        1
 ;     valid_filehandle_found:                               1
@@ -11238,6 +11256,8 @@ save pydis_start, pydis_end
 ;     write_hex_digit:                                      1
 ;     write_operation:                                      1
 ;     write_ramdisc_temp_workspace_to_zero_page:            1
+;     write_ramdisc_variables_to_zp:                        1
+;     write_zp_varaibles_to_ramdisc:                        1
 ;     write_zp_variables_ramdisk_tempoary_workspace_page:   1
 ;     yes_to_compact:                                       1
 
