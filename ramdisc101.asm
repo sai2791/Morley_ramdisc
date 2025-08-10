@@ -49,8 +49,7 @@ l008e                       = &008e
 l008f                       = &008f
 l00b0                       = &00b0
 l00b1                       = &00b1
-l00b2                       = &00b2
-l00b3                       = &00b3
+free_sector_count           = &00b2
 l00b4                       = &00b4
 l00b5                       = &00b5
 l00b8                       = &00b8
@@ -287,7 +286,6 @@ oscli                       = &fff7
     equb &0d, 0, &ff                                                  ; 8054: 0d 00 ff    ...
 ; &8057 referenced 6 times by &82da, &8393, &83a6, &83bd, &83ca, &83d5
 .command_table
-l8058 = command_table+1
     equs "ACCESS"                                                     ; 8057: 41 43 43... ACC
 ; &8058 referenced 1 time by &82de
     equb >(access_command-1)                                          ; 805d: 9d          .
@@ -513,27 +511,30 @@ l8058 = command_table+1
 ; &81e2 referenced 1 time by &81dd
 .c81e2
     jsr validate_control_byte_1_fcc1                                  ; 81e2: 20 83 81     ..
-    beq c8225                                                         ; 81e5: f0 3e       .>
+    beq should_i_print_banner                                         ; 81e5: f0 3e       .>
     pla                                                               ; 81e7: 68          h
     cmp #3                                                            ; 81e8: c9 03       ..
-    beq c81f0                                                         ; 81ea: f0 04       ..
+    beq is_ramdisc_turned_on                                          ; 81ea: f0 04       ..
     cmp #&27 ; '''                                                    ; 81ec: c9 27       .'
-    bne c8205                                                         ; 81ee: d0 15       ..
+    bne pass_on_rom_service_call                                      ; 81ee: d0 15       ..
+; ***************************************************************************************
 ; &81f0 referenced 1 time by &81ea
-.c81f0
+.is_ramdisc_turned_on
     jsr validate_rom_workspace                                        ; 81f0: 20 a4 81     ..
-    beq c8205                                                         ; 81f3: f0 10       ..
+    beq pass_on_rom_service_call                                      ; 81f3: f0 10       ..             ; rom_workspace_byte_is_bb
     ldx #0                                                            ; 81f5: a2 00       ..
+; ***************************************************************************************
 ; &81f7 referenced 1 time by &8200
-.loop_c81f7
+.print_switched_off_banner
     lda banner_switched_off,x                                         ; 81f7: bd 08 82    ...
     jsr osasci                                                        ; 81fa: 20 e3 ff     ..            ; Write character
     inx                                                               ; 81fd: e8          .
     cpx #&1d                                                          ; 81fe: e0 1d       ..
-    bne loop_c81f7                                                    ; 8200: d0 f5       ..
+    bne print_switched_off_banner                                     ; 8200: d0 f5       ..
     jsr write_to_rom_workspace                                        ; 8202: 20 9c 81     ..
+; ***************************************************************************************
 ; &8205 referenced 2 times by &81ee, &81f3
-.c8205
+.pass_on_rom_service_call
     jmp pass_on_service_call_to_next_rom                              ; 8205: 4c ba 82    L..
 
 ; &8208 referenced 1 time by &81f7
@@ -541,25 +542,27 @@ l8058 = command_table+1
     equs "Ramdisc F.S. :Switched off."                                ; 8208: 52 61 6d... Ram
     equb &0d, &0d                                                     ; 8223: 0d 0d       ..
 
+; ***************************************************************************************
 ; &8225 referenced 1 time by &81e5
-.c8225
+.should_i_print_banner
     pla                                                               ; 8225: 68          h
     cmp #3                                                            ; 8226: c9 03       ..
-    beq c8231                                                         ; 8228: f0 07       ..
+    beq print_banner                                                  ; 8228: f0 07       ..
     cmp #&27 ; '''                                                    ; 822a: c9 27       .'
-    beq c8231                                                         ; 822c: f0 03       ..
+    beq print_banner                                                  ; 822c: f0 03       ..
     jmp check_for_unknown_osword                                      ; 822e: 4c a1 82    L..
 
+; ***************************************************************************************
 ; &8231 referenced 2 times by &8228, &822c
-.c8231
+.print_banner
     pha                                                               ; 8231: 48          H
     jsr validate_rom_workspace                                        ; 8232: 20 a4 81     ..
-    beq c8296                                                         ; 8235: f0 5f       ._
+    beq if_rom_autoboot                                               ; 8235: f0 5f       ._
     lda l0070                                                         ; 8237: a5 70       .p
     pha                                                               ; 8239: 48          H
     lda l0071                                                         ; 823a: a5 71       .q
     pha                                                               ; 823c: 48          H
-    jsr print_inline_string                                           ; 823d: 20 de 83     ..
+    jsr print_inline_string                                           ; 823d: 20 de 83     ..            ; print inline string
     equs "Ramdisc F.S. :"                                             ; 8240: 52 61 6d... Ram
     equb &ea                                                          ; 824e: ea          .
 
@@ -572,18 +575,19 @@ l8058 = command_table+1
     nop                                                               ; 825c: ea          .
     lda ramdisc_drive_number                                          ; 825d: ad 13 fd    ...
     cmp #&30 ; '0'                                                    ; 8260: c9 30       .0
-    bcc c8268                                                         ; 8262: 90 04       ..
+    bcc invalid_drive_number                                          ; 8262: 90 04       ..
     cmp #&3a ; ':'                                                    ; 8264: c9 3a       .:
-    bcc c8287                                                         ; 8266: 90 1f       ..
+    bcc print_banner_drive_number                                     ; 8266: 90 1f       ..
+; ***************************************************************************************
 ; &8268 referenced 1 time by &8262
-.c8268
+.invalid_drive_number
     lda #&3f ; '?'                                                    ; 8268: a9 3f       .?
-    bne c8287                                                         ; 826a: d0 1b       ..             ; ALWAYS branch
+    bne print_banner_drive_number                                     ; 826a: d0 1b       ..             ; ALWAYS branch
 
 ; ***************************************************************************************
 ; &826c referenced 1 time by &825a
 .print_unformatted
-    jsr print_inline_string                                           ; 826c: 20 de 83     ..
+    jsr print_inline_string                                           ; 826c: 20 de 83     ..            ; print inline string
     equs "Unformatted"                                                ; 826f: 55 6e 66... Unf
     equb &0d, &0d, &ea                                                ; 827a: 0d 0d ea    ...
 
@@ -594,17 +598,19 @@ l8058 = command_table+1
     pla                                                               ; 8283: 68          h
     jmp pass_on_service_call_to_next_rom                              ; 8284: 4c ba 82    L..
 
+; ***************************************************************************************
 ; &8287 referenced 2 times by &8266, &826a
-.c8287
-    jsr oswrch                                                        ; 8287: 20 ee ff     ..            ; Write character
-    jsr osnewl                                                        ; 828a: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
-    jsr osnewl                                                        ; 828d: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
+.print_banner_drive_number
+    jsr oswrch                                                        ; 8287: 20 ee ff     ..            ; print_drive_number
+    jsr osnewl                                                        ; 828a: 20 e7 ff     ..
+    jsr osnewl                                                        ; 828d: 20 e7 ff     ..
     pla                                                               ; 8290: 68          h
     sta l0071                                                         ; 8291: 85 71       .q
     pla                                                               ; 8293: 68          h
     sta l0070                                                         ; 8294: 85 70       .p
+; ***************************************************************************************
 ; &8296 referenced 1 time by &8235
-.c8296
+.if_rom_autoboot
     pla                                                               ; 8296: 68          h
     cmp #3                                                            ; 8297: c9 03       ..
     bne pass_on_service_call_to_next_rom                              ; 8299: d0 1f       ..
@@ -622,10 +628,11 @@ l8058 = command_table+1
     pla                                                               ; 82aa: 68          h
     tax                                                               ; 82ab: aa          .
     pla                                                               ; 82ac: 68          h
-    bcc c82b1                                                         ; 82ad: 90 02       ..
+    bcc restore_status_flags_return_82b1                              ; 82ad: 90 02       ..
     lda #0                                                            ; 82af: a9 00       ..
+; ***************************************************************************************
 ; &82b1 referenced 1 time by &82ad
-.c82b1
+.restore_status_flags_return_82b1
     plp                                                               ; 82b1: 28          (
     rts                                                               ; 82b2: 60          `
 
@@ -651,7 +658,7 @@ l8058 = command_table+1
 .check_for_unknowwn_star_command
     cmp #4                                                            ; 82c1: c9 04       ..
     bne pass_on_service_call_to_next_rom                              ; 82c3: d0 f5       ..
-    jsr sub_c837b                                                     ; 82c5: 20 7b 83     {.
+    jsr check_for_command_with_leading_M                              ; 82c5: 20 7b 83     {.
     bcs c82cd                                                         ; 82c8: b0 03       ..
     jmp pass_on_service_call_to_next_rom                              ; 82ca: 4c ba 82    L..
 
@@ -667,10 +674,10 @@ l8058 = command_table+1
     plp                                                               ; 82d9: 28          (
     lda command_table,x                                               ; 82da: bd 57 80    .W.
     pha                                                               ; 82dd: 48          H
-    lda l8058,x                                                       ; 82de: bd 58 80    .X.
+    lda command_table+1,x                                             ; 82de: bd 58 80    .X.
     pha                                                               ; 82e1: 48          H
     lda (os_text_ptr),y                                               ; 82e2: b1 f2       ..
-    cmp #&2e ; '.'                                                    ; 82e4: c9 2e       ..
+    cmp #&2e ; '.'                                                    ; 82e4: c9 2e       ..             ; check for abreviation
     bne return_2                                                      ; 82e6: d0 01       ..
     iny                                                               ; 82e8: c8          .
 ; &82e9 referenced 1 time by &82e6
@@ -785,15 +792,17 @@ l8058 = command_table+1
 .return_3
     rts                                                               ; 837a: 60          `
 
+; ***************************************************************************************
 ; &837b referenced 2 times by &82c5, &9aea
-.sub_c837b
+.check_for_command_with_leading_M
     jsr ignore_spaces_in_command_line                                 ; 837b: 20 d1 87     ..
     and #&df                                                          ; 837e: 29 df       ).
     cmp #&4d ; 'M'                                                    ; 8380: c9 4d       .M
-    bne c8385                                                         ; 8382: d0 01       ..
+    bne validate_command                                              ; 8382: d0 01       ..
     iny                                                               ; 8384: c8          .
+; ***************************************************************************************
 ; &8385 referenced 1 time by &8382
-.c8385
+.validate_command
     tya                                                               ; 8385: 98          .
     pha                                                               ; 8386: 48          H
     ldx #0                                                            ; 8387: a2 00       ..
@@ -802,7 +811,7 @@ l8058 = command_table+1
     pla                                                               ; 8389: 68          h
     tay                                                               ; 838a: a8          .
     pha                                                               ; 838b: 48          H
-    jsr c83ad                                                         ; 838c: 20 ad 83     ..
+    jsr validate_command_line_char_is_alpha                           ; 838c: 20 ad 83     ..
     bcs c83a3                                                         ; 838f: b0 12       ..
     dex                                                               ; 8391: ca          .
 ; &8392 referenced 1 time by &8396
@@ -811,12 +820,13 @@ l8058 = command_table+1
     lda command_table,x                                               ; 8393: bd 57 80    .W.
     bpl loop_c8392                                                    ; 8396: 10 fa       ..
     cmp #&ff                                                          ; 8398: c9 ff       ..
-    beq c83a0                                                         ; 839a: f0 04       ..
+    beq end_of_command_tabel                                          ; 839a: f0 04       ..
     inx                                                               ; 839c: e8          .
     inx                                                               ; 839d: e8          .
     bne loop_c8389                                                    ; 839e: d0 e9       ..
+; ***************************************************************************************
 ; &83a0 referenced 1 time by &839a
-.c83a0
+.end_of_command_tabel
     pla                                                               ; 83a0: 68          h
     clc                                                               ; 83a1: 18          .
     rts                                                               ; 83a2: 60          `
@@ -833,18 +843,20 @@ l8058 = command_table+1
     sec                                                               ; 83ab: 38          8
     rts                                                               ; 83ac: 60          `
 
+; ***************************************************************************************
 ; &83ad referenced 2 times by &838c, &83d3
-.c83ad
+.validate_command_line_char_is_alpha
     lda (os_text_ptr),y                                               ; 83ad: b1 f2       ..
     and #&df                                                          ; 83af: 29 df       ).
     cmp #&41 ; 'A'                                                    ; 83b1: c9 41       .A
-    bcc c83bb                                                         ; 83b3: 90 06       ..
+    bcc reload_char_again                                             ; 83b3: 90 06       ..
     cmp #&5b ; '['                                                    ; 83b5: c9 5b       .[
-    bcs c83bb                                                         ; 83b7: b0 02       ..
+    bcs reload_char_again                                             ; 83b7: b0 02       ..
     bcc c83bd                                                         ; 83b9: 90 02       ..             ; ALWAYS branch
 
+; ***************************************************************************************
 ; &83bb referenced 2 times by &83b3, &83b7
-.c83bb
+.reload_char_again
     lda (os_text_ptr),y                                               ; 83bb: b1 f2       ..
 ; &83bd referenced 1 time by &83b9
 .c83bd
@@ -859,7 +871,7 @@ l8058 = command_table+1
     bmi set_carry_return_83da                                         ; 83cd: 30 0b       0.
     lda (os_text_ptr),y                                               ; 83cf: b1 f2       ..
     cmp #&21 ; '!'                                                    ; 83d1: c9 21       .!
-    bcs c83ad                                                         ; 83d3: b0 d8       ..
+    bcs validate_command_line_char_is_alpha                           ; 83d3: b0 d8       ..
     lda command_table,x                                               ; 83d5: bd 57 80    .W.
     bpl clear_carry_return_83dc                                       ; 83d8: 10 02       ..
 ; ***************************************************************************************
@@ -875,29 +887,39 @@ l8058 = command_table+1
     rts                                                               ; 83dd: 60          `
 
 ; ***************************************************************************************
+; print inline string
+; 
+; prints the text after the call to this subroutine, continues until token &ea is
+; reached, at which stage the PC is modified to the next instruction after the text
+;  Used l0070 as LSB for text, l0071 as MSB for text, at the end of the text the
+; program jmp to the next instruction
+; ***************************************************************************************
 ; &83de referenced 33 times by &823d, &826c, &8a73, &9dcc, &a3eb, &a404, &a43e, &a569, &a5bc, &a5dd, &a5f1, &a616, &a656, &a69a, &a6af, &a74f, &a806, &afa7, &afb6, &afd7, &b733, &b7b0, &b824, &b865, &b87d, &b8b8, &b9eb, &ba3a, &ba79, &bbcc, &bc04, &bc35, &bccc
 .print_inline_string
     pla                                                               ; 83de: 68          h
+; pull the return address from the stack and populate the zp variables
     sta l0070                                                         ; 83df: 85 70       .p
     pla                                                               ; 83e1: 68          h
     sta l0071                                                         ; 83e2: 85 71       .q
     tya                                                               ; 83e4: 98          .
     pha                                                               ; 83e5: 48          H
+; ***************************************************************************************
 ; &83e6 referenced 1 time by &83fd
-.loop_c83e6
+.print_inline_string_get_next_char
     ldy #0                                                            ; 83e6: a0 00       ..
     inc l0070                                                         ; 83e8: e6 70       .p
-    bne c83ee                                                         ; 83ea: d0 02       ..
+    bne print_inline_string_no_page_boundary                          ; 83ea: d0 02       ..
     inc l0071                                                         ; 83ec: e6 71       .q
+; ***************************************************************************************
 ; &83ee referenced 1 time by &83ea
-.c83ee
+.print_inline_string_no_page_boundary
     lda (l0070),y                                                     ; 83ee: b1 70       .p
     cmp #&ea                                                          ; 83f0: c9 ea       ..
     beq jump_to_return_address_after_string                           ; 83f2: f0 0c       ..
     jsr store_current_ramdisc_page                                    ; 83f4: 20 83 87     ..
-    jsr osasci                                                        ; 83f7: 20 e3 ff     ..            ; Write character
+    jsr osasci                                                        ; 83f7: 20 e3 ff     ..            ; string can contain vdu codes
     jsr restore_previously_saved_ramdisc_page                         ; 83fa: 20 90 87     ..
-    jmp loop_c83e6                                                    ; 83fd: 4c e6 83    L..
+    jmp print_inline_string_get_next_char                             ; 83fd: 4c e6 83    L..
 
 ; ***************************************************************************************
 ; &8400 referenced 1 time by &83f2
@@ -907,30 +929,38 @@ l8058 = command_table+1
     jmp (l0070)                                                       ; 8402: 6c 70 00    lp.
 
 ; ***************************************************************************************
+; similar to print_inline_string, takes the return address off the stack,
+; inserts a brk instruction onto the stack, followed by the error number and then the
+; error text, finally adds a further brk instruction
+;  uses l00fd for the lsb of the error text, and l00fe for the msb of the error text
+; ***************************************************************************************
 ; &8405 referenced 28 times by &8136, &8141, &8154, &8164, &8175, &883e, &8c86, &8db8, &8ead, &8eed, &8fa0, &9219, &9292, &9390, &9834, &98ce, &98fb, &a193, &a1c0, &a230, &a2a8, &a2cf, &a2fa, &a7f7, &a8a9, &b356, &b785, &b98a
 .inline_error
     pla                                                               ; 8405: 68          h
     sta l00fd                                                         ; 8406: 85 fd       ..
     pla                                                               ; 8408: 68          h
     sta l00fe                                                         ; 8409: 85 fe       ..
+; put brk on stack
     ldy #0                                                            ; 840b: a0 00       ..
     sty l0100                                                         ; 840d: 8c 00 01    ...
+; ***************************************************************************************
 ; &8410 referenced 1 time by &8416
-.loop_c8410
+.put_error_string_on_stack
     iny                                                               ; 8410: c8          .
     lda (l00fd),y                                                     ; 8411: b1 fd       ..
     sta l0100,y                                                       ; 8413: 99 00 01    ...
-    bne loop_c8410                                                    ; 8416: d0 f8       ..
-    lda #&2e ; '.'                                                    ; 8418: a9 2e       ..
+    bne put_error_string_on_stack                                     ; 8416: d0 f8       ..
+    lda #&2e ; '.'                                                    ; 8418: a9 2e       ..             ; print two periods after error
     sta l0100,y                                                       ; 841a: 99 00 01    ...
     sta l0101,y                                                       ; 841d: 99 01 01    ...
-    lda #0                                                            ; 8420: a9 00       ..
+    lda #0                                                            ; 8420: a9 00       ..             ; insert final brk
     sta l0102,y                                                       ; 8422: 99 02 01    ...
     jsr restore_zp_variables_from_ramdisc_variables_page_00fe         ; 8425: 20 17 87     ..
-    jmp l0100                                                         ; 8428: 4c 00 01    L..
+    jmp l0100                                                         ; 8428: 4c 00 01    L..            ; invoke brk handler
 
+; ***************************************************************************************
 ; &842b referenced 3 times by &8b3d, &8b4f, &8b5d
-.sub_c842b
+.copy_ptr_008e_to_ptr2
     ldy #0                                                            ; 842b: a0 00       ..
     lda (l008e),y                                                     ; 842d: b1 8e       ..
     sta ptr2                                                          ; 842f: 85 8b       ..
@@ -955,40 +985,43 @@ l8058 = command_table+1
 ; &8451 referenced 1 time by &844c
 .c8451
     cmp #&22 ; '"'                                                    ; 8451: c9 22       ."
-    bne c845f                                                         ; 8453: d0 0a       ..
-    jsr sub_c84d1                                                     ; 8455: 20 d1 84     ..
+    bne validate_drive_number                                         ; 8453: d0 0a       ..
+    jsr get_next_character                                            ; 8455: 20 d1 84     ..
     cmp #&22 ; '"'                                                    ; 8458: c9 22       ."
-    bne c845f                                                         ; 845a: d0 03       ..
+    bne validate_drive_number                                         ; 845a: d0 03       ..
     jmp error_bad_filename                                            ; 845c: 4c 64 81    Ld.
 
+; ***************************************************************************************
 ; &845f referenced 2 times by &8453, &845a
-.c845f
+.validate_drive_number
     cmp #&3a ; ':'                                                    ; 845f: c9 3a       .:
     bne c8480                                                         ; 8461: d0 1d       ..
-    jsr sub_c84d1                                                     ; 8463: 20 d1 84     ..
+    jsr get_next_character                                            ; 8463: 20 d1 84     ..
     sta l0088                                                         ; 8466: 85 88       ..
     cmp #&30 ; '0'                                                    ; 8468: c9 30       .0
-    bcc c8475                                                         ; 846a: 90 09       ..
+    bcc jump_to_error_bad_drive                                       ; 846a: 90 09       ..
     cmp ramdisc_drive_number                                          ; 846c: cd 13 fd    ...
-    beq c8478                                                         ; 846f: f0 07       ..
+    beq valid_drive_number                                            ; 846f: f0 07       ..
     cmp #&34 ; '4'                                                    ; 8471: c9 34       .4
-    bcc c8478                                                         ; 8473: 90 03       ..
+    bcc valid_drive_number                                            ; 8473: 90 03       ..
+; ***************************************************************************************
 ; &8475 referenced 2 times by &846a, &847d
-.c8475
+.jump_to_error_bad_drive
     jmp error_bad_drive                                               ; 8475: 4c c0 a1    L..
 
+; ***************************************************************************************
 ; &8478 referenced 2 times by &846f, &8473
-.c8478
-    jsr sub_c84d1                                                     ; 8478: 20 d1 84     ..
+.valid_drive_number
+    jsr get_next_character                                            ; 8478: 20 d1 84     ..
     cmp #&2e ; '.'                                                    ; 847b: c9 2e       ..
-    bne c8475                                                         ; 847d: d0 f6       ..
+    bne jump_to_error_bad_drive                                       ; 847d: d0 f6       ..
     iny                                                               ; 847f: c8          .
 ; &8480 referenced 1 time by &8461
 .c8480
     dey                                                               ; 8480: 88          .
-    jsr sub_c84d1                                                     ; 8481: 20 d1 84     ..
+    jsr get_next_character                                            ; 8481: 20 d1 84     ..
     tax                                                               ; 8484: aa          .
-    jsr sub_c84d1                                                     ; 8485: 20 d1 84     ..
+    jsr get_next_character                                            ; 8485: 20 d1 84     ..
     cmp #&2e ; '.'                                                    ; 8488: c9 2e       ..
     bne c8491                                                         ; 848a: d0 05       ..
     txa                                                               ; 848c: 8a          .
@@ -1001,7 +1034,7 @@ l8058 = command_table+1
     dey                                                               ; 8494: 88          .
 ; &8495 referenced 1 time by &848e
 .c8495
-    and #&7f                                                          ; 8495: 29 7f       ).
+    and #&7f                                                          ; 8495: 29 7f       ).             ; strip bit 7 for ASCII
     sta l0087                                                         ; 8497: 85 87       ..
     ldx #0                                                            ; 8499: a2 00       ..
 ; &849b referenced 1 time by &84b6
@@ -1018,11 +1051,12 @@ l8058 = command_table+1
 ; &84a9 referenced 1 time by &84a5
 .c84a9
     cmp #&20 ; ' '                                                    ; 84a9: c9 20       .
-    bne c84ae                                                         ; 84ab: d0 01       ..
+    bne store_filename_in_zp                                          ; 84ab: d0 01       ..
     dey                                                               ; 84ad: 88          .
+; ***************************************************************************************
 ; &84ae referenced 1 time by &84ab
-.c84ae
-    and #&7f                                                          ; 84ae: 29 7f       ).
+.store_filename_in_zp
+    and #&7f                                                          ; 84ae: 29 7f       ).             ; clear bit 7 for ASCII
     sta l0080,x                                                       ; 84b0: 95 80       ..
     iny                                                               ; 84b2: c8          .
     inx                                                               ; 84b3: e8          .
@@ -1053,8 +1087,9 @@ l8058 = command_table+1
     beq loop_c84c9                                                    ; 84ce: f0 f9       ..
     rts                                                               ; 84d0: 60          `
 
+; ***************************************************************************************
 ; &84d1 referenced 5 times by &8455, &8463, &8478, &8481, &8485
-.sub_c84d1
+.get_next_character
     iny                                                               ; 84d1: c8          .
     lda (ptr2),y                                                      ; 84d2: b1 8b       ..
     rts                                                               ; 84d4: 60          `
@@ -1068,19 +1103,22 @@ l8058 = command_table+1
     ldy #0                                                            ; 84e0: a0 00       ..
     sty l0070                                                         ; 84e2: 84 70       .p
     sty l00bf                                                         ; 84e4: 84 bf       ..
+; ***************************************************************************************
 ; &84e6 referenced 1 time by &858b
-.c84e6
+.check_for_empty_catalogue
     ldx #0                                                            ; 84e6: a2 00       ..
+; ***************************************************************************************
 ; &84e8 referenced 1 time by &850a
-.c84e8
+.get_char_of_catalogue_filename
     lda jim,y                                                         ; 84e8: b9 00 fd    ...
-    bne c84f0                                                         ; 84eb: d0 03       ..
+    bne filename_is_populated                                         ; 84eb: d0 03       ..
     jmp c8580                                                         ; 84ed: 4c 80 85    L..
 
+; ***************************************************************************************
 ; &84f0 referenced 1 time by &84eb
-.c84f0
-    cmp l0080,x                                                       ; 84f0: d5 80       ..
-    beq c8506                                                         ; 84f2: f0 12       ..
+.filename_is_populated
+    cmp l0080,x                                                       ; 84f0: d5 80       ..             ; check if filename chars match
+    beq filenames_match_so_far                                        ; 84f2: f0 12       ..
     jsr sub_c858e                                                     ; 84f4: 20 8e 85     ..
     bcs c8574                                                         ; 84f7: b0 7b       .{
     sta l0075                                                         ; 84f9: 85 75       .u
@@ -1089,12 +1127,13 @@ l8058 = command_table+1
     bcs c8574                                                         ; 8500: b0 72       .r
     cmp l0075                                                         ; 8502: c5 75       .u
     bne c8574                                                         ; 8504: d0 6e       .n
+; ***************************************************************************************
 ; &8506 referenced 1 time by &84f2
-.c8506
+.filenames_match_so_far
     iny                                                               ; 8506: c8          .
     inx                                                               ; 8507: e8          .
     cpx #7                                                            ; 8508: e0 07       ..
-    bne c84e8                                                         ; 850a: d0 dc       ..
+    bne get_char_of_catalogue_filename                                ; 850a: d0 dc       ..
     lda jim,y                                                         ; 850c: b9 00 fd    ...
     and #&7f                                                          ; 850f: 29 7f       ).
     cmp l0080,x                                                       ; 8511: d5 80       ..
@@ -1159,9 +1198,9 @@ l8058 = command_table+1
 ; &8574 referenced 8 times by &84f7, &8500, &8504, &8518, &8521, &8525, &8544, &854a
 .c8574
     jsr sub_c880e                                                     ; 8574: 20 0e 88     ..
-    bne c858b                                                         ; 8577: d0 12       ..
+    bne jump_to_c84e6                                                 ; 8577: d0 12       ..
     jsr enough_catalogue_pages_left                                   ; 8579: 20 17 88     ..
-    bcc c858b                                                         ; 857c: 90 0d       ..
+    bcc jump_to_c84e6                                                 ; 857c: 90 0d       ..
     lda #1                                                            ; 857e: a9 01       ..
 ; &8580 referenced 1 time by &84ed
 .c8580
@@ -1175,24 +1214,26 @@ l8058 = command_table+1
     plp                                                               ; 8589: 28          (
     rts                                                               ; 858a: 60          `
 
+; ***************************************************************************************
 ; &858b referenced 2 times by &8577, &857c
-.c858b
-    jmp c84e6                                                         ; 858b: 4c e6 84    L..
+.jump_to_c84e6
+    jmp check_for_empty_catalogue                                     ; 858b: 4c e6 84    L..
 
 ; &858e referenced 8 times by &84f4, &84fd, &8515, &851e, &85db, &85e4, &85fe, &8608
 .sub_c858e
     cmp #&41 ; 'A'                                                    ; 858e: c9 41       .A
-    bcc c859e                                                         ; 8590: 90 0c       ..
+    bcc set_carry_and_return_859e                                     ; 8590: 90 0c       ..
     cmp #&7b ; '{'                                                    ; 8592: c9 7b       .{
-    bcs c859e                                                         ; 8594: b0 08       ..
+    bcs set_carry_and_return_859e                                     ; 8594: b0 08       ..
     ora #&20 ; ' '                                                    ; 8596: 09 20       .
     cmp #&40 ; '@'                                                    ; 8598: c9 40       .@
-    beq c859e                                                         ; 859a: f0 02       ..
+    beq set_carry_and_return_859e                                     ; 859a: f0 02       ..
     clc                                                               ; 859c: 18          .
     rts                                                               ; 859d: 60          `
 
+; ***************************************************************************************
 ; &859e referenced 3 times by &8590, &8594, &859a
-.c859e
+.set_carry_and_return_859e
     sec                                                               ; 859e: 38          8
     rts                                                               ; 859f: 60          `
 
@@ -2093,7 +2134,7 @@ l8058 = command_table+1
 .check_if_file_exists
     jsr sub_c84d5                                                     ; 8a6e: 20 d5 84     ..
     bcc file_exists                                                   ; 8a71: 90 1a       ..
-    jsr print_inline_string                                           ; 8a73: 20 de 83     ..
+    jsr print_inline_string                                           ; 8a73: 20 de 83     ..            ; print inline string
     equs "File not found.."                                           ; 8a76: 46 69 6c... Fil
     equb &0d, &0d, &ea                                                ; 8a86: 0d 0d ea    ...
 
@@ -2215,7 +2256,7 @@ l8058 = command_table+1
     jsr sub_c8ac6                                                     ; 8b36: 20 c6 8a     ..
     cmp #&ff                                                          ; 8b39: c9 ff       ..
     bne c8b4b                                                         ; 8b3b: d0 0e       ..
-    jsr sub_c842b                                                     ; 8b3d: 20 2b 84     +.
+    jsr copy_ptr_008e_to_ptr2                                         ; 8b3d: 20 2b 84     +.
     beq c8b45                                                         ; 8b40: f0 03       ..
     jmp c8c48                                                         ; 8b42: 4c 48 8c    LH.
 
@@ -2228,7 +2269,7 @@ l8058 = command_table+1
 .c8b4b
     cmp #0                                                            ; 8b4b: c9 00       ..
     bne c8b5d                                                         ; 8b4d: d0 0e       ..
-    jsr sub_c842b                                                     ; 8b4f: 20 2b 84     +.
+    jsr copy_ptr_008e_to_ptr2                                         ; 8b4f: 20 2b 84     +.
     beq c8b57                                                         ; 8b52: f0 03       ..
     jmp c8c48                                                         ; 8b54: 4c 48 8c    LH.
 
@@ -2239,7 +2280,7 @@ l8058 = command_table+1
 
 ; &8b5d referenced 1 time by &8b4d
 .c8b5d
-    jsr sub_c842b                                                     ; 8b5d: 20 2b 84     +.
+    jsr copy_ptr_008e_to_ptr2                                         ; 8b5d: 20 2b 84     +.
     beq c8b65                                                         ; 8b60: f0 03       ..
     jmp c8c48                                                         ; 8b62: 4c 48 8c    LH.
 
@@ -2575,11 +2616,11 @@ l8058 = command_table+1
 .c8d49
     jsr sub_c8df0                                                     ; 8d49: 20 f0 8d     ..
     lda l007b                                                         ; 8d4c: a5 7b       .{
-    cmp l00b3                                                         ; 8d4e: c5 b3       ..
+    cmp free_sector_count+1                                           ; 8d4e: c5 b3       ..
     bcc c8d88                                                         ; 8d50: 90 36       .6
     bne c8d5c                                                         ; 8d52: d0 08       ..
     lda l007a                                                         ; 8d54: a5 7a       .z
-    cmp l00b2                                                         ; 8d56: c5 b2       ..
+    cmp free_sector_count                                             ; 8d56: c5 b2       ..
     bcc c8d88                                                         ; 8d58: 90 2e       ..
     beq c8d88                                                         ; 8d5a: f0 2c       .,
 ; &8d5c referenced 1 time by &8d52
@@ -2622,10 +2663,10 @@ l8058 = command_table+1
     sta l0079                                                         ; 8d9f: 85 79       .y
     jsr switch_to_ramdisc_variable_page_00fe                          ; 8da1: 20 f3 86     ..
     nop                                                               ; 8da4: ea          .
-    lda l00b2                                                         ; 8da5: a5 b2       ..
+    lda free_sector_count                                             ; 8da5: a5 b2       ..
     sta lfd6a                                                         ; 8da7: 8d 6a fd    .j.
     nop                                                               ; 8daa: ea          .
-    lda l00b3                                                         ; 8dab: a5 b3       ..
+    lda free_sector_count+1                                           ; 8dab: a5 b3       ..
     sta lfd6b                                                         ; 8dad: 8d 6b fd    .k.
     jsr sub_c903b                                                     ; 8db0: 20 3b 90     ;.
 ; &8db3 referenced 1 time by &8d97
@@ -2698,13 +2739,13 @@ l8058 = command_table+1
     adc #5                                                            ; 8e19: 69 05       i.
     tay                                                               ; 8e1b: a8          .
     lda jim,y                                                         ; 8e1c: b9 00 fd    ...
-    sta l00b2                                                         ; 8e1f: 85 b2       ..
+    sta free_sector_count                                             ; 8e1f: 85 b2       ..
     iny                                                               ; 8e21: c8          .
     nop                                                               ; 8e22: ea          .
     lda jim,y                                                         ; 8e23: b9 00 fd    ...
-    sta l00b3                                                         ; 8e26: 85 b3       ..
+    sta free_sector_count+1                                           ; 8e26: 85 b3       ..
     lda l0077                                                         ; 8e28: a5 77       .w
-    beq c8e46                                                         ; 8e2a: f0 1a       ..
+    beq update_zp_free_sector_count                                   ; 8e2a: f0 1a       ..
     jsr switch_to_ramdisc_variable_page_00fe                          ; 8e2c: 20 f3 86     ..
     clc                                                               ; 8e2f: 18          .
     lda lfd68                                                         ; 8e30: ad 68 fd    .h.
@@ -2712,22 +2753,23 @@ l8058 = command_table+1
     nop                                                               ; 8e34: ea          .
     nop                                                               ; 8e35: ea          .
     adc lfd6a                                                         ; 8e36: 6d 6a fd    mj.
-    sta l00b2                                                         ; 8e39: 85 b2       ..
+    sta free_sector_count                                             ; 8e39: 85 b2       ..
     lda lfd69                                                         ; 8e3b: ad 69 fd    .i.
     nop                                                               ; 8e3e: ea          .
     nop                                                               ; 8e3f: ea          .
     nop                                                               ; 8e40: ea          .
     adc lfd6b                                                         ; 8e41: 6d 6b fd    mk.
-    sta l00b3                                                         ; 8e44: 85 b3       ..
+    sta free_sector_count+1                                           ; 8e44: 85 b3       ..
+; ***************************************************************************************
 ; &8e46 referenced 1 time by &8e2a
-.c8e46
+.update_zp_free_sector_count
     sec                                                               ; 8e46: 38          8
-    lda l00b2                                                         ; 8e47: a5 b2       ..
+    lda free_sector_count                                             ; 8e47: a5 b2       ..
     sbc l00b0                                                         ; 8e49: e5 b0       ..
-    sta l00b2                                                         ; 8e4b: 85 b2       ..
-    lda l00b3                                                         ; 8e4d: a5 b3       ..
+    sta free_sector_count                                             ; 8e4b: 85 b2       ..
+    lda free_sector_count+1                                           ; 8e4d: a5 b3       ..
     sbc l00b1                                                         ; 8e4f: e5 b1       ..
-    sta l00b3                                                         ; 8e51: 85 b3       ..
+    sta free_sector_count+1                                           ; 8e51: 85 b3       ..
     rts                                                               ; 8e53: 60          `
 
 ; &8e54 referenced 2 times by &8d88, &8dd1
@@ -2890,10 +2932,11 @@ l8058 = command_table+1
 ; &8f4e referenced 2 times by &8f3e, &8f46
 .c8f4e
     inc lsb_ramdisc_page                                              ; 8f4e: ee c0 fc    ...
-    bne c8f56                                                         ; 8f51: d0 03       ..
+    bne jmp_to_c8f0a                                                  ; 8f51: d0 03       ..
     inc msb_ramdisc_page                                              ; 8f53: ee c2 fc    ...
+; ***************************************************************************************
 ; &8f56 referenced 1 time by &8f51
-.c8f56
+.jmp_to_c8f0a
     jmp c8f0a                                                         ; 8f56: 4c 0a 8f    L..
 
 ; &8f59 referenced 3 times by &8d3f, &8dcb, &8fb2
@@ -3680,14 +3723,15 @@ l9256 = c9255+1
 .c93f2
     lda l0081                                                         ; 93f2: a5 81       ..
     cmp l0083                                                         ; 93f4: c5 83       ..
-    bcc c9402                                                         ; 93f6: 90 0a       ..
+    bcc discard_return_address_change_to_file_pointer_page_00ff       ; 93f6: 90 0a       ..
     bne c940c                                                         ; 93f8: d0 12       ..
     lda l0080                                                         ; 93fa: a5 80       ..
     cmp l0082                                                         ; 93fc: c5 82       ..
-    bcc c9402                                                         ; 93fe: 90 02       ..
+    bcc discard_return_address_change_to_file_pointer_page_00ff       ; 93fe: 90 02       ..
     bne c940c                                                         ; 9400: d0 0a       ..
+; ***************************************************************************************
 ; &9402 referenced 2 times by &93f6, &93fe
-.c9402
+.discard_return_address_change_to_file_pointer_page_00ff
     pla                                                               ; 9402: 68          h
     pla                                                               ; 9403: 68          h
     lda #&ff                                                          ; 9404: a9 ff       ..
@@ -3742,7 +3786,7 @@ l9256 = c9255+1
     rts                                                               ; 9454: 60          `
 
 ; &9455 referenced 1 time by &9464
-.l9455
+.single_byte_table_2_value_0c
     equb &0c                                                          ; 9455: 0c          .
 
 .sub_c9456
@@ -3758,7 +3802,7 @@ l9256 = c9255+1
     pha                                                               ; 9461: 48          H
     tya                                                               ; 9462: 98          .
     pha                                                               ; 9463: 48          H
-    ldx l9455                                                         ; 9464: ae 55 94    .U.
+    ldx single_byte_table_2_value_0c                                  ; 9464: ae 55 94    .U.
     jmp c8ae8                                                         ; 9467: 4c e8 8a    L..
 
 ; &946a referenced 1 time by &945e
@@ -3781,14 +3825,15 @@ l9256 = c9255+1
     nop                                                               ; 9485: ea          .
     nop                                                               ; 9486: ea          .
     cmp ramdisc_drive_number                                          ; 9487: cd 13 fd    ...
-    beq c9494                                                         ; 948a: f0 08       ..
+    beq jump_to_c958c                                                 ; 948a: f0 08       ..
     nop                                                               ; 948c: ea          .
     lda lfd7d                                                         ; 948d: ad 7d fd    .}.
     pha                                                               ; 9490: 48          H
     jmp c9460                                                         ; 9491: 4c 60 94    L`.
 
+; ***************************************************************************************
 ; &9494 referenced 1 time by &948a
-.c9494
+.jump_to_c958c
     jmp c958c                                                         ; 9494: 4c 8c 95    L..
 
 ; &9497 referenced 1 time by &947f
@@ -4857,7 +4902,7 @@ l981e = sub_c981d+1
     lda l008f                                                         ; 9ae4: a5 8f       ..
     sta l00f3                                                         ; 9ae6: 85 f3       ..
     ldy #0                                                            ; 9ae8: a0 00       ..
-    jsr sub_c837b                                                     ; 9aea: 20 7b 83     {.
+    jsr check_for_command_with_leading_M                              ; 9aea: 20 7b 83     {.
     bcc c9af2                                                         ; 9aed: 90 03       ..
     jmp c9cb9                                                         ; 9aef: 4c b9 9c    L..
 
@@ -5355,7 +5400,7 @@ l981e = sub_c981d+1
 ; ***************************************************************************************
 ; &9dcc referenced 1 time by &9dc7
 .print_compact_are_you_sure
-    jsr print_inline_string                                           ; 9dcc: 20 de 83     ..
+    jsr print_inline_string                                           ; 9dcc: 20 de 83     ..            ; print inline string
     equs "Compact: Are you sure ? "                                   ; 9dcf: 43 6f 6d... Com
     equb &ea                                                          ; 9de7: ea          .
 
@@ -6306,7 +6351,7 @@ l981e = sub_c981d+1
     jsr sub_c8627                                                     ; a3e5: 20 27 86     '.
     lda l0070                                                         ; a3e8: a5 70       .p
     pha                                                               ; a3ea: 48          H
-    jsr print_inline_string                                           ; a3eb: 20 de 83     ..
+    jsr print_inline_string                                           ; a3eb: 20 de 83     ..            ; print inline string
     equs "      Sub."                                                 ; a3ee: 20 20 20...
     equb &ea                                                          ; a3f8: ea          .
 
@@ -6315,7 +6360,7 @@ l981e = sub_c981d+1
     lda l0074                                                         ; a3fe: a5 74       .t
     cmp #3                                                            ; a400: c9 03       ..
     bne ca412                                                         ; a402: d0 0e       ..
-    jsr print_inline_string                                           ; a404: 20 de 83     ..
+    jsr print_inline_string                                           ; a404: 20 de 83     ..            ; print inline string
     equs "   Deleted"                                                 ; a407: 20 20 20...
     equb &ea                                                          ; a411: ea          .
 
@@ -6357,7 +6402,7 @@ l981e = sub_c981d+1
 
 ; ***************************************************************************************
 .ramform_command
-    jsr print_inline_string                                           ; a43e: 20 de 83     ..
+    jsr print_inline_string                                           ; a43e: 20 de 83     ..            ; print inline string
     equs "Format the Ramdisc: Are you sure ? "                        ; a441: 46 6f 72... For
     equb &ea                                                          ; a464: ea          .
 
@@ -6488,7 +6533,7 @@ l981e = sub_c981d+1
 ; &a566 referenced 1 time by &9ede
 .rstat_command
     jsr check_if_drive_formatted_show_error                           ; a566: 20 33 88     3.
-    jsr print_inline_string                                           ; a569: 20 de 83     ..
+    jsr print_inline_string                                           ; a569: 20 de 83     ..            ; print inline string
     equs "Drive "                                                     ; a56c: 44 72 69... Dri
     equb &ea                                                          ; a572: ea          .
 
@@ -6541,7 +6586,7 @@ l981e = sub_c981d+1
     lda #0                                                            ; a5b6: a9 00       ..
     adc l0081                                                         ; a5b8: 65 81       e.
     sta l0081                                                         ; a5ba: 85 81       ..
-    jsr print_inline_string                                           ; a5bc: 20 de 83     ..
+    jsr print_inline_string                                           ; a5bc: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; a5bf: 0d          .
     equs "Catalogue:- Used &"                                         ; a5c0: 43 61 74... Cat
     equb &ea                                                          ; a5d2: ea          .
@@ -6550,11 +6595,11 @@ l981e = sub_c981d+1
     jsr hex_to_decimal                                                ; a5d5: 20 9d 87     ..
     lda l0080                                                         ; a5d8: a5 80       ..
     jsr hex_to_decimal                                                ; a5da: 20 9d 87     ..
-    jsr print_inline_string                                           ; a5dd: 20 de 83     ..
+    jsr print_inline_string                                           ; a5dd: 20 de 83     ..            ; print inline string
     equs "  Maximum &0A80"                                            ; a5e0: 20 20 4d...   M
     equb &0d, &ea                                                     ; a5ef: 0d ea       ..
 
-    jsr print_inline_string                                           ; a5f1: 20 de 83     ..
+    jsr print_inline_string                                           ; a5f1: 20 de 83     ..            ; print inline string
     equs "Next free sector &"                                         ; a5f4: 4e 65 78... Nex
     equb &ea                                                          ; a606: ea          .
 
@@ -6563,7 +6608,7 @@ l981e = sub_c981d+1
     jsr hex_to_decimal                                                ; a60d: 20 9d 87     ..
     lda lfd68                                                         ; a610: ad 68 fd    .h.
     jsr hex_to_decimal                                                ; a613: 20 9d 87     ..
-    jsr print_inline_string                                           ; a616: 20 de 83     ..
+    jsr print_inline_string                                           ; a616: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; a619: 0d          .
     equs "Number free Secs &"                                         ; a61a: 4e 75 6d... Num
     equb &ea                                                          ; a62c: ea          .
@@ -6590,7 +6635,7 @@ l981e = sub_c981d+1
     sta l0082                                                         ; a650: 85 82       ..
     sta l0083                                                         ; a652: 85 83       ..
     sta l0084                                                         ; a654: 85 84       ..
-    jsr print_inline_string                                           ; a656: 20 de 83     ..
+    jsr print_inline_string                                           ; a656: 20 de 83     ..            ; print inline string
     equb &16, 7, &0a                                                  ; a659: 16 07 0a    ...
     equs " Continuous RAM test.. ESCAPE to quit"                      ; a65c: 20 43 6f...  Co
     equb &0d, &ea                                                     ; a681: 0d ea       ..
@@ -6609,13 +6654,13 @@ l981e = sub_c981d+1
     txa                                                               ; a695: 8a          .
     pha                                                               ; a696: 48          H
     jsr oswrch                                                        ; a697: 20 ee ff     ..            ; Write character
-    jsr print_inline_string                                           ; a69a: 20 de 83     ..
+    jsr print_inline_string                                           ; a69a: 20 de 83     ..            ; print inline string
     equs "000 sectors ("                                              ; a69d: 30 30 30... 000
     equb &ea                                                          ; a6aa: ea          .
 
     pla                                                               ; a6ab: 68          h
     jsr oswrch                                                        ; a6ac: 20 ee ff     ..            ; Write character
-    jsr print_inline_string                                           ; a6af: 20 de 83     ..
+    jsr print_inline_string                                           ; a6af: 20 de 83     ..            ; print inline string
     equs ") Megabyte"                                                 ; a6b2: 29 20 4d... ) M
     equb &0d, &ea                                                     ; a6bc: 0d ea       ..
 
@@ -6701,7 +6746,7 @@ l981e = sub_c981d+1
     jsr hex_to_decimal                                                ; a749: 20 9d 87     ..
     dex                                                               ; a74c: ca          .
     bpl loop_ca747                                                    ; a74d: 10 f8       ..
-    jsr print_inline_string                                           ; a74f: 20 de 83     ..
+    jsr print_inline_string                                           ; a74f: 20 de 83     ..            ; print inline string
     equs " errors"                                                    ; a752: 20 65 72...  er
     equb &0d, &ea                                                     ; a759: 0d ea       ..
 
@@ -6820,7 +6865,7 @@ l981e = sub_c981d+1
 
 ; &a806 referenced 1 time by &a7f5
 .ca806
-    jsr print_inline_string                                           ; a806: 20 de 83     ..
+    jsr print_inline_string                                           ; a806: 20 de 83     ..            ; print inline string
     equs " Searching ram..."                                          ; a809: 20 53 65...  Se
     equb &0d, &0d, &ea                                                ; a81a: 0d 0d ea    ...
 
@@ -7609,7 +7654,7 @@ l981e = sub_c981d+1
     ldy #5                                                            ; acf5: a0 05       ..
 ; &acf7 referenced 1 time by &acff
 .loop_cacf7
-    lda lae06,x                                                       ; acf7: bd 06 ae    ...
+    lda table_12,x                                                    ; acf7: bd 06 ae    ...
     jsr oswrch                                                        ; acfa: 20 ee ff     ..            ; Write character
     inx                                                               ; acfd: e8          .
     dey                                                               ; acfe: 88          .
@@ -7700,9 +7745,11 @@ l981e = sub_c981d+1
     equs "Subdrive"                                                   ; adfd: 53 75 62... Sub
     equb &ea                                                          ; ae05: ea          .
 ; &ae06 referenced 1 time by &acf7
-.lae06
+.table_12
     equb   3, &1e, &4c, &1b, &0c, 3, &18, &4c, 6, 0, 7, &18, &4c, 8   ; ae06: 03 1e 4c... ..L
     equb &1e                                                          ; ae14: 1e          .
+; step printer; move cursor (76,27); cls; stop printer; define graphics window (&4c, 6,
+; 0,7, &18, &4c, 8, &1e)
 ; &ae15 referenced 1 time by &ad30
 .lae15
     equs "TAB between sector and *command,  RETURN to enter editor"   ; ae15: 54 41 42... TAB
@@ -7849,7 +7896,7 @@ l981e = sub_c981d+1
 ; ***************************************************************************************
 ; &afa7 referenced 2 times by &afd4, &afeb
 .print_ramdisc
-    jsr print_inline_string                                           ; afa7: 20 de 83     ..
+    jsr print_inline_string                                           ; afa7: 20 de 83     ..            ; print inline string
     equs " (Ramdisc)"                                                 ; afaa: 20 28 52...  (R
     equb &ea                                                          ; afb4: ea          .
 
@@ -7857,7 +7904,7 @@ l981e = sub_c981d+1
 
 ; &afb6 referenced 1 time by &afa2
 .cafb6
-    jsr print_inline_string                                           ; afb6: 20 de 83     ..
+    jsr print_inline_string                                           ; afb6: 20 de 83     ..            ; print inline string
     equs " Copying from DR."                                          ; afb9: 20 43 6f...  Co
     equb &ea                                                          ; afca: ea          .
 
@@ -7868,7 +7915,7 @@ l981e = sub_c981d+1
     jsr print_ramdisc                                                 ; afd4: 20 a7 af     ..
 ; &afd7 referenced 1 time by &afd2
 .cafd7
-    jsr print_inline_string                                           ; afd7: 20 de 83     ..
+    jsr print_inline_string                                           ; afd7: 20 de 83     ..            ; print inline string
     equs " to DR."                                                    ; afda: 20 74 6f...  to
     equb &ea                                                          ; afe1: ea          .
 
@@ -8945,7 +8992,7 @@ l981e = sub_c981d+1
     sec                                                               ; b72e: 38          8
     sbc #&30 ; '0'                                                    ; b72f: e9 30       .0
     sta l0087                                                         ; b731: 85 87       ..
-    jsr print_inline_string                                           ; b733: 20 de 83     ..
+    jsr print_inline_string                                           ; b733: 20 de 83     ..            ; print inline string
     equb &16, 7, &0a                                                  ; b736: 16 07 0a    ...
     equs " FAST BACKUP"                                               ; b739: 20 46 41...  FA
     equb &0d, &0d                                                     ; b745: 0d 0d       ..
@@ -9002,7 +9049,7 @@ l981e = sub_c981d+1
 ; &b7ad referenced 1 time by &b7a9
 .cb7ad
     jsr hex_to_decimal                                                ; b7ad: 20 9d 87     ..
-    jsr print_inline_string                                           ; b7b0: 20 de 83     ..
+    jsr print_inline_string                                           ; b7b0: 20 de 83     ..            ; print inline string
     equs " track disc"                                                ; b7b3: 20 74 72...  tr
     equb &0d, &ea                                                     ; b7be: 0d ea       ..
 
@@ -9064,7 +9111,7 @@ l981e = sub_c981d+1
     jsr osnewl                                                        ; b81b: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
     lda l7821                                                         ; b81e: ad 21 78    .!x
     sta l7820                                                         ; b821: 8d 20 78    . x
-    jsr print_inline_string                                           ; b824: 20 de 83     ..
+    jsr print_inline_string                                           ; b824: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; b827: 0d          .
     equs " Insert destination"                                        ; b828: 20 49 6e...  In
     equb &ea                                                          ; b83b: ea          .
@@ -9090,14 +9137,14 @@ l981e = sub_c981d+1
     cmp l7820                                                         ; b860: cd 20 78    . x
     beq print_another_copy                                            ; b863: f0 18       ..
 .error_crc_error_detected
-    jsr print_inline_string                                           ; b865: 20 de 83     ..
+    jsr print_inline_string                                           ; b865: 20 de 83     ..            ; print inline string
     equs "  CRC error detected"                                       ; b868: 20 20 43...   C
     equb &ea                                                          ; b87c: ea          .
 
 ; ***************************************************************************************
 ; &b87d referenced 1 time by &b863
 .print_another_copy
-    jsr print_inline_string                                           ; b87d: 20 de 83     ..
+    jsr print_inline_string                                           ; b87d: 20 de 83     ..            ; print inline string
     equb &0d, &0d                                                     ; b880: 0d 0d       ..
     equs " Another copy ? "                                           ; b882: 20 41 6e...  An
     equb &ea, &20, &0a, &a1, &f0, &8c, &4c, &ea, &82                  ; b892: ea 20 0a... . .
@@ -9125,7 +9172,7 @@ l981e = sub_c981d+1
 ; ***************************************************************************************
 ; &b8b8 referenced 2 times by &b756, &b841
 .print_disc_in_drive
-    jsr print_inline_string                                           ; b8b8: 20 de 83     ..
+    jsr print_inline_string                                           ; b8b8: 20 de 83     ..            ; print inline string
     equs " disc in drive "                                            ; b8bb: 20 64 69...  di
     equb &ea                                                          ; b8ca: ea          .
 
@@ -9303,7 +9350,7 @@ l981e = sub_c981d+1
 
 ; ***************************************************************************************
 .ramload_command
-    jsr print_inline_string                                           ; b9eb: 20 de 83     ..
+    jsr print_inline_string                                           ; b9eb: 20 de 83     ..            ; print inline string
 ; overlapping: asl l0007,x                                            ; b9ee: 16 07       ..
     equb &16, 7, &0a                                                  ; b9ee: 16 07 0a    ...
 ; overlapping: asl a                                                  ; b9f0: 0a          .
@@ -9346,7 +9393,7 @@ l981e = sub_c981d+1
     nop                                                               ; ba34: ea          .
     lda lfd69                                                         ; ba35: ad 69 fd    .i.
     sta l0081                                                         ; ba38: 85 81       ..
-    jsr print_inline_string                                           ; ba3a: 20 de 83     ..
+    jsr print_inline_string                                           ; ba3a: 20 de 83     ..            ; print inline string
     equb &16, 7, &0a                                                  ; ba3d: 16 07 0a    ...
     equs " RAMSAVE disc options"                                      ; ba40: 20 52 41...  RA
     equb &0d, &0d                                                     ; ba55: 0d 0d       ..
@@ -9363,7 +9410,7 @@ l981e = sub_c981d+1
 ; &ba77 referenced 1 time by &ba74
 .cba77
     sta l0082                                                         ; ba77: 85 82       ..
-    jsr print_inline_string                                           ; ba79: 20 de 83     ..
+    jsr print_inline_string                                           ; ba79: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; ba7c: 0d          .
     equs " 1. Single sided"                                           ; ba7d: 20 31 2e...  1.
     equb &0d                                                          ; ba8d: 0d          .
@@ -9574,7 +9621,7 @@ l981e = sub_c981d+1
 
 ; &bbcc referenced 2 times by &bae1, &bafa
 .sub_cbbcc
-    jsr print_inline_string                                           ; bbcc: 20 de 83     ..
+    jsr print_inline_string                                           ; bbcc: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; bbcf: 0d          .
     equs " Insert backup disc number "                                ; bbd0: 20 49 6e...  In
     equb &ea                                                          ; bbeb: ea          .
@@ -9598,7 +9645,7 @@ l981e = sub_c981d+1
 ; ***************************************************************************************
 ; &bc04 referenced 3 times by &b019, &b323, &b8d3
 .press_space_to_continue
-    jsr print_inline_string                                           ; bc04: 20 de 83     ..
+    jsr print_inline_string                                           ; bc04: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; bc07: 0d          .
     equs " Press the SPACE BAR to continue..."                        ; bc08: 20 50 72...  Pr
     equb &ea                                                          ; bc2b: ea          .
@@ -9612,7 +9659,7 @@ l981e = sub_c981d+1
 
 ; &bc35 referenced 2 times by &ba6d, &ba9f
 .sub_cbc35
-    jsr print_inline_string                                           ; bc35: 20 de 83     ..
+    jsr print_inline_string                                           ; bc35: 20 de 83     ..            ; print inline string
     ora l4520                                                         ; bc38: 0d 20 45    . E
     ror l6574                                                         ; bc3b: 6e 74 65    nte
     equs "r 1 or 2 .. "                                               ; bc3e: 72 20 31... r 1
@@ -9713,7 +9760,7 @@ lbc6c = cbc6b+1
 
 ; ***************************************************************************************
 .print_insert_backup_disc_number
-    jsr print_inline_string                                           ; bccc: 20 de 83     ..
+    jsr print_inline_string                                           ; bccc: 20 de 83     ..            ; print inline string
     equb &0d                                                          ; bccf: 0d          .
     equs " Insert backup disc number "                                ; bcd0: 20 49 6e...  In
     equb &ea                                                          ; bceb: ea          .
@@ -9902,10 +9949,11 @@ save pydis_start, pydis_end
 ;     caa5c:                                                          6
 ;     check_for_a_digit:                                              6
 ;     command_table:                                                  6
+;     free_sector_count:                                              6
+;     free_sector_count+0:                                            6
+;     free_sector_count+1:                                            6
 ;     l0000:                                                          6
 ;     l00b0:                                                          6
-;     l00b2:                                                          6
-;     l00b3:                                                          6
 ;     l0780:                                                          6
 ;     l0d81:                                                          6
 ;     l2000:                                                          6
@@ -9928,6 +9976,7 @@ save pydis_start, pydis_end
 ;     sub_cb91a:                                                      6
 ;     c9696:                                                          5
 ;     error_channel:                                                  5
+;     get_next_character:                                             5
 ;     l00bc:                                                          5
 ;     l00bd:                                                          5
 ;     l2e00:                                                          5
@@ -9944,7 +9993,6 @@ save pydis_start, pydis_end
 ;     lfd04:                                                          5
 ;     lfd0c:                                                          5
 ;     lfd61:                                                          5
-;     sub_c84d1:                                                      5
 ;     sub_cb93c:                                                      5
 ;     tube_data_register_3:                                           5
 ;     boot_option:                                                    4
@@ -9983,7 +10031,6 @@ save pydis_start, pydis_end
 ;     sub_caf46:                                                      4
 ;     sub_cb972:                                                      4
 ;     sub_cb9da:                                                      4
-;     c859e:                                                          3
 ;     c8d88:                                                          3
 ;     c8ea9:                                                          3
 ;     c8f0a:                                                          3
@@ -10015,6 +10062,7 @@ save pydis_start, pydis_end
 ;     cbb01:                                                          3
 ;     cbb18:                                                          3
 ;     clear_carry_return_898b:                                        3
+;     copy_ptr_008e_to_ptr2:                                          3
 ;     deal_with_wildcards:                                            3
 ;     error_file_too_big:                                             3
 ;     l0002:                                                          3
@@ -10049,10 +10097,10 @@ save pydis_start, pydis_end
 ;     press_space_to_continue:                                        3
 ;     return_12:                                                      3
 ;     rom_workspace:                                                  3
+;     set_carry_and_return_859e:                                      3
 ;     set_carry_return_880c:                                          3
 ;     single_byte_table_1_value_0:                                    3
 ;     skip_spaces_in_command_line:                                    3
-;     sub_c842b:                                                      3
 ;     sub_c86c2:                                                      3
 ;     sub_c8ac6:                                                      3
 ;     sub_c8cd3:                                                      3
@@ -10067,16 +10115,7 @@ save pydis_start, pydis_end
 ;     sub_cb95a:                                                      3
 ;     switch_to_ramdisc_vector_storage_page_00fd:                     3
 ;     title:                                                          3
-;     c8205:                                                          2
-;     c8231:                                                          2
-;     c8287:                                                          2
-;     c83ad:                                                          2
-;     c83bb:                                                          2
-;     c845f:                                                          2
-;     c8475:                                                          2
-;     c8478:                                                          2
 ;     c855b:                                                          2
-;     c858b:                                                          2
 ;     c8611:                                                          2
 ;     c87ed:                                                          2
 ;     c8c0f:                                                          2
@@ -10091,7 +10130,6 @@ save pydis_start, pydis_end
 ;     c937e:                                                          2
 ;     c93c6:                                                          2
 ;     c93f2:                                                          2
-;     c9402:                                                          2
 ;     c940c:                                                          2
 ;     c9448:                                                          2
 ;     c94ee:                                                          2
@@ -10149,11 +10187,13 @@ save pydis_start, pydis_end
 ;     cba24:                                                          2
 ;     cbacd:                                                          2
 ;     cbc56:                                                          2
+;     check_for_command_with_leading_M:                               2
 ;     check_hex_for_digit:                                            2
 ;     check_hex_for_subdrive:                                         2
 ;     clear_carry_return_83dc:                                        2
 ;     command_parameter_offsets:                                      2
 ;     default_ramdisc_page_and_control_bytes:                         2
+;     discard_return_address_change_to_file_pointer_page_00ff:        2
 ;     end_of_ramdisc_command_list:                                    2
 ;     error_bad_filename:                                             2
 ;     error_catalogue_full:                                           2
@@ -10161,6 +10201,8 @@ save pydis_start, pydis_end
 ;     error_incompatible:                                             2
 ;     error_invalid_with_ramdisc:                                     2
 ;     error_rename_syntax:                                            2
+;     jump_to_c84e6:                                                  2
+;     jump_to_error_bad_drive:                                        2
 ;     l00b5:                                                          2
 ;     l00be:                                                          2
 ;     l00fe:                                                          2
@@ -10203,6 +10245,9 @@ save pydis_start, pydis_end
 ;     new_extended_vector_table:                                      2
 ;     not_a_digit:                                                    2
 ;     oscli:                                                          2
+;     pass_on_rom_service_call:                                       2
+;     print_banner:                                                   2
+;     print_banner_drive_number:                                      2
 ;     print_disc_in_drive:                                            2
 ;     print_list_of_ramdisc_commands:                                 2
 ;     print_ramdisc:                                                  2
@@ -10211,6 +10256,7 @@ save pydis_start, pydis_end
 ;     ramdisc_page_in_zp_variable:                                    2
 ;     ramdisc_page_in_zp_variable+0:                                  2
 ;     ramdisc_page_in_zp_variable+1:                                  2
+;     reload_char_again:                                              2
 ;     return_1:                                                       2
 ;     return_11:                                                      2
 ;     return_22:                                                      2
@@ -10225,7 +10271,6 @@ save pydis_start, pydis_end
 ;     return_7:                                                       2
 ;     return_from_help:                                               2
 ;     set_carry_return_83da:                                          2
-;     sub_c837b:                                                      2
 ;     sub_c8c7a:                                                      2
 ;     sub_c8df0:                                                      2
 ;     sub_c8e54:                                                      2
@@ -10267,34 +10312,24 @@ save pydis_start, pydis_end
 ;     sub_cbbcc:                                                      2
 ;     sub_cbc35:                                                      2
 ;     sub_cbc5e:                                                      2
+;     valid_drive_number:                                             2
+;     validate_command_line_char_is_alpha:                            2
+;     validate_drive_number:                                          2
 ;     validate_rom_workspace:                                         2
 ;     write_to_rom_workspace:                                         2
 ;     banner_switched_off:                                            1
 ;     boot_file:                                                      1
 ;     c81e2:                                                          1
-;     c81f0:                                                          1
-;     c8225:                                                          1
-;     c8268:                                                          1
-;     c8296:                                                          1
-;     c82b1:                                                          1
 ;     c82cd:                                                          1
-;     c8385:                                                          1
-;     c83a0:                                                          1
 ;     c83a3:                                                          1
 ;     c83bd:                                                          1
-;     c83ee:                                                          1
 ;     c8451:                                                          1
 ;     c8480:                                                          1
 ;     c8491:                                                          1
 ;     c8495:                                                          1
 ;     c84a3:                                                          1
 ;     c84a9:                                                          1
-;     c84ae:                                                          1
 ;     c84c5:                                                          1
-;     c84e6:                                                          1
-;     c84e8:                                                          1
-;     c84f0:                                                          1
-;     c8506:                                                          1
 ;     c8527:                                                          1
 ;     c8563:                                                          1
 ;     c8580:                                                          1
@@ -10336,7 +10371,6 @@ save pydis_start, pydis_end
 ;     c8dcb:                                                          1
 ;     c8dd1:                                                          1
 ;     c8de9:                                                          1
-;     c8e46:                                                          1
 ;     c8e7a:                                                          1
 ;     c8e9b:                                                          1
 ;     c8ebe:                                                          1
@@ -10347,7 +10381,6 @@ save pydis_start, pydis_end
 ;     c8f25:                                                          1
 ;     c8f2f:                                                          1
 ;     c8f3a:                                                          1
-;     c8f56:                                                          1
 ;     c9085:                                                          1
 ;     c90cb:                                                          1
 ;     c90f6:                                                          1
@@ -10365,7 +10398,6 @@ save pydis_start, pydis_end
 ;     c9354:                                                          1
 ;     c93a7:                                                          1
 ;     c946a:                                                          1
-;     c9494:                                                          1
 ;     c9497:                                                          1
 ;     c94a6:                                                          1
 ;     c94b1:                                                          1
@@ -10629,6 +10661,7 @@ save pydis_start, pydis_end
 ;     cbc91:                                                          1
 ;     cbca0:                                                          1
 ;     cbcb6:                                                          1
+;     check_for_empty_catalogue:                                      1
 ;     check_for_unknown_osword:                                       1
 ;     check_for_unknowwn_star_command:                                1
 ;     check_for_vectors_changed:                                      1
@@ -10639,9 +10672,11 @@ save pydis_start, pydis_end
 ;     check_is_digit:                                                 1
 ;     clear_carry_return_880a:                                        1
 ;     command_parameters:                                             1
+;     command_table+1:                                                1
 ;     convert_hex_digit_to_ascii:                                     1
 ;     copy_original_extended_vectors_to_ramdisc_vector_page:          1
 ;     correct_sector_number:                                          1
+;     end_of_command_tabel:                                           1
 ;     error_EOF:                                                      1
 ;     error_bad_command:                                              1
 ;     error_cant_extend:                                              1
@@ -10651,10 +10686,18 @@ save pydis_start, pydis_end
 ;     error_unformatted:                                              1
 ;     escape_as_pressed:                                              1
 ;     file_exists:                                                    1
+;     filename_is_populated:                                          1
+;     filenames_match_so_far:                                         1
+;     get_char_of_catalogue_filename:                                 1
 ;     get_next_character_from_command_line:                           1
 ;     help_title_or_extended:                                         1
+;     if_rom_autoboot:                                                1
 ;     initalise_file_system:                                          1
 ;     install_ramdisc_vectors_in_extended_vectors_table:              1
+;     invalid_drive_number:                                           1
+;     is_ramdisc_turned_on:                                           1
+;     jmp_to_c8f0a:                                                   1
+;     jump_to_c958c:                                                  1
 ;     jump_to_error_file_not_found:                                   1
 ;     jump_to_return_address_after_string:                            1
 ;     l0041:                                                          1
@@ -10687,19 +10730,16 @@ save pydis_start, pydis_end
 ;     l7892:                                                          1
 ;     l78a8:                                                          1
 ;     l79ff:                                                          1
-;     l8058:                                                          1
 ;     l8b18:                                                          1
 ;     l9069:                                                          1
 ;     l91a2:                                                          1
 ;     l9256:                                                          1
-;     l9455:                                                          1
 ;     l9710:                                                          1
 ;     l99fd:                                                          1
 ;     l9a57:                                                          1
 ;     la0ee:                                                          1
 ;     la4fd:                                                          1
 ;     lad49:                                                          1
-;     lae06:                                                          1
 ;     lae15:                                                          1
 ;     lb712:                                                          1
 ;     lb968:                                                          1
@@ -10710,12 +10750,9 @@ save pydis_start, pydis_end
 ;     lfd94:                                                          1
 ;     lfd95:                                                          1
 ;     lfdbb:                                                          1
-;     loop_c81f7:                                                     1
 ;     loop_c8389:                                                     1
 ;     loop_c8392:                                                     1
 ;     loop_c83a5:                                                     1
-;     loop_c83e6:                                                     1
-;     loop_c8410:                                                     1
 ;     loop_c849b:                                                     1
 ;     loop_c84b8:                                                     1
 ;     loop_c84c9:                                                     1
@@ -10857,13 +10894,18 @@ save pydis_start, pydis_end
 ;     print_extended_help:                                            1
 ;     print_extended_help_text:                                       1
 ;     print_filename:                                                 1
+;     print_inline_string_get_next_char:                              1
+;     print_inline_string_no_page_boundary:                           1
 ;     print_parameter_list:                                           1
 ;     print_single_digit:                                             1
+;     print_switched_off_banner:                                      1
 ;     print_unformatted:                                              1
 ;     print_user_response:                                            1
+;     put_error_string_on_stack:                                      1
 ;     ramdisc_commands:                                               1
 ;     ramdisc_is_formatted:                                           1
 ;     restore_ramdisc_page_from_stack:                                1
+;     restore_status_flags_return_82b1:                               1
 ;     return_10:                                                      1
 ;     return_13:                                                      1
 ;     return_16:                                                      1
@@ -10887,10 +10929,13 @@ save pydis_start, pydis_end
 ;     rstat_command:                                                  1
 ;     save_extended_vectors_to_ramdisc_vector_page:                   1
 ;     service_handler:                                                1
+;     should_i_print_banner:                                          1
+;     single_byte_table_2_value_0c:                                   1
 ;     single_byte_table_3_value_0:                                    1
 ;     software_house_and_extended_help_command:                       1
 ;     store1_current_ramdisc_page_switch_to_temporary_wkspace_00fc:   1
 ;     store_current_ramdisc_page_switch_to_temporary_wkspace_00fc:    1
+;     store_filename_in_zp:                                           1
 ;     store_number_of_sectors:                                        1
 ;     store_variables_in_temporary_wkspace_in_zp_variables:           1
 ;     store_zp_variables_in_temporary_wkspace_00fc:                   1
@@ -10939,10 +10984,13 @@ save pydis_start, pydis_end
 ;     sub_cbb83:                                                      1
 ;     sub_m9098:                                                      1
 ;     sub_m9802:                                                      1
+;     table_12:                                                       1
 ;     toggle_control_bytes_switch_to_vector_page:                     1
 ;     transfer_x_to_a_clear_carry_return:                             1
 ;     turn_on_bit_7:                                                  1
 ;     unknown_osword_routine:                                         1
+;     update_zp_free_sector_count:                                    1
+;     validate_command:                                               1
 ;     validate_control_byte_1_fcc1:                                   1
 ;     validate_control_byte_2_fcc3:                                   1
 ;     write_ramdisc_zp_variables_to_zp:                               1
