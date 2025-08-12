@@ -12,266 +12,253 @@ osbyte_set_cursor_editing       = 4
 osfile_save                     = 0
 
 ; Memory locations
-l0000                       = &0000
-l0001                       = &0001
-l0002                       = &0002
-l0003                       = &0003
-l0007                       = &0007
-l0044                       = &0044
-l0061                       = &0061
-l006d                       = &006d
-l006e                       = &006e
-l0070                       = &0070
-l0071                       = &0071
-l0072                       = &0072
-l0073                       = &0073
-l0074                       = &0074
-l0075                       = &0075
-l0076                       = &0076
-l0077                       = &0077
-l0078                       = &0078
-l0079                       = &0079
-from_address                = &007a
-to_address                  = &007c
-read_write_flag             = &007e
-l007f                       = &007f
-l0080                       = &0080
-l0081                       = &0081
-l0082                       = &0082
-l0083                       = &0083
-l0084                       = &0084
-l0085                       = &0085
-l0086                       = &0086
-l0087                       = &0087
-l0088                       = &0088
-copy_of_address_register    = &0089
-ptr2                        = &008b
-A_register_save             = &008d
-X_register_save             = &008e
-Y_register_save             = &008f
-l00b0                       = &00b0
-l00b1                       = &00b1
-zp_free_sector_count        = &00b2
-l00b4                       = &00b4
-l00b5                       = &00b5
-l00b8                       = &00b8
-l00b9                       = &00b9
-l00bb                       = &00bb
-l00bc                       = &00bc
-l00bd                       = &00bd
-l00be                       = &00be
-l00bf                       = &00bf
-last_osword_osbyte_a_reg    = &00ef
-last_osword_osbyte_x_reg    = &00f0
-ptr3                        = &00f0
-last_osword_osbyte_y_reg    = &00f1
-os_text_ptr                 = &00f2
-romsel_copy                 = &00f4
-osrdsc_ptr                  = &00f6
-l00f7                       = &00f7
-ptr1                        = &00fd
-os_escape_flag              = &00ff
-stack                       = &0100
-l0103                       = &0103
-l0104                       = &0104
-l0105                       = &0105
-osbyte_fa_settings          = &028a
-l02ee                       = &02ee
-l02fe                       = &02fe
-l0406                       = &0406
-l0780                       = &0780
-l0784                       = &0784
-l0d80                       = &0d80
-l0d81                       = &0d81
-l0d82                       = &0d82
-l0d83                       = &0d83
-l2000                       = &2000
-l2008                       = &2008
-l2009                       = &2009
-l200d                       = &200d
-l2020                       = &2020
-l20ea                       = &20ea
-l2e00                       = &2e00
-l2f00                       = &2f00
-l4146                       = &4146
-l4152                       = &4152
-l4320                       = &4320
-l4520                       = &4520
-l4920                       = &4920
-l4f4c                       = &4f4c
-l5228                       = &5228
-l5244                       = &5244
-l6142                       = &6142
-l6469                       = &6469
-l6553                       = &6553
-l6562                       = &6562
-l6573                       = &6573
-l6574                       = &6574
-l6964                       = &6964
-l6e49                       = &6e49
-l6f43                       = &6f43
-l6f74                       = &6f74
-l74a5                       = &74a5
-l754e                       = &754e
-l77fe                       = &77fe
-l77ff                       = &77ff
-l7800                       = &7800
-l7801                       = &7801
-l7802                       = &7802
-l7803                       = &7803
-l7804                       = &7804
-l7805                       = &7805
-l7806                       = &7806
-l7807                       = &7807
-l7808                       = &7808
-l7809                       = &7809
-l780a                       = &780a
-l780d                       = &780d
-l780e                       = &780e
-l780f                       = &780f
-l7810                       = &7810
-l7811                       = &7811
-l7812                       = &7812
-l7813                       = &7813
-l7814                       = &7814
-l7815                       = &7815
-l7816                       = &7816
-l781b                       = &781b
-l781c                       = &781c
-l781d                       = &781d
-l7820                       = &7820
-l7821                       = &7821
-l7830                       = &7830
-l7831                       = &7831
-l7832                       = &7832
-l7840                       = &7840
-l7845                       = &7845
-l7846                       = &7846
-l7847                       = &7847
-l7848                       = &7848
-l7850                       = &7850
-l7860                       = &7860
-l7865                       = &7865
-l7890                       = &7890
-l7891                       = &7891
-l7892                       = &7892
-l7893                       = &7893
-l7894                       = &7894
-l7895                       = &7895
-l7896                       = &7896
-l7897                       = &7897
-l7898                       = &7898
-l7899                       = &7899
-l789a                       = &789a
-l789b                       = &789b
-l789c                       = &789c
-l789d                       = &789d
-l789e                       = &789e
-l789f                       = &789f
-l78a0                       = &78a0
-l78a1                       = &78a1
-l78a2                       = &78a2
-l78a3                       = &78a3
-l78a4                       = &78a4
-l78a5                       = &78a5
-l78a6                       = &78a6
-l78a7                       = &78a7
-l78a8                       = &78a8
-l78a9                       = &78a9
-l78aa                       = &78aa
-l78ab                       = &78ab
-l78ac                       = &78ac
-l78ad                       = &78ad
-l7900                       = &7900
-l7907                       = &7907
-l7908                       = &7908
-l79ff                       = &79ff
-l7a00                       = &7a00
-l7a01                       = &7a01
-l7a02                       = &7a02
-l7a03                       = &7a03
-l7a04                       = &7a04
-l7a05                       = &7a05
-l7a06                       = &7a06
-l7a07                       = &7a07
-l7a08                       = &7a08
-la5ea                       = &a5ea
-fred                        = &fc00
-lsb_ramdisc_page            = &fcc0
-ramdisc_control_byte_1      = &fcc1
-msb_ramdisc_page            = &fcc2
-ramdisc_control_byte_2      = &fcc3
-page_ram_bank_select_b8_b15 = &fcff
-jim                         = &fd00
-lfd01                       = &fd01
-lfd02                       = &fd02
-lfd04                       = &fd04
-lfd05                       = &fd05
-lfd06                       = &fd06
-lfd07                       = &fd07
-lfd08                       = &fd08
-lfd09                       = &fd09
-lfd0a                       = &fd0a
-lfd0c                       = &fd0c
-lfd0d                       = &fd0d
-lfd0e                       = &fd0e
-lfd0f                       = &fd0f
-lfd10                       = &fd10
-lfd11                       = &fd11
-lfd12                       = &fd12
-ramdisc_drive_number        = &fd13
-lfd14                       = &fd14
-lfd15                       = &fd15
-lfd16                       = &fd16
-lfd17                       = &fd17
-boot_option                 = &fd28
-lfd2b                       = &fd2b
-current_drive_number        = &fd3c
-directory_letter            = &fd3e
-lfd4e                       = &fd4e
-lfd4f                       = &fd4f
-subdrive_number             = &fd56
-formatted_flag              = &fd60
-lfd61                       = &fd61
-default_drive_flag          = &fd62
-memory_size                 = &fd63
-lfd68                       = &fd68
-lfd69                       = &fd69
-free_sector_count_lsb       = &fd6a
-free_sector_count_msb       = &fd6b
-lfd70                       = &fd70
-lfd71                       = &fd71
-lfd7d                       = &fd7d
-lfd7e                       = &fd7e
-lfd7f                       = &fd7f
-lfd80                       = &fd80
-lfd81                       = &fd81
-lfd82                       = &fd82
-lfd83                       = &fd83
-lfd84                       = &fd84
-lfd85                       = &fd85
-lfd86                       = &fd86
-lfd87                       = &fd87
-lfd88                       = &fd88
-lfd89                       = &fd89
-lfd8a                       = &fd8a
-lfd8b                       = &fd8b
-lfdbb                       = &fdbb
-lfddf                       = &fddf
-lfde0                       = &fde0
-lfdfb                       = &fdfb
-lfdfc                       = &fdfc
-jim_reset_address_high      = &fdff
-crtc_address_register       = &fe00
-tube_data_register_3        = &fee5
-osfile                      = &ffdd
-osrdch                      = &ffe0
-osasci                      = &ffe3
-osnewl                      = &ffe7
-oswrch                      = &ffee
-osword                      = &fff1
-osbyte                      = &fff4
-oscli                       = &fff7
+l0000                               = &0000
+l0001                               = &0001
+l0002                               = &0002
+l0003                               = &0003
+l0007                               = &0007
+l0044                               = &0044
+l006e                               = &006e
+l0070                               = &0070
+l0071                               = &0071
+l0072                               = &0072
+l0073                               = &0073
+l0074                               = &0074
+l0075                               = &0075
+l0076                               = &0076
+l0077                               = &0077
+l0078                               = &0078
+l0079                               = &0079
+from_address                        = &007a
+to_address                          = &007c
+read_write_flag                     = &007e
+l007f                               = &007f
+l0080                               = &0080
+l0081                               = &0081
+l0082                               = &0082
+l0083                               = &0083
+l0084                               = &0084
+l0085                               = &0085
+l0086                               = &0086
+zp_directory_letter                 = &0087
+zp_current_drive_number             = &0088
+copy_of_address_register            = &0089
+ptr2                                = &008b
+A_register_save                     = &008d
+X_register_save                     = &008e
+Y_register_save                     = &008f
+l00b0                               = &00b0
+l00b1                               = &00b1
+zp_free_sector_count                = &00b2
+l00b4                               = &00b4
+l00b5                               = &00b5
+l00b8                               = &00b8
+l00b9                               = &00b9
+l00bb                               = &00bb
+l00bc                               = &00bc
+l00bd                               = &00bd
+l00be                               = &00be
+l00bf                               = &00bf
+last_osword_osbyte_a_reg            = &00ef
+last_osword_osbyte_x_reg            = &00f0
+ptr3                                = &00f0
+last_osword_osbyte_y_reg            = &00f1
+os_text_ptr                         = &00f2
+romsel_copy                         = &00f4
+osrdsc_ptr                          = &00f6
+l00f7                               = &00f7
+ptr1                                = &00fd
+os_escape_flag                      = &00ff
+stack                               = &0100
+l0103                               = &0103
+l0104                               = &0104
+l0105                               = &0105
+osbyte_fa_settings                  = &028a
+l02ee                               = &02ee
+l02fe                               = &02fe
+l0406                               = &0406
+l0780                               = &0780
+l0784                               = &0784
+l0d80                               = &0d80
+l0d81                               = &0d81
+l0d82                               = &0d82
+l0d83                               = &0d83
+l2000                               = &2000
+l2008                               = &2008
+l2009                               = &2009
+l200d                               = &200d
+l2020                               = &2020
+l2e00                               = &2e00
+l2f00                               = &2f00
+l4146                               = &4146
+l4320                               = &4320
+l4520                               = &4520
+l4920                               = &4920
+l6142                               = &6142
+l6553                               = &6553
+l6562                               = &6562
+l6573                               = &6573
+l6574                               = &6574
+l6964                               = &6964
+l754e                               = &754e
+l77fe                               = &77fe
+l77ff                               = &77ff
+osword_block_drive                  = &7800
+osword_block_lsb_32bit_address      = &7801
+l7802                               = &7802
+osword_block_msb_32bit_address      = &7803
+l7804                               = &7804
+osword_block_number_of_parameters   = &7805
+osword_block_command                = &7806
+osword_block_parameters             = &7807
+l7808                               = &7808
+l7809                               = &7809
+l780a                               = &780a
+l780d                               = &780d
+l780e                               = &780e
+l780f                               = &780f
+l7810                               = &7810
+l7811                               = &7811
+l7812                               = &7812
+l7813                               = &7813
+l7814                               = &7814
+l7815                               = &7815
+l7816                               = &7816
+l781b                               = &781b
+l781c                               = &781c
+l781d                               = &781d
+l7820                               = &7820
+l7821                               = &7821
+l7830                               = &7830
+l7831                               = &7831
+l7832                               = &7832
+l7840                               = &7840
+l7845                               = &7845
+l7846                               = &7846
+l7847                               = &7847
+l7848                               = &7848
+l7850                               = &7850
+l7860                               = &7860
+l7865                               = &7865
+l7890                               = &7890
+l7891                               = &7891
+l7892                               = &7892
+l7893                               = &7893
+l7894                               = &7894
+l7895                               = &7895
+l7896                               = &7896
+l7897                               = &7897
+l7898                               = &7898
+l7899                               = &7899
+l789a                               = &789a
+l789b                               = &789b
+l789c                               = &789c
+l789d                               = &789d
+l789e                               = &789e
+l789f                               = &789f
+l78a0                               = &78a0
+l78a1                               = &78a1
+l78a2                               = &78a2
+l78a3                               = &78a3
+l78a4                               = &78a4
+l78a5                               = &78a5
+l78a6                               = &78a6
+l78a7                               = &78a7
+l78a8                               = &78a8
+l78a9                               = &78a9
+l78aa                               = &78aa
+l78ab                               = &78ab
+l78ac                               = &78ac
+l78ad                               = &78ad
+l7900                               = &7900
+l7907                               = &7907
+l7908                               = &7908
+l79ff                               = &79ff
+l7a00                               = &7a00
+l7a01                               = &7a01
+l7a02                               = &7a02
+l7a03                               = &7a03
+l7a04                               = &7a04
+l7a05                               = &7a05
+l7a06                               = &7a06
+l7a07                               = &7a07
+l7a08                               = &7a08
+fred                                = &fc00
+lsb_ramdisc_page                    = &fcc0
+ramdisc_control_byte_1              = &fcc1
+msb_ramdisc_page                    = &fcc2
+ramdisc_control_byte_2              = &fcc3
+page_ram_bank_select_b8_b15         = &fcff
+jim                                 = &fd00
+lfd01                               = &fd01
+lfd02                               = &fd02
+lfd04                               = &fd04
+lfd05                               = &fd05
+lfd06                               = &fd06
+lfd07                               = &fd07
+lfd08                               = &fd08
+lfd09                               = &fd09
+lfd0a                               = &fd0a
+lfd0c                               = &fd0c
+lfd0d                               = &fd0d
+lfd0e                               = &fd0e
+lfd0f                               = &fd0f
+lfd10                               = &fd10
+lfd11                               = &fd11
+lfd12                               = &fd12
+ramdisc_drive_number                = &fd13
+lfd14                               = &fd14
+lfd15                               = &fd15
+lfd16                               = &fd16
+lfd17                               = &fd17
+boot_option                         = &fd28
+lfd2b                               = &fd2b
+current_drive_number                = &fd3c
+directory_letter                    = &fd3e
+lfd4e                               = &fd4e
+lfd4f                               = &fd4f
+subdrive_number                     = &fd56
+formatted_flag                      = &fd60
+lfd61                               = &fd61
+default_drive_flag                  = &fd62
+memory_size                         = &fd63
+lfd68                               = &fd68
+lfd69                               = &fd69
+free_sector_count_lsb               = &fd6a
+free_sector_count_msb               = &fd6b
+lfd70                               = &fd70
+lfd71                               = &fd71
+lfd7d                               = &fd7d
+lfd7e                               = &fd7e
+lfd7f                               = &fd7f
+lfd80                               = &fd80
+lfd81                               = &fd81
+lfd82                               = &fd82
+lfd83                               = &fd83
+lfd84                               = &fd84
+lfd85                               = &fd85
+lfd86                               = &fd86
+lfd87                               = &fd87
+lfd88                               = &fd88
+lfd89                               = &fd89
+lfd8a                               = &fd8a
+lfd8b                               = &fd8b
+lfdbb                               = &fdbb
+lfddf                               = &fddf
+lfde0                               = &fde0
+lfdfb                               = &fdfb
+lfdfc                               = &fdfc
+jim_reset_address_high              = &fdff
+crtc_address_register               = &fe00
+tube_data_register_3                = &fee5
+osfile                              = &ffdd
+osrdch                              = &ffe0
+osasci                              = &ffe3
+osnewl                              = &ffe7
+oswrch                              = &ffee
+osword                              = &fff1
+osbyte                              = &fff4
+oscli                               = &fff7
 
     org &8000
 
@@ -862,8 +849,10 @@ l8058 = command_list+1
 
 ; &8386 referenced 2 times by &8367, &836e
 .new_extended_vector_table
-    equw sub_m8b76, sub_c90b0, sub_c91e9, sub_c929c, sub_m949c        ; 8386: 76 8b b0... v..
-    equw sub_m9757, sub_c9a44                                         ; 8390: 57 97 44... W.D
+    equw filev_extended_vector, argsv_extended_vector                 ; 8386: 76 8b b0... v..
+    equw bgetv_extended_vector, bputv_extended_vector                 ; 838a: e9 91 9c... ...
+    equw gbpbv_extended_vector, findv_extended_vector                 ; 838e: 9c 94 57... ..W
+    equw  fscv_extended_vector                                        ; 8392: 44 9a       D.
 
 ; &8394 referenced 1 time by &8338
 .c8394
@@ -1183,11 +1172,11 @@ l8058 = command_list+1
 .sub_c850f
     jsr change_to_ramdisc_variable_page                               ; 850f: 20 cc 87     ..
     lda current_drive_number                                          ; 8512: ad 3c fd    .<.
-    sta l0088                                                         ; 8515: 85 88       ..
+    sta zp_current_drive_number                                       ; 8515: 85 88       ..
     nop                                                               ; 8517: ea          .
     nop                                                               ; 8518: ea          .
     lda directory_letter                                              ; 8519: ad 3e fd    .>.
-    sta l0087                                                         ; 851c: 85 87       ..
+    sta zp_directory_letter                                           ; 851c: 85 87       ..
     ldy #0                                                            ; 851e: a0 00       ..             ; Y=index into ptr2
     jsr ignore_spaces                                                 ; 8520: 20 a1 85     ..            ; ignore spaces in ptr2
     cmp #&0d                                                          ; 8523: c9 0d       ..             ; A=next non space character
@@ -1210,7 +1199,7 @@ l8058 = command_list+1
     cmp #&3a ; ':'                                                    ; 8538: c9 3a       .:
     bne get_directory_letter                                          ; 853a: d0 1d       ..
     jsr get_next_char_ptr2                                            ; 853c: 20 aa 85     ..
-    sta l0088                                                         ; 853f: 85 88       ..             ; A=character from string
+    sta zp_current_drive_number                                       ; 853f: 85 88       ..             ; A=character from string
     cmp #&30 ; '0'                                                    ; 8541: c9 30       .0
     bcc jmp_to_error_bad_drive                                        ; 8543: 90 09       ..
     cmp ramdisc_drive_number                                          ; 8545: cd 13 fd    ...
@@ -1249,7 +1238,7 @@ l8058 = command_list+1
 ; &856e referenced 1 time by &8567
 .c856e
     and #&7f                                                          ; 856e: 29 7f       ).             ; strip bit 7
-    sta l0087                                                         ; 8570: 85 87       ..
+    sta zp_directory_letter                                           ; 8570: 85 87       ..
     ldx #0                                                            ; 8572: a2 00       ..
 ; &8574 referenced 1 time by &858f
 .loop_c8574
@@ -1282,7 +1271,7 @@ l8058 = command_list+1
     lda l0080,x                                                       ; 8592: b5 80       ..
     cmp #&20 ; ' '                                                    ; 8594: c9 20       .
     beq pad_filename_with_spaces                                      ; 8596: f0 06       ..
-    lda l0088                                                         ; 8598: a5 88       ..
+    lda zp_current_drive_number                                       ; 8598: a5 88       ..
     cmp ramdisc_drive_number                                          ; 859a: cd 13 fd    ...
     rts                                                               ; 859d: 60          `
 
@@ -1500,9 +1489,9 @@ l8058 = command_list+1
     nop                                                               ; 86a1: ea          .
     lda l0071                                                         ; 86a2: a5 71       .q
     and #&7f                                                          ; 86a4: 29 7f       ).             ; string locked flag bit 7
-    cmp l0087                                                         ; 86a6: c5 87       ..
+    cmp zp_directory_letter                                           ; 86a6: c5 87       ..
     beq deal_with_wildcards                                           ; 86a8: f0 1c       ..
-    lda l0087                                                         ; 86aa: a5 87       ..
+    lda zp_directory_letter                                           ; 86aa: a5 87       ..
     cmp #&2a ; '*'                                                    ; 86ac: c9 2a       .*
     beq deal_with_wildcards                                           ; 86ae: f0 16       ..
     cmp #&23 ; '#'                                                    ; 86b0: c9 23       .#
@@ -2430,7 +2419,7 @@ l8058 = command_list+1
     equb 0                                                            ; 8b75: 00          .
 
 ; ***************************************************************************************
-.sub_m8b76
+.filev_extended_vector
     php                                                               ; 8b76: 08          .
     pha                                                               ; 8b77: 48          H
     txa                                                               ; 8b78: 8a          .
@@ -2438,8 +2427,8 @@ l8058 = command_list+1
     tya                                                               ; 8b7a: 98          .
     pha                                                               ; 8b7b: 48          H
     jsr pull_registers_from_stack                                     ; 8b7c: 20 f9 8a     ..
-    cmp #&ff                                                          ; 8b7f: c9 ff       ..
-    bne c8b91                                                         ; 8b81: d0 0e       ..
+    cmp #&ff                                                          ; 8b7f: c9 ff       ..             ; is the request to load a file
+    bne filev_check_for_save_file                                     ; 8b81: d0 0e       ..
     jsr sub_c8504                                                     ; 8b83: 20 04 85     ..
     beq c8b8b                                                         ; 8b86: f0 03       ..
     jmp c8c8e                                                         ; 8b88: 4c 8e 8c    L..
@@ -2449,8 +2438,9 @@ l8058 = command_list+1
     jsr sub_c8c97                                                     ; 8b8b: 20 97 8c     ..
     jmp c8b0d                                                         ; 8b8e: 4c 0d 8b    L..
 
+; ***************************************************************************************
 ; &8b91 referenced 1 time by &8b81
-.c8b91
+.filev_check_for_save_file
     cmp #0                                                            ; 8b91: c9 00       ..
     bne c8ba3                                                         ; 8b93: d0 0e       ..
     jsr sub_c8504                                                     ; 8b95: 20 04 85     ..
@@ -2877,7 +2867,7 @@ l8058 = command_list+1
 .c8e17
     jsr sub_c8e9a                                                     ; 8e17: 20 9a 8e     ..
     jsr change_to_ramdisc_variable_page                               ; 8e1a: 20 cc 87     ..
-    lda l0088                                                         ; 8e1d: a5 88       ..
+    lda zp_current_drive_number                                       ; 8e1d: a5 88       ..
     cmp #&0d                                                          ; 8e1f: c9 0d       ..
     beq c8e2f                                                         ; 8e21: f0 0c       ..
     ldx lfd68                                                         ; 8e23: ae 68 fd    .h.
@@ -3304,7 +3294,8 @@ l8058 = command_list+1
 .single_byte_table_10_value_03
     equb 3                                                            ; 90af: 03          .
 
-.sub_c90b0
+; ***************************************************************************************
+.argsv_extended_vector
     php                                                               ; 90b0: 08          .
     pha                                                               ; 90b1: 48          H
     txa                                                               ; 90b2: 8a          .
@@ -3532,7 +3523,8 @@ l8058 = command_list+1
 .single_byte_table_7_value_06
     equb 6                                                            ; 91e8: 06          .
 
-.sub_c91e9
+; ***************************************************************************************
+.bgetv_extended_vector
     cpy #&40 ; '@'                                                    ; 91e9: c0 40       .@
     bcc c91f1                                                         ; 91eb: 90 04       ..
     cpy #&45 ; 'E'                                                    ; 91ed: c0 45       .E
@@ -3654,8 +3646,9 @@ l8058 = command_list+1
 .single_byte_table_1
     equb 9                                                            ; 929b: 09          .
 
+; ***************************************************************************************
 ; &929c referenced 1 time by &954a
-.sub_c929c
+.bputv_extended_vector
     php                                                               ; 929c: 08          .
     pha                                                               ; 929d: 48          H
     txa                                                               ; 929e: 8a          .
@@ -3975,7 +3968,7 @@ l8058 = command_list+1
     equb &0c                                                          ; 949b: 0c          .
 
 ; ***************************************************************************************
-.sub_m949c
+.gbpbv_extended_vector
     php                                                               ; 949c: 08          .
     pha                                                               ; 949d: 48          H
     cmp #0                                                            ; 949e: c9 00       ..
@@ -4093,7 +4086,7 @@ l8058 = command_list+1
 ; &9548 referenced 1 time by &9544
 .os_text_ptr_does_cross_a_page_boundary
     ldy osrdsc_ptr                                                    ; 9548: a4 f6       ..
-    jsr sub_c929c                                                     ; 954a: 20 9c 92     ..
+    jsr bputv_extended_vector                                         ; 954a: 20 9c 92     ..
     jsr sub_c9590                                                     ; 954d: 20 90 95     ..
     bne c9534                                                         ; 9550: d0 e2       ..
 ; &9552 referenced 2 times by &951f, &955a
@@ -4445,7 +4438,7 @@ l8058 = command_list+1
     equb &0f                                                          ; 9756: 0f          .
 
 ; ***************************************************************************************
-.sub_m9757
+.findv_extended_vector
     php                                                               ; 9757: 08          .
     pha                                                               ; 9758: 48          H
     txa                                                               ; 9759: 8a          .
@@ -4503,7 +4496,7 @@ l8058 = command_list+1
 .c97b4
     jsr sub_c85ae                                                     ; 97b4: 20 ae 85     ..
     bcs c97de                                                         ; 97b7: b0 25       .%
-    sta l0087                                                         ; 97b9: 85 87       ..
+    sta zp_directory_letter                                           ; 97b9: 85 87       ..
     ldx A_register_save                                               ; 97bb: a6 8d       ..
     cpx #&80                                                          ; 97bd: e0 80       ..
     bne c97c7                                                         ; 97bf: d0 06       ..
@@ -4554,7 +4547,7 @@ l8058 = command_list+1
     lda #2                                                            ; 9804: a9 02       ..
     sta Y_register_save                                               ; 9806: 85 8f       ..
     lda #&0d                                                          ; 9808: a9 0d       ..
-    sta l0088                                                         ; 980a: 85 88       ..
+    sta zp_current_drive_number                                       ; 980a: 85 88       ..
     txa                                                               ; 980c: 8a          .
     jsr c8dfa                                                         ; 980d: 20 fa 8d     ..
     pla                                                               ; 9810: 68          h
@@ -4935,7 +4928,8 @@ table_5 = sub_c9863+1
 .single_byte_table_2_value_18
     equb &12                                                          ; 9a43: 12          .
 
-.sub_c9a44
+; ***************************************************************************************
+.fscv_extended_vector
     php                                                               ; 9a44: 08          .
     pha                                                               ; 9a45: 48          H
     txa                                                               ; 9a46: 8a          .
@@ -6777,8 +6771,8 @@ table_5 = sub_c9863+1
 .ca5a3
     jsr oswrch                                                        ; a5a3: 20 ee ff     ..            ; Write character 63
     ldx #0                                                            ; a5a6: a2 00       ..
-    stx l0087                                                         ; a5a8: 86 87       ..
-    stx l0088                                                         ; a5aa: 86 88       ..
+    stx zp_directory_letter                                           ; a5a8: 86 87       ..
+    stx zp_current_drive_number                                       ; a5aa: 86 88       ..
     inx                                                               ; a5ac: e8          .              ; X=&01
     stx l0080                                                         ; a5ad: 86 80       ..
     jsr sub_c85ae                                                     ; a5af: 20 ae 85     ..
@@ -8078,15 +8072,16 @@ table_5 = sub_c9863+1
 .caf58
     jsr sub_cac33                                                     ; af58: 20 33 ac     3.
     ldx #0                                                            ; af5b: a2 00       ..
+; ***************************************************************************************
 ; &af5d referenced 1 time by &af61
-.loop_caf5d
+.clear_carry_return_af5d
     clc                                                               ; af5d: 18          .
     rts                                                               ; af5e: 60          `
 
 ; &af5f referenced 1 time by &af50
 .caf5f
     cmp #&0d                                                          ; af5f: c9 0d       ..
-    bne loop_caf5d                                                    ; af61: d0 fa       ..
+    bne clear_carry_return_af5d                                       ; af61: d0 fa       ..
     ldx #1                                                            ; af63: a2 01       ..
     rts                                                               ; af65: 60          `
 
@@ -8140,10 +8135,10 @@ table_5 = sub_c9863+1
     jsr check_if_ramdisc_is_formatted                                 ; af9b: 20 fc 88     ..
     lda ramdisc_drive_number                                          ; af9e: ad 13 fd    ...
     sta from_address+1                                                ; afa1: 85 7b       .{
-    jsr sub_cb041                                                     ; afa3: 20 41 b0     A.
+    jsr check_drive_number_valid                                      ; afa3: 20 41 b0     A.
     sta l0079                                                         ; afa6: 85 79       .y
     iny                                                               ; afa8: c8          .
-    jsr sub_cb041                                                     ; afa9: 20 41 b0     A.
+    jsr check_drive_number_valid                                      ; afa9: 20 41 b0     A.
     sta from_address                                                  ; afac: 85 7a       .z
     cmp from_address+1                                                ; afae: c5 7b       .{
     beq cafbb                                                         ; afb0: f0 09       ..
@@ -8160,19 +8155,14 @@ table_5 = sub_c9863+1
     cmp from_address                                                  ; afc0: c5 7a       .z
     bne cafec                                                         ; afc2: d0 28       .(
     jsr print_inline_error                                            ; afc4: 20 de 84     ..            ; Print inline error
-; overlapping: inc l6e49,x                                            ; afc7: fe 49 6e    .In
     equb &fe                                                          ; afc7: fe          .
     equs "Invalid with Ramdisc"                                       ; afc8: 49 6e 76... Inv
-; overlapping: ror l0061,x                                            ; afca: 76 61       va
-; overlapping: jmp (l6469)                                            ; afcc: 6c 69 64    lid
     equb 0                                                            ; afdc: 00          .
 
 ; &afdd referenced 2 times by &b00a, &b021
 .sub_cafdd
     jsr print_inline_string                                           ; afdd: 20 b7 84     ..            ; prints an inline string following jsr command
-; overlapping: jsr l5228                                              ; afe0: 20 28 52     (R
     equs " (Ramdisc)"                                                 ; afe0: 20 28 52...  (R
-; overlapping: adc (l006d,x)                                          ; afe3: 61 6d       am
     equb &ea                                                          ; afea: ea          .
 
     rts                                                               ; afeb: 60          `
@@ -8180,10 +8170,7 @@ table_5 = sub_c9863+1
 ; &afec referenced 1 time by &afc2
 .cafec
     jsr print_inline_string                                           ; afec: 20 b7 84     ..            ; prints an inline string following jsr command
-; overlapping: jsr l6f43                                              ; afef: 20 43 6f     Co
     equs " Copying from DR."                                          ; afef: 20 43 6f...  Co
-; overlapping: bvs sub_cb06d                                          ; aff2: 70 79       py
-; overlapping: adc #&6e ; 'n'                                         ; aff4: 69 6e       in
     equb &ea                                                          ; b000: ea          .
 
     lda l0079                                                         ; b001: a5 79       .y
@@ -8194,10 +8181,7 @@ table_5 = sub_c9863+1
 ; &b00d referenced 1 time by &b008
 .cb00d
     jsr print_inline_string                                           ; b00d: 20 b7 84     ..            ; prints an inline string following jsr command
-; overlapping: jsr l6f74                                              ; b010: 20 74 6f     to
     equs " to DR."                                                    ; b010: 20 74 6f...  to
-; overlapping: jsr l5244                                              ; b013: 20 44 52     DR
-; overlapping: rol la5ea                                              ; b016: 2e ea a5    ...
     equb &ea                                                          ; b017: ea          .
 
     lda from_address                                                  ; b018: a5 7a       .z
@@ -8220,23 +8204,20 @@ table_5 = sub_c9863+1
 ; &b03b referenced 1 time by &b033
 .cb03b
     jsr sub_cb329                                                     ; b03b: 20 29 b3     ).
-.sub_cb03e
-lb03f = sub_cb03e+1
     jmp ready_for_new_command                                         ; b03e: 4c b5 82    L..
 
-; overlapping: lda l0082,x                                            ; b03f: b5 82       ..
-; &b03f referenced 1 time by &b06d
+; ***************************************************************************************
 ; &b041 referenced 2 times by &afa3, &afa9
-.sub_cb041
+.check_drive_number_valid
     jsr check_for_digit                                               ; b041: 20 94 88     ..
-    bcs jmp_to_error_bad_drive2                                       ; b044: b0 08       ..
+    bcs check_drive_number_valid_error                                ; b044: b0 08       ..
     cmp #&34 ; '4'                                                    ; b046: c9 34       .4
     bcc return_23                                                     ; b048: 90 07       ..
-    cmp from_address+1                                                ; b04a: c5 7b       .{
+    cmp from_address+1                                                ; b04a: c5 7b       .{             ; [vc] from_address+1 is actually ramdrive assigned drive number
     beq return_23                                                     ; b04c: f0 03       ..
 ; ***************************************************************************************
 ; &b04e referenced 1 time by &b044
-.jmp_to_error_bad_drive2
+.check_drive_number_valid_error
     jmp error_bad_drive                                               ; b04e: 4c 0a a2    L..
 
 ; &b051 referenced 2 times by &b048, &b04c
@@ -8261,14 +8242,9 @@ lb03f = sub_cb03e+1
 ; &b069 referenced 1 time by &b08f
 .cb069
     sty l0072                                                         ; b069: 84 72       .r
-; overlapping: jsr sub_cb0a9                                          ; b06b: 20 a9 b0     ..
-    equb &20, &a9                                                     ; b06b: 20 a9        .
-
-.sub_cb06d
-    bcs lb03f                                                         ; b06d: b0 d0       ..
-; overlapping: bne sub_cb089                                          ; b06e: d0 19       ..
-    ora l74a5,y                                                       ; b06f: 19 a5 74    ..t
-; overlapping: lda l0074                                              ; b070: a5 74       .t
+    jsr sub_cb0a9                                                     ; b06b: 20 a9 b0     ..
+    bne cb089                                                         ; b06e: d0 19       ..
+    lda l0074                                                         ; b070: a5 74       .t
     bne cb080                                                         ; b072: d0 0c       ..
     lda #1                                                            ; b074: a9 01       ..
     sta l0074                                                         ; b076: 85 74       .t
@@ -8280,7 +8256,8 @@ lb03f = sub_cb03e+1
     jsr sub_cb0ec                                                     ; b080: 20 ec b0     ..
     jsr sub_cb1aa                                                     ; b083: 20 aa b1     ..
     jsr sub_cb261                                                     ; b086: 20 61 b2     a.
-.sub_cb089
+; &b089 referenced 1 time by &b06e
+.cb089
     lda l0072                                                         ; b089: a5 72       .r
     sec                                                               ; b08b: 38          8
     sbc #8                                                            ; b08c: e9 08       ..
@@ -8305,8 +8282,9 @@ lb03f = sub_cb03e+1
     jsr oswrch                                                        ; b0a5: 20 ee ff     ..            ; move down a line
     rts                                                               ; b0a8: 60          `
 
+; &b0a9 referenced 1 time by &b06b
 .sub_cb0a9
-    lda l0087                                                         ; b0a9: a5 87       ..
+    lda zp_directory_letter                                           ; b0a9: a5 87       ..
     cmp #&2a ; '*'                                                    ; b0ab: c9 2a       .*
     beq cb0c3                                                         ; b0ad: f0 14       ..
     cmp #&23 ; '#'                                                    ; b0af: c9 23       .#
@@ -8444,26 +8422,26 @@ lb03f = sub_cb03e+1
 .sub_cb1aa
     ldy l0072                                                         ; b1aa: a4 72       .r
     lda #&3a ; ':'                                                    ; b1ac: a9 3a       .:
-    sta l7800                                                         ; b1ae: 8d 00 78    ..x
+    sta osword_block_drive                                            ; b1ae: 8d 00 78    ..x
     lda l78ad                                                         ; b1b1: ad ad 78    ..x
-    sta l7801                                                         ; b1b4: 8d 01 78    ..x
+    sta osword_block_lsb_32bit_address                                ; b1b4: 8d 01 78    ..x
     lda #&2e ; '.'                                                    ; b1b7: a9 2e       ..
     sta l7802                                                         ; b1b9: 8d 02 78    ..x
     sta l7804                                                         ; b1bc: 8d 04 78    ..x
     lda l7907,y                                                       ; b1bf: b9 07 79    ..y
     and #&7f                                                          ; b1c2: 29 7f       ).
-    sta l7803                                                         ; b1c4: 8d 03 78    ..x
+    sta osword_block_msb_32bit_address                                ; b1c4: 8d 03 78    ..x
     ldx #5                                                            ; b1c7: a2 05       ..
 ; &b1c9 referenced 1 time by &b1d3
 .loop_cb1c9
     lda l7900,y                                                       ; b1c9: b9 00 79    ..y
-    sta l7800,x                                                       ; b1cc: 9d 00 78    ..x
+    sta osword_block_drive,x                                          ; b1cc: 9d 00 78    ..x
     iny                                                               ; b1cf: c8          .
     inx                                                               ; b1d0: e8          .
     cpx #&0c                                                          ; b1d1: e0 0c       ..
     bne loop_cb1c9                                                    ; b1d3: d0 f4       ..
     lda #&0d                                                          ; b1d5: a9 0d       ..
-    sta l7800,x                                                       ; b1d7: 9d 00 78    ..x
+    sta osword_block_drive,x                                          ; b1d7: 9d 00 78    ..x
     lda #0                                                            ; b1da: a9 00       ..
     sta l780d                                                         ; b1dc: 8d 0d 78    ..x
     lda #&78 ; 'x'                                                    ; b1df: a9 78       .x
@@ -8472,7 +8450,7 @@ lb03f = sub_cb03e+1
     lda #0                                                            ; b1e6: a9 00       ..
 ; &b1e8 referenced 1 time by &b1ee
 .loop_cb1e8
-    sta l7800,x                                                       ; b1e8: 9d 00 78    ..x
+    sta osword_block_drive,x                                          ; b1e8: 9d 00 78    ..x
     inx                                                               ; b1eb: e8          .
     cpx #&1f                                                          ; b1ec: e0 1f       ..
     bne loop_cb1e8                                                    ; b1ee: d0 f8       ..
@@ -8550,16 +8528,16 @@ lb03f = sub_cb03e+1
     ldx #0                                                            ; b270: a2 00       ..
 ; &b272 referenced 1 time by &b27c
 .loop_cb272
-    lda l7805,x                                                       ; b272: bd 05 78    ..x
+    lda osword_block_number_of_parameters,x                           ; b272: bd 05 78    ..x
     and #&7f                                                          ; b275: 29 7f       ).
     sta l0080,x                                                       ; b277: 95 80       ..
     inx                                                               ; b279: e8          .
     cpx #7                                                            ; b27a: e0 07       ..
     bne loop_cb272                                                    ; b27c: d0 f4       ..
-    lda l7803                                                         ; b27e: ad 03 78    ..x
-    sta l0087                                                         ; b281: 85 87       ..
+    lda osword_block_msb_32bit_address                                ; b27e: ad 03 78    ..x
+    sta zp_directory_letter                                           ; b281: 85 87       ..
     lda l78ad                                                         ; b283: ad ad 78    ..x
-    sta l0088                                                         ; b286: 85 88       ..
+    sta zp_current_drive_number                                       ; b286: 85 88       ..
     jsr sub_c85ae                                                     ; b288: 20 ae 85     ..
     bcc cb290                                                         ; b28b: 90 03       ..
     jmp error_ramdisc_error                                           ; b28d: 4c 7a 98    Lz.
@@ -8732,7 +8710,7 @@ lb03f = sub_cb03e+1
 ; &b3bd referenced 1 time by &b3cb
 .loop_cb3bd
     lda jim,y                                                         ; b3bd: b9 00 fd    ...
-    sta l7800,x                                                       ; b3c0: 9d 00 78    ..x
+    sta osword_block_drive,x                                          ; b3c0: 9d 00 78    ..x
     iny                                                               ; b3c3: c8          .
     inx                                                               ; b3c4: e8          .
     tya                                                               ; b3c5: 98          .
@@ -8934,7 +8912,7 @@ lb03f = sub_cb03e+1
 .loop_cb502
     lda l7900,y                                                       ; b502: b9 00 79    ..y
     and #&7f                                                          ; b505: 29 7f       ).
-    cmp l7800,x                                                       ; b507: dd 00 78    ..x
+    cmp osword_block_drive,x                                          ; b507: dd 00 78    ..x
     bne cb531                                                         ; b50a: d0 25       .%
     iny                                                               ; b50c: c8          .
     inx                                                               ; b50d: e8          .
@@ -8946,7 +8924,7 @@ lb03f = sub_cb03e+1
     jsr sub_c9d06                                                     ; b519: 20 06 9d     ..
     sta l78a5                                                         ; b51c: 8d a5 78    ..x
     ldx l78a6                                                         ; b51f: ae a6 78    ..x
-    lda l7800,x                                                       ; b522: bd 00 78    ..x
+    lda osword_block_drive,x                                          ; b522: bd 00 78    ..x
     jsr sub_c9d06                                                     ; b525: 20 06 9d     ..
     cmp l78a5                                                         ; b528: cd a5 78    ..x
     bne cb530                                                         ; b52b: d0 03       ..
@@ -9003,7 +8981,7 @@ lb03f = sub_cb03e+1
     ldx #0                                                            ; b572: a2 00       ..
 ; &b574 referenced 1 time by &b57e
 .loop_cb574
-    lda l7800,x                                                       ; b574: bd 00 78    ..x
+    lda osword_block_drive,x                                          ; b574: bd 00 78    ..x
     sta l7900,y                                                       ; b577: 99 00 79    ..y
     iny                                                               ; b57a: c8          .
     inx                                                               ; b57b: e8          .
@@ -9050,11 +9028,11 @@ lb03f = sub_cb03e+1
 ; &b5cb referenced 3 times by &b583, &b590, &b59d
 .sub_cb5cb
     clc                                                               ; b5cb: 18          .
-    lda l7800,x                                                       ; b5cc: bd 00 78    ..x
+    lda osword_block_drive,x                                          ; b5cc: bd 00 78    ..x
     sta l7a00,y                                                       ; b5cf: 99 00 7a    ..z
     iny                                                               ; b5d2: c8          .
     inx                                                               ; b5d3: e8          .
-    lda l7800,x                                                       ; b5d4: bd 00 78    ..x
+    lda osword_block_drive,x                                          ; b5d4: bd 00 78    ..x
     sta l7a00,y                                                       ; b5d7: 99 00 7a    ..z
     iny                                                               ; b5da: c8          .
     inx                                                               ; b5db: e8          .
@@ -9153,10 +9131,10 @@ lb03f = sub_cb03e+1
 
 ; &b689 referenced 2 times by &b2f6, &b634
 .sub_cb689
-    jsr sub_cb99f                                                     ; b689: 20 9f b9     ..
-    stx l7806                                                         ; b68c: 8e 06 78    ..x
+    jsr osword_block_write_10_sectors_track_0                         ; b689: 20 9f b9     ..
+    stx osword_block_command                                          ; b68c: 8e 06 78    ..x
     lda l78ab                                                         ; b68f: ad ab 78    ..x
-    sta l7800                                                         ; b692: 8d 00 78    ..x
+    sta osword_block_drive                                            ; b692: 8d 00 78    ..x
     ldx #0                                                            ; b695: a2 00       ..
 ; &b697 referenced 1 time by &b6b5
 .loop_cb697
@@ -9215,7 +9193,7 @@ lb03f = sub_cb03e+1
 ; &b6fa referenced 1 time by &b6d7
 .sub_cb6fa
     lda l789f                                                         ; b6fa: ad 9f 78    ..x
-    sta l7807                                                         ; b6fd: 8d 07 78    ..x
+    sta osword_block_parameters                                       ; b6fd: 8d 07 78    ..x
     lda l78a0                                                         ; b700: ad a0 78    ..x
     sta l7808                                                         ; b703: 8d 08 78    ..x
     clc                                                               ; b706: 18          .
@@ -9227,7 +9205,7 @@ lb03f = sub_cb03e+1
 
 ; &b713 referenced 2 times by &b05a, &b379
 .sub_cb713
-    jsr sub_cb743                                                     ; b713: 20 43 b7     C.
+    jsr osword_block_read                                             ; b713: 20 43 b7     C.
     jsr sub_cb9b7                                                     ; b716: 20 b7 b9     ..
     lda l7a06                                                         ; b719: ad 06 7a    ..z
     and #3                                                            ; b71c: 29 03       ).
@@ -9248,29 +9226,36 @@ lb03f = sub_cb03e+1
 
 ; &b737 referenced 1 time by &b3ac
 .sub_cb737
-    jsr sub_cb743                                                     ; b737: 20 43 b7     C.
+    jsr osword_block_read                                             ; b737: 20 43 b7     C.
     lda #&4b ; 'K'                                                    ; b73a: a9 4b       .K
-    sta l7806                                                         ; b73c: 8d 06 78    ..x
+    sta osword_block_command                                          ; b73c: 8d 06 78    ..x
     jsr sub_cb9b7                                                     ; b73f: 20 b7 b9     ..
     rts                                                               ; b742: 60          `
 
+; ***************************************************************************************
 ; &b743 referenced 2 times by &b713, &b737
-.sub_cb743
+.osword_block_read
     ldy #0                                                            ; b743: a0 00       ..
+; ***************************************************************************************
 ; &b745 referenced 1 time by &b74e
-.loop_cb745
-    lda table_7,y                                                     ; b745: b9 57 b7    .W.
-    sta l7800,y                                                       ; b748: 99 00 78    ..x
+.osword_block_read_2
+    lda osword_block_read_2_sectors_track_0,y                         ; b745: b9 57 b7    .W.
+    sta osword_block_drive,y                                          ; b748: 99 00 78    ..x
     iny                                                               ; b74b: c8          .
     cpy #&0a                                                          ; b74c: c0 0a       ..
-    bne loop_cb745                                                    ; b74e: d0 f5       ..
+    bne osword_block_read_2                                           ; b74e: d0 f5       ..
     lda l78ab                                                         ; b750: ad ab 78    ..x
-    sta l7800                                                         ; b753: 8d 00 78    ..x
+    sta osword_block_drive                                            ; b753: 8d 00 78    ..x
     rts                                                               ; b756: 60          `
 
 ; &b757 referenced 1 time by &b745
-.table_7
+.osword_block_read_2_sectors_track_0
     equb 0, 0, &79, &ff, &ff, 3, &53, 0, 0, &22                       ; b757: 00 00 79... ..y
+; drive 0
+; address ffff7900
+; 3 parameters
+; read data <track> <sector> <size+count>
+; track 0, sector 0, 512bytes from 2 sectors
 
 ; ***************************************************************************************
 .fback_command
@@ -9291,7 +9276,7 @@ lb03f = sub_cb03e+1
 .cb773
     sec                                                               ; b773: 38          8
     sbc #&30 ; '0'                                                    ; b774: e9 30       .0
-    sta l0087                                                         ; b776: 85 87       ..
+    sta zp_directory_letter                                           ; b776: 85 87       ..
     jsr print_inline_string                                           ; b778: 20 b7 84     ..            ; prints an inline string following jsr command
 ; overlapping: asl l0007,x                                            ; b77b: 16 07       ..
     equb &16, 7, &0a                                                  ; b77b: 16 07 0a    ...
@@ -9487,7 +9472,7 @@ lb03f = sub_cb03e+1
     equs " disc in drive "                                            ; b900: 20 64 69...  di
     equb &ea                                                          ; b90f: ea          .
 
-    lda l0087                                                         ; b910: a5 87       ..
+    lda zp_directory_letter                                           ; b910: a5 87       ..
     clc                                                               ; b912: 18          .
     adc #&30 ; '0'                                                    ; b913: 69 30       i0
     jsr oswrch                                                        ; b915: 20 ee ff     ..            ; Write character
@@ -9507,17 +9492,17 @@ lb03f = sub_cb03e+1
 ; &b929 referenced 6 times by &b84f, &b899, &ba55, &bb06, &bb5d, &bb6f
 .sub_cb929
     pha                                                               ; b929: 48          H
-    jsr sub_cb99f                                                     ; b92a: 20 9f b9     ..
-    lda l0087                                                         ; b92d: a5 87       ..
-    sta l7800                                                         ; b92f: 8d 00 78    ..x
+    jsr osword_block_write_10_sectors_track_0                         ; b92a: 20 9f b9     ..
+    lda zp_directory_letter                                           ; b92d: a5 87       ..
+    sta osword_block_drive                                            ; b92f: 8d 00 78    ..x
     pla                                                               ; b932: 68          h
-    sta l7806                                                         ; b933: 8d 06 78    ..x
+    sta osword_block_command                                          ; b933: 8d 06 78    ..x
     lda #8                                                            ; b936: a9 08       ..
     sta ptr2+1                                                        ; b938: 85 8c       ..
 ; &b93a referenced 1 time by &b95c
 .cb93a
     lda l0086                                                         ; b93a: a5 86       ..
-    sta l7807                                                         ; b93c: 8d 07 78    ..x
+    sta osword_block_parameters                                       ; b93c: 8d 07 78    ..x
     bit os_escape_flag                                                ; b93f: 24 ff       $.
     bpl cb946                                                         ; b941: 10 03       ..
     jmp error_escape_pressed                                          ; b943: 4c ac 8a    L..
@@ -9559,51 +9544,60 @@ lb03f = sub_cb03e+1
 
 ; &b981 referenced 5 times by &b79e, &b889, &bb39, &bb45, &bb52
 .sub_cb981
-    jsr sub_cb99f                                                     ; b981: 20 9f b9     ..
-    lda l0087                                                         ; b984: a5 87       ..
-    sta l7800                                                         ; b986: 8d 00 78    ..x
+    jsr osword_block_write_10_sectors_track_0                         ; b981: 20 9f b9     ..
+    lda zp_directory_letter                                           ; b984: a5 87       ..
+    sta osword_block_drive                                            ; b986: 8d 00 78    ..x
     lda #1                                                            ; b989: a9 01       ..
-    sta l7805                                                         ; b98b: 8d 05 78    ..x
-    lda #&69 ; 'i'                                                    ; b98e: a9 69       .i
-    sta l7806                                                         ; b990: 8d 06 78    ..x
-    jsr sub_cba1d                                                     ; b993: 20 1d ba     ..
+    sta osword_block_number_of_parameters                             ; b98b: 8d 05 78    ..x
+    lda #&69 ; 'i'                                                    ; b98e: a9 69       .i             ; seek_track
+    sta osword_block_command                                          ; b990: 8d 06 78    ..x
+    jsr set_ptr_to_osword_block                                       ; b993: 20 1d ba     ..            ; set_ptr_to_osword_block
     lda l7808                                                         ; b996: ad 08 78    ..x
     bne cb99c                                                         ; b999: d0 01       ..
     rts                                                               ; b99b: 60          `
 
 ; &b99c referenced 1 time by &b999
 .cb99c
-    jmp cb9cf                                                         ; b99c: 4c cf b9    L..
+    jmp error_disc_error                                              ; b99c: 4c cf b9    L..
 
+; ***************************************************************************************
 ; &b99f referenced 3 times by &b689, &b92a, &b981
-.sub_cb99f
+.osword_block_write_10_sectors_track_0
     ldy #0                                                            ; b99f: a0 00       ..
+; ***************************************************************************************
 ; &b9a1 referenced 1 time by &b9aa
-.loop_cb9a1
-    lda table_3,y                                                     ; b9a1: b9 ad b9    ...
-    sta l7800,y                                                       ; b9a4: 99 00 78    ..x
+.osword_block_write_10_sectors_track_0_2
+    lda hardcoded_osword_block,y                                      ; b9a1: b9 ad b9    ...
+    sta osword_block_drive,y                                          ; b9a4: 99 00 78    ..x
     iny                                                               ; b9a7: c8          .
     cpy #&0a                                                          ; b9a8: c0 0a       ..
-    bne loop_cb9a1                                                    ; b9aa: d0 f5       ..
+    bne osword_block_write_10_sectors_track_0_2                       ; b9aa: d0 f5       ..
     rts                                                               ; b9ac: 60          `
 
 ; &b9ad referenced 1 time by &b9a1
-.table_3
+.hardcoded_osword_block
     equb 0, 0, &20, &ff, &ff, 3, &4b, 0, 0, &2a                       ; b9ad: 00 00 20... ..
+; drive 0
+; address &FFFF2000
+; 3 parameters
+; Write data <track> <sector> <size+count>
+; track 0, secor 0, size+count &2a  where lower nibble is number of sectors, upper
+; nibble is sector size, 2 for 512 bytes
 
 ; &b9b7 referenced 4 times by &b70f, &b716, &b73f, &b955
 .sub_cb9b7
-    jsr sub_cba1d                                                     ; b9b7: 20 1d ba     ..
+    jsr set_ptr_to_osword_block                                       ; b9b7: 20 1d ba     ..            ; set_ptr_to_osword_block
     lda l780a                                                         ; b9ba: ad 0a 78    ..x
     beq cb9de                                                         ; b9bd: f0 1f       ..
-    jsr sub_cba1d                                                     ; b9bf: 20 1d ba     ..
+    jsr set_ptr_to_osword_block                                       ; b9bf: 20 1d ba     ..            ; set_ptr_to_osword_block
     lda l780a                                                         ; b9c2: ad 0a 78    ..x
     beq cb9de                                                         ; b9c5: f0 17       ..
-    jsr sub_cba1d                                                     ; b9c7: 20 1d ba     ..
+    jsr set_ptr_to_osword_block                                       ; b9c7: 20 1d ba     ..            ; set_ptr_to_osword_block
     lda l780a                                                         ; b9ca: ad 0a 78    ..x
     beq cb9de                                                         ; b9cd: f0 0f       ..
+; ***************************************************************************************
 ; &b9cf referenced 2 times by &b99c, &ba1a
-.cb9cf
+.error_disc_error
     jsr print_inline_error                                            ; b9cf: 20 de 84     ..            ; Print inline error
     equb &c7                                                          ; b9d2: c7          .
     equs "Disc error"                                                 ; b9d3: 44 69 73... Dis
@@ -9616,12 +9610,12 @@ lb03f = sub_cb03e+1
     clc                                                               ; b9e3: 18          .
     adc l7802                                                         ; b9e4: 6d 02 78    m.x
     sta l7802                                                         ; b9e7: 8d 02 78    ..x
-    lda l7807                                                         ; b9ea: ad 07 78    ..x
+    lda osword_block_parameters                                       ; b9ea: ad 07 78    ..x
     beq return_31                                                     ; b9ed: f0 2d       .-
     cmp #3                                                            ; b9ef: c9 03       ..
     bcs return_31                                                     ; b9f1: b0 29       .)
     ldx #&1a                                                          ; b9f3: a2 1a       ..
-    lda l7800                                                         ; b9f5: ad 00 78    ..x
+    lda osword_block_drive                                            ; b9f5: ad 00 78    ..x
     sta l7840                                                         ; b9f8: 8d 40 78    .@x
     ror a                                                             ; b9fb: 6a          j
     bcs cba00                                                         ; b9fc: b0 02       ..
@@ -9637,16 +9631,19 @@ lb03f = sub_cb03e+1
     ldy #&78 ; 'x'                                                    ; ba0f: a0 78       .x
     jsr sub_cba21                                                     ; ba11: 20 21 ba     !.
     lda l7848                                                         ; ba14: ad 48 78    .Hx
-    cmp l7807                                                         ; ba17: cd 07 78    ..x
-    bne cb9cf                                                         ; ba1a: d0 b3       ..
+    cmp osword_block_parameters                                       ; ba17: cd 07 78    ..x
+    bne error_disc_error                                              ; ba1a: d0 b3       ..
 ; &ba1c referenced 2 times by &b9ed, &b9f1
 .return_31
     rts                                                               ; ba1c: 60          `
 
+; ***************************************************************************************
+; set_ptr_to_osword_block
+; ***************************************************************************************
 ; &ba1d referenced 4 times by &b993, &b9b7, &b9bf, &b9c7
-.sub_cba1d
-    ldx #0                                                            ; ba1d: a2 00       ..
-    ldy #&78 ; 'x'                                                    ; ba1f: a0 78       .x
+.set_ptr_to_osword_block
+    ldx #<(osword_block_drive)                                        ; ba1d: a2 00       ..
+    ldy #>(osword_block_drive)                                        ; ba1f: a0 78       .x
 ; &ba21 referenced 1 time by &ba11
 .sub_cba21
     lda lsb_ramdisc_page                                              ; ba21: ad c0 fc    ...
@@ -9671,17 +9668,11 @@ lb03f = sub_cb03e+1
 ; ***************************************************************************************
 .ramload_command
     jsr print_inline_string                                           ; ba40: 20 b7 84     ..            ; prints an inline string following jsr command
-    asl l0007,x                                                       ; ba43: 16 07       ..
-    asl a                                                             ; ba45: 0a          .
-; overlapping: jsr l4152                                              ; ba46: 20 52 41     RA
+    equb &16, 7, &0a                                                  ; ba43: 16 07 0a    ...
     equs " RAMLOAD"                                                   ; ba46: 20 52 41...  RA
-; overlapping: eor l4f4c                                              ; ba49: 4d 4c 4f    MLO
-; overlapping: eor (l0044,x)                                          ; ba4c: 41 44       AD
-; overlapping: ora l20ea                                              ; ba4e: 0d ea 20    ..
     equb &0d, &ea                                                     ; ba4e: 0d ea       ..
 
     jsr sub_cbb28                                                     ; ba50: 20 28 bb     (.
-; overlapping: plp                                                    ; ba51: 28          (
     lda #&53 ; 'S'                                                    ; ba53: a9 53       .S
     jsr sub_cb929                                                     ; ba55: 20 29 b9     ).
     jsr sub_cbbd8                                                     ; ba58: 20 d8 bb     ..
@@ -9728,12 +9719,13 @@ lb03f = sub_cb03e+1
     equb &ea                                                          ; bac1: ea          .
 
     jsr print_Enter_1_or_2                                            ; bac2: 20 8a bc     ..
-    lda #&28 ; '('                                                    ; bac5: a9 28       .(
+    lda #&28 ; '('                                                    ; bac5: a9 28       .(             ; 40 track
     cpx #&32 ; '2'                                                    ; bac7: e0 32       .2
-    bne cbacc                                                         ; bac9: d0 01       ..
-    asl a                                                             ; bacb: 0a          .
+    bne ramsave_command_2                                             ; bac9: d0 01       ..
+    asl a                                                             ; bacb: 0a          .              ; 80 track
+; ***************************************************************************************
 ; &bacc referenced 1 time by &bac9
-.cbacc
+.ramsave_command_2
     sta l0082                                                         ; bacc: 85 82       ..             ; number of tracks 1-40, 2-80
     jsr print_inline_string                                           ; bace: 20 b7 84     ..            ; prints an inline string following jsr command
     equb &0d                                                          ; bad1: 0d          .
@@ -9774,12 +9766,12 @@ lb03f = sub_cb03e+1
 ; &bb28 referenced 2 times by &ba50, &baf9
 .sub_cbb28
     lda #1                                                            ; bb28: a9 01       ..
-    sta l0088                                                         ; bb2a: 85 88       ..
+    sta zp_current_drive_number                                       ; bb2a: 85 88       ..
     lda #0                                                            ; bb2c: a9 00       ..
     sta l0084                                                         ; bb2e: 85 84       ..
     sta l0085                                                         ; bb30: 85 85       ..
     sta l0086                                                         ; bb32: 85 86       ..
-    sta l0087                                                         ; bb34: 85 87       ..
+    sta zp_directory_letter                                           ; bb34: 85 87       ..
     jsr print_enter_backup_disc_number                                ; bb36: 20 21 bc     !.
     jsr sub_cb981                                                     ; bb39: 20 81 b9     ..
     rts                                                               ; bb3c: 60          `
@@ -9789,7 +9781,7 @@ lb03f = sub_cb03e+1
     lda #0                                                            ; bb3d: a9 00       ..
     sta l0086                                                         ; bb3f: 85 86       ..
     lda #2                                                            ; bb41: a9 02       ..
-    sta l0087                                                         ; bb43: 85 87       ..
+    sta zp_directory_letter                                           ; bb43: 85 87       ..
     jsr sub_cb981                                                     ; bb45: 20 81 b9     ..
     rts                                                               ; bb48: 60          `
 
@@ -9797,7 +9789,7 @@ lb03f = sub_cb03e+1
 .sub_cbb49
     lda #0                                                            ; bb49: a9 00       ..
     sta l0086                                                         ; bb4b: 85 86       ..
-    sta l0087                                                         ; bb4d: 85 87       ..
+    sta zp_directory_letter                                           ; bb4d: 85 87       ..
     jsr print_enter_backup_disc_number                                ; bb4f: 20 21 bc     !.
     jsr sub_cb981                                                     ; bb52: 20 81 b9     ..
     rts                                                               ; bb55: 60          `
@@ -9953,9 +9945,9 @@ lb03f = sub_cb03e+1
     equs " Insert backup disc number "                                ; bc25: 20 49 6e...  In
     equb &ea                                                          ; bc40: ea          .
 
-    lda l0088                                                         ; bc41: a5 88       ..
+    lda zp_current_drive_number                                       ; bc41: a5 88       ..
     jsr convert_hex_to_decimal                                        ; bc43: 20 76 88     v.
-    ldx l0088                                                         ; bc46: a6 88       ..
+    ldx zp_current_drive_number                                       ; bc46: a6 88       ..
     inx                                                               ; bc48: e8          .
     txa                                                               ; bc49: 8a          .
     and #&0f                                                          ; bc4a: 29 0f       ).
@@ -9968,7 +9960,7 @@ lb03f = sub_cb03e+1
     tax                                                               ; bc56: aa          .
 ; &bc57 referenced 1 time by &bc4e
 .cbc57
-    stx l0088                                                         ; bc57: 86 88       ..
+    stx zp_current_drive_number                                       ; bc57: 86 88       ..
 ; &bc59 referenced 2 times by &b024, &b918
 .sub_cbc59
     jsr print_inline_string                                           ; bc59: 20 b7 84     ..            ; prints an inline string following jsr command
@@ -10121,7 +10113,7 @@ save pydis_start, pydis_end
 ;     oswrch:                                              98
 ;     jim:                                                 91
 ;     l0070:                                               85
-;     l0074:                                               61
+;     l0074:                                               62
 ;     l0072:                                               50
 ;     msb_ramdisc_page:                                    49
 ;     l0080:                                               46
@@ -10154,14 +10146,14 @@ save pydis_start, pydis_end
 ;     l0085:                                               18
 ;     c8b0d:                                               17
 ;     l0079:                                               17
-;     l7800:                                               17
 ;     osbyte:                                              17
+;     osword_block_drive:                                  17
 ;     to_address:                                          17
 ;     to_address+0:                                        17
 ;     A_register_save:                                     16
 ;     Y_register_save:                                     15
 ;     current_drive_number:                                15
-;     l0087:                                               15
+;     zp_directory_letter:                                 15
 ;     l007f:                                               14
 ;     l7a00:                                               14
 ;     restore_register_a_x_y:                              14
@@ -10180,11 +10172,11 @@ save pydis_start, pydis_end
 ;     enough_catalogue_pages_left:                         11
 ;     ignore_spaces_in_command_line:                       11
 ;     l0078:                                               11
-;     l0088:                                               11
 ;     os_text_ptr+1:                                       11
 ;     ptr2:                                                11
 ;     ptr2+0:                                              11
 ;     switch_to_ramdisk_catalogue_page:                    11
+;     zp_current_drive_number:                             11
 ;     check_if_ramdisc_formatted:                          10
 ;     error_bad_drive:                                     10
 ;     l789c:                                               10
@@ -10292,8 +10284,6 @@ save pydis_start, pydis_end
 ;     l2000:                                                4
 ;     l2008:                                                4
 ;     l2009:                                                4
-;     l7806:                                                4
-;     l7807:                                                4
 ;     l7898:                                                4
 ;     l7899:                                                4
 ;     l78a0:                                                4
@@ -10304,17 +10294,19 @@ save pydis_start, pydis_end
 ;     lfd05:                                                4
 ;     lfd08:                                                4
 ;     lfdfc:                                                4
+;     osword_block_command:                                 4
+;     osword_block_parameters:                              4
 ;     print_redit_instructions:                             4
 ;     print_space_x_times:                                  4
 ;     read_keypress:                                        4
 ;     return_14:                                            4
 ;     return_15:                                            4
 ;     service_rom_service_call:                             4
+;     set_ptr_to_osword_block:                              4
 ;     stack:                                                4
 ;     stack+0:                                              4
 ;     sub_c8eae:                                            4
 ;     sub_cb9b7:                                            4
-;     sub_cba1d:                                            4
 ;     table_5:                                              4
 ;     c8dce:                                                3
 ;     c8eef:                                                3
@@ -10379,6 +10371,7 @@ save pydis_start, pydis_end
 ;     mode_7_move_cursor_down_a_line:                       3
 ;     not_crossing_page_boundary:                           3
 ;     osrdch:                                               3
+;     osword_block_write_10_sectors_track_0:                3
 ;     print_x_spaces:                                       3
 ;     pull_registers_from_stack:                            3
 ;     respond_to_service_call:                              3
@@ -10396,7 +10389,6 @@ save pydis_start, pydis_end
 ;     sub_cad2b:                                            3
 ;     sub_cb3bb:                                            3
 ;     sub_cb5cb:                                            3
-;     sub_cb99f:                                            3
 ;     title:                                                3
 ;     validate_ramdisc_control_byte_ffc1:                   3
 ;     c8239:                                                2
@@ -10466,9 +10458,9 @@ save pydis_start, pydis_end
 ;     cb7ca:                                                2
 ;     cb7db:                                                2
 ;     cb8ec:                                                2
-;     cb9cf:                                                2
 ;     cba79:                                                2
 ;     cbb22:                                                2
+;     check_drive_number_valid:                             2
 ;     check_for_drive_token:                                2
 ;     check_for_period_in_string_at_ptr2:                   2
 ;     check_hex_number:                                     2
@@ -10482,6 +10474,7 @@ save pydis_start, pydis_end
 ;     error_bad_directory:                                  2
 ;     error_bad_filename:                                   2
 ;     error_catalogue_full:                                 2
+;     error_disc_error:                                     2
 ;     error_rename_syntax:                                  2
 ;     found_text_on_command_line:                           2
 ;     get_key_stroke_from_keyboard:                         2
@@ -10498,8 +10491,6 @@ save pydis_start, pydis_end
 ;     l0d83:                                                2
 ;     l2f00:                                                2
 ;     l77fe:                                                2
-;     l7803:                                                2
-;     l7805:                                                2
 ;     l7808:                                                2
 ;     l7809:                                                2
 ;     l7810:                                                2
@@ -10532,6 +10523,9 @@ save pydis_start, pydis_end
 ;     not_a_digit1:                                         2
 ;     oscli:                                                2
 ;     osword:                                               2
+;     osword_block_msb_32bit_address:                       2
+;     osword_block_number_of_parameters:                    2
+;     osword_block_read:                                    2
 ;     parameter_list_offset:                                2
 ;     print_Enter_1_or_2:                                   2
 ;     print_NL_and_return:                                  2
@@ -10581,11 +10575,9 @@ save pydis_start, pydis_end
 ;     sub_caf3b:                                            2
 ;     sub_caf77:                                            2
 ;     sub_cafdd:                                            2
-;     sub_cb041:                                            2
 ;     sub_cb65f:                                            2
 ;     sub_cb689:                                            2
 ;     sub_cb713:                                            2
-;     sub_cb743:                                            2
 ;     sub_cb8e0:                                            2
 ;     sub_cb8fd:                                            2
 ;     sub_cb91c:                                            2
@@ -10603,6 +10595,7 @@ save pydis_start, pydis_end
 ;     write_drive_number_then_2xNL:                         2
 ;     bbc_b_plus:                                           1
 ;     bbc_master:                                           1
+;     bputv_extended_vector:                                1
 ;     c81cd:                                                1
 ;     c81d1:                                                1
 ;     c8206:                                                1
@@ -10634,7 +10627,6 @@ save pydis_start, pydis_end
 ;     c880b:                                                1
 ;     c895c:                                                1
 ;     c8b8b:                                                1
-;     c8b91:                                                1
 ;     c8b9d:                                                1
 ;     c8ba3:                                                1
 ;     c8bab:                                                1
@@ -10859,6 +10851,7 @@ save pydis_start, pydis_end
 ;     cb065:                                                1
 ;     cb069:                                                1
 ;     cb080:                                                1
+;     cb089:                                                1
 ;     cb0c5:                                                1
 ;     cb0e9:                                                1
 ;     cb118:                                                1
@@ -10909,7 +10902,6 @@ save pydis_start, pydis_end
 ;     cb99c:                                                1
 ;     cba00:                                                1
 ;     cba73:                                                1
-;     cbacc:                                                1
 ;     cbb1c:                                                1
 ;     cbb92:                                                1
 ;     cbba2:                                                1
@@ -10922,6 +10914,7 @@ save pydis_start, pydis_end
 ;     cbcc0:                                                1
 ;     change_cursor_status:                                 1
 ;     change_ramdrive_page:                                 1
+;     check_drive_number_valid_error:                       1
 ;     check_for_double_quotes:                              1
 ;     check_for_invalid_directory_name:                     1
 ;     check_if_file_exists:                                 1
@@ -10929,6 +10922,7 @@ save pydis_start, pydis_end
 ;     check_title_syntax:                                   1
 ;     check_unknown_osword:                                 1
 ;     clear_carry_and_return:                               1
+;     clear_carry_return_af5d:                              1
 ;     clear_carry_return_af97:                              1
 ;     compare_input_to_command_list:                        1
 ;     dir_command_has_directory:                            1
@@ -10949,18 +10943,18 @@ save pydis_start, pydis_end
 ;     file_found:                                           1
 ;     file_is_not_locked:                                   1
 ;     file_is_not_read_only:                                1
+;     filev_check_for_save_file:                            1
 ;     fill_remaining_catalogue_with_spaces:                 1
 ;     get_command_address:                                  1
 ;     get_directory_letter:                                 1
+;     hardcoded_osword_block:                               1
 ;     ignore_spaces:                                        1
 ;     jmp_escape_error:                                     1
-;     jmp_to_error_bad_drive2:                              1
 ;     jmp_to_error_file_not_found:                          1
 ;     jmp_to_oswrch:                                        1
 ;     jump_lock_attribute:                                  1
 ;     jump_to_error_file_open:                              1
 ;     jump_to_error_file_open2:                             1
-;     l0007:                                                1
 ;     l0044:                                                1
 ;     l00b9:                                                1
 ;     l0104:                                                1
@@ -10968,9 +10962,7 @@ save pydis_start, pydis_end
 ;     l02fe:                                                1
 ;     l0784:                                                1
 ;     l2020:                                                1
-;     l74a5:                                                1
 ;     l77ff:                                                1
-;     l7801:                                                1
 ;     l7804:                                                1
 ;     l780d:                                                1
 ;     l780e:                                                1
@@ -10992,7 +10984,6 @@ save pydis_start, pydis_end
 ;     l9a99:                                                1
 ;     la138:                                                1
 ;     last_osword_osbyte_a_reg:                             1
-;     lb03f:                                                1
 ;     lfd0a:                                                1
 ;     lfd17:                                                1
 ;     lfd81:                                                1
@@ -11111,7 +11102,6 @@ save pydis_start, pydis_end
 ;     loop_cacb2:                                           1
 ;     loop_cad17:                                           1
 ;     loop_caf34:                                           1
-;     loop_caf5d:                                           1
 ;     loop_cb0fd:                                           1
 ;     loop_cb1c9:                                           1
 ;     loop_cb1e8:                                           1
@@ -11129,11 +11119,9 @@ save pydis_start, pydis_end
 ;     loop_cb564:                                           1
 ;     loop_cb574:                                           1
 ;     loop_cb697:                                           1
-;     loop_cb745:                                           1
 ;     loop_cb7a5:                                           1
 ;     loop_cb84d:                                           1
 ;     loop_cb88f:                                           1
-;     loop_cb9a1:                                           1
 ;     loop_cba60:                                           1
 ;     loop_cbb09:                                           1
 ;     loop_cbbc1:                                           1
@@ -11152,6 +11140,10 @@ save pydis_start, pydis_end
 ;     osbyte_fa_settings:                                   1
 ;     osfile:                                               1
 ;     osword_bb_read_write_ramdrive:                        1
+;     osword_block_lsb_32bit_address:                       1
+;     osword_block_read_2:                                  1
+;     osword_block_read_2_sectors_track_0:                  1
+;     osword_block_write_10_sectors_track_0_2:              1
 ;     pad_filename_with_spaces:                             1
 ;     page_ram_bank_select_b8_b15:                          1
 ;     parameter_list:                                       1
@@ -11172,6 +11164,7 @@ save pydis_start, pydis_end
 ;     print_valid_character:                                1
 ;     ram_disc_commands:                                    1
 ;     ramdisc_switched_off:                                 1
+;     ramsave_command_2:                                    1
 ;     read_command_line_next_char:                          1
 ;     read_operation:                                       1
 ;     redit_instructions:                                   1
@@ -11224,7 +11217,6 @@ save pydis_start, pydis_end
 ;     sub_c8d6e:                                            1
 ;     sub_c9050:                                            1
 ;     sub_c9081:                                            1
-;     sub_c929c:                                            1
 ;     sub_c9d5f:                                            1
 ;     sub_c9d68:                                            1
 ;     sub_c9dd6:                                            1
@@ -11242,6 +11234,7 @@ save pydis_start, pydis_end
 ;     sub_cacd9:                                            1
 ;     sub_cad43:                                            1
 ;     sub_cb052:                                            1
+;     sub_cb0a9:                                            1
 ;     sub_cb0ec:                                            1
 ;     sub_cb1aa:                                            1
 ;     sub_cb261:                                            1
@@ -11260,8 +11253,6 @@ save pydis_start, pydis_end
 ;     subdrive_command_no_more_on_command_line:             1
 ;     swap_to_previous_ramdisc_page:                        1
 ;     table_12:                                             1
-;     table_3:                                              1
-;     table_7:                                              1
 ;     test_ramdisc_memory_from_page_0000:                   1
 ;     title_help_or_extended:                               1
 ;     transfer_0200_to_7e00:                                1
@@ -11290,11 +11281,11 @@ save pydis_start, pydis_end
 
 ; Stats:
 ;     Total size (Code + Data) = 16384 bytes
-;     Code                     = 13493 bytes (82%)
-;     Data                     = 2891 bytes (18%)
+;     Code                     = 13492 bytes (82%)
+;     Data                     = 2892 bytes (18%)
 ;
-;     Number of instructions   = 6555
-;     Number of data bytes     = 1177 bytes
+;     Number of instructions   = 6554
+;     Number of data bytes     = 1178 bytes
 ;     Number of data words     = 14 bytes
 ;     Number of string bytes   = 1700 bytes
 ;     Number of strings        = 137
