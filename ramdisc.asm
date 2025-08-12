@@ -17,7 +17,6 @@ l0001                               = &0001
 l0002                               = &0002
 l0003                               = &0003
 l0007                               = &0007
-l0044                               = &0044
 l006e                               = &006e
 l0070                               = &0070
 l0071                               = &0071
@@ -87,7 +86,6 @@ l2000                               = &2000
 l2008                               = &2008
 l2009                               = &2009
 l200d                               = &200d
-l2020                               = &2020
 l2e00                               = &2e00
 l2f00                               = &2f00
 l4146                               = &4146
@@ -95,7 +93,6 @@ l4320                               = &4320
 l4520                               = &4520
 l4920                               = &4920
 l6142                               = &6142
-l6553                               = &6553
 l6562                               = &6562
 l6573                               = &6573
 l6574                               = &6574
@@ -215,15 +212,14 @@ boot_option                         = &fd28
 lfd2b                               = &fd2b
 current_drive_number                = &fd3c
 directory_letter                    = &fd3e
-lfd4e                               = &fd4e
-lfd4f                               = &fd4f
+subdrive_msb_hex_number             = &fd4e
+subdrive_lsb_hex_number             = &fd4f
 subdrive_number                     = &fd56
 formatted_flag                      = &fd60
 lfd61                               = &fd61
 default_drive_flag                  = &fd62
 memory_size                         = &fd63
-lfd68                               = &fd68
-lfd69                               = &fd69
+number_of_free_ramdisc_sectors      = &fd68
 free_sector_count_lsb               = &fd6a
 free_sector_count_msb               = &fd6b
 lfd70                               = &fd70
@@ -542,12 +538,12 @@ l8058 = command_list+1
     cmp #&30 ; '0'                                                    ; 81df: c9 30       .0
     bcc drive_number_below_0                                          ; 81e1: 90 04       ..
     cmp #&3a ; ':'                                                    ; 81e3: c9 3a       .:
-    bcc write_drive_number_then_2xNL                                  ; 81e5: 90 23       .#
+    bcc write_drive_number_then_2_newlines                            ; 81e5: 90 23       .#
 ; ***************************************************************************************
 ; &81e7 referenced 1 time by &81e1
 .drive_number_below_0
     lda #&3f ; '?'                                                    ; 81e7: a9 3f       .?
-    bne write_drive_number_then_2xNL                                  ; 81e9: d0 1f       ..             ; ALWAYS branch
+    bne write_drive_number_then_2_newlines                            ; 81e9: d0 1f       ..             ; ALWAYS branch
 
 ; ***************************************************************************************
 ; &81eb referenced 1 time by &81d9
@@ -572,7 +568,7 @@ l8058 = command_list+1
 
 ; ***************************************************************************************
 ; &820a referenced 2 times by &81e5, &81e9
-.write_drive_number_then_2xNL
+.write_drive_number_then_2_newlines
     jsr oswrch                                                        ; 820a: 20 ee ff     ..            ; Write character
     jsr osnewl                                                        ; 820d: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
     jsr osnewl                                                        ; 8210: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
@@ -1138,7 +1134,7 @@ l8058 = command_list+1
 ; stores the error number and string in the stack then calls the it to invoke the brkv
 ; handler
 ; ***************************************************************************************
-; &84de referenced 28 times by &8917, &8aac, &8ab7, &8aca, &8ada, &8aeb, &8ccc, &8dfe, &8ef3, &8f33, &8fe6, &925f, &92d8, &93d6, &987a, &9914, &9941, &a1dd, &a20a, &a2c8, &a2ef, &a31a, &a817, &a8c9, &afc4, &b39b, &b7ca, &b9cf
+; &84de referenced 27 times by &8917, &8aac, &8ab7, &8aca, &8ada, &8aeb, &8ccc, &8dfe, &8ef3, &8f33, &8fe6, &925f, &92d8, &93d6, &987a, &9914, &9941, &a1dd, &a20a, &a2c8, &a2ef, &a31a, &a817, &a8c9, &afc4, &b7ca, &b9cf
 .print_inline_error
     pla                                                               ; 84de: 68          h
     sta ptr1                                                          ; 84df: 85 fd       ..             ; lsb of (return address)-1
@@ -1935,6 +1931,8 @@ l8058 = command_list+1
     beq internal_loop_ignore_spaces_in_command_line                   ; 88b0: f0 f9       ..
     rts                                                               ; 88b2: 60          `
 
+; ***************************************************************************************
+; Validates the subdrive is a valid hex value
 ; ***************************************************************************************
 ; &88b3 referenced 2 times by &a8d8, &a8e4
 .validate_subdrive
@@ -2870,11 +2868,11 @@ l8058 = command_list+1
     lda zp_current_drive_number                                       ; 8e1d: a5 88       ..
     cmp #&0d                                                          ; 8e1f: c9 0d       ..
     beq c8e2f                                                         ; 8e21: f0 0c       ..
-    ldx lfd68                                                         ; 8e23: ae 68 fd    .h.
+    ldx number_of_free_ramdisc_sectors                                ; 8e23: ae 68 fd    .h.
     nop                                                               ; 8e26: ea          .
     nop                                                               ; 8e27: ea          .
     nop                                                               ; 8e28: ea          .
-    ldy lfd69                                                         ; 8e29: ac 69 fd    .i.
+    ldy number_of_free_ramdisc_sectors+1                              ; 8e29: ac 69 fd    .i.
     jsr sub_c8eae                                                     ; 8e2c: 20 ae 8e     ..
 ; &8e2f referenced 1 time by &8e21
 .c8e2f
@@ -2921,13 +2919,13 @@ l8058 = command_list+1
     beq update_zp_free_sector_count                                   ; 8e70: f0 1a       ..
     jsr change_to_ramdisc_variable_page                               ; 8e72: 20 cc 87     ..
     clc                                                               ; 8e75: 18          .
-    lda lfd68                                                         ; 8e76: ad 68 fd    .h.
+    lda number_of_free_ramdisc_sectors                                ; 8e76: ad 68 fd    .h.
     nop                                                               ; 8e79: ea          .
     nop                                                               ; 8e7a: ea          .
     nop                                                               ; 8e7b: ea          .
     adc free_sector_count_lsb                                         ; 8e7c: 6d 6a fd    mj.
     sta zp_free_sector_count                                          ; 8e7f: 85 b2       ..
-    lda lfd69                                                         ; 8e81: ad 69 fd    .i.
+    lda number_of_free_ramdisc_sectors+1                              ; 8e81: ad 69 fd    .i.
     nop                                                               ; 8e84: ea          .
     nop                                                               ; 8e85: ea          .
     nop                                                               ; 8e86: ea          .
@@ -3240,11 +3238,11 @@ l8058 = command_list+1
     nop                                                               ; 9056: ea          .
     lda subdrive_number                                               ; 9057: ad 56 fd    .V.
     pha                                                               ; 905a: 48          H
-    lda lfd69                                                         ; 905b: ad 69 fd    .i.
+    lda number_of_free_ramdisc_sectors+1                              ; 905b: ad 69 fd    .i.
     sta l0079                                                         ; 905e: 85 79       .y
     pha                                                               ; 9060: 48          H
     nop                                                               ; 9061: ea          .
-    lda lfd68                                                         ; 9062: ad 68 fd    .h.
+    lda number_of_free_ramdisc_sectors                                ; 9062: ad 68 fd    .h.
     sta l0078                                                         ; 9065: 85 78       .x
     sty lsb_ramdisc_page                                              ; 9067: 8c c0 fc    ...
     nop                                                               ; 906a: ea          .
@@ -3267,11 +3265,11 @@ l8058 = command_list+1
     clc                                                               ; 9084: 18          .
     lda l0078                                                         ; 9085: a5 78       .x
     adc from_address                                                  ; 9087: 65 7a       ez
-    sta lfd68                                                         ; 9089: 8d 68 fd    .h.
+    sta number_of_free_ramdisc_sectors                                ; 9089: 8d 68 fd    .h.
     lda l0079                                                         ; 908c: a5 79       .y
     adc from_address+1                                                ; 908e: 65 7b       e{
     nop                                                               ; 9090: ea          .
-    sta lfd69                                                         ; 9091: 8d 69 fd    .i.
+    sta number_of_free_ramdisc_sectors+1                              ; 9091: 8d 69 fd    .i.
     sec                                                               ; 9094: 38          8
     nop                                                               ; 9095: ea          .
     nop                                                               ; 9096: ea          .
@@ -3794,14 +3792,14 @@ l8058 = command_list+1
     bne c939a                                                         ; 937d: d0 1b       ..
     jsr change_to_ramdisc_variable_page                               ; 937f: 20 cc 87     ..
     clc                                                               ; 9382: 18          .
-    lda lfd68                                                         ; 9383: ad 68 fd    .h.
+    lda number_of_free_ramdisc_sectors                                ; 9383: ad 68 fd    .h.
     nop                                                               ; 9386: ea          .
     nop                                                               ; 9387: ea          .
     nop                                                               ; 9388: ea          .
     adc free_sector_count_lsb                                         ; 9389: 6d 6a fd    mj.
     sta l0082                                                         ; 938c: 85 82       ..
     nop                                                               ; 938e: ea          .
-    lda lfd69                                                         ; 938f: ad 69 fd    .i.
+    lda number_of_free_ramdisc_sectors+1                              ; 938f: ad 69 fd    .i.
     nop                                                               ; 9392: ea          .
     nop                                                               ; 9393: ea          .
     nop                                                               ; 9394: ea          .
@@ -3937,7 +3935,7 @@ l8058 = command_list+1
     nop                                                               ; 9471: ea          .
     nop                                                               ; 9472: ea          .
     nop                                                               ; 9473: ea          .
-    sta lfd68                                                         ; 9474: 8d 68 fd    .h.
+    sta number_of_free_ramdisc_sectors                                ; 9474: 8d 68 fd    .h.
     nop                                                               ; 9477: ea          .
     nop                                                               ; 9478: ea          .
     nop                                                               ; 9479: ea          .
@@ -3946,7 +3944,7 @@ l8058 = command_list+1
     asl a                                                             ; 947e: 0a          .
     asl a                                                             ; 947f: 0a          .
     asl a                                                             ; 9480: 0a          .
-    sta lfd69                                                         ; 9481: 8d 69 fd    .i.
+    sta number_of_free_ramdisc_sectors+1                              ; 9481: 8d 69 fd    .i.
     lda #&ff                                                          ; 9484: a9 ff       ..
     sta lsb_ramdisc_page                                              ; 9486: 8d c0 fc    ...
     lda #&bb                                                          ; 9489: a9 bb       ..
@@ -4878,9 +4876,9 @@ table_5 = sub_c9863+1
     adc l0072                                                         ; 99f9: 65 72       er
     sta l0072                                                         ; 99fb: 85 72       .r
     jsr change_to_ramdisc_variable_page                               ; 99fd: 20 cc 87     ..
-    sta lfd69                                                         ; 9a00: 8d 69 fd    .i.
+    sta number_of_free_ramdisc_sectors+1                              ; 9a00: 8d 69 fd    .i.
     lda l0071                                                         ; 9a03: a5 71       .q
-    sta lfd68                                                         ; 9a05: 8d 68 fd    .h.
+    sta number_of_free_ramdisc_sectors                                ; 9a05: 8d 68 fd    .h.
     nop                                                               ; 9a08: ea          .
     nop                                                               ; 9a09: ea          .
     nop                                                               ; 9a0a: ea          .
@@ -5735,10 +5733,10 @@ table_5 = sub_c9863+1
 .c9efb
     jsr change_to_ramdisc_variable_page                               ; 9efb: 20 cc 87     ..
     lda l0082                                                         ; 9efe: a5 82       ..
-    sta lfd68                                                         ; 9f00: 8d 68 fd    .h.
+    sta number_of_free_ramdisc_sectors                                ; 9f00: 8d 68 fd    .h.
     lda l0083                                                         ; 9f03: a5 83       ..
     nop                                                               ; 9f05: ea          .
-    sta lfd69                                                         ; 9f06: 8d 69 fd    .i.
+    sta number_of_free_ramdisc_sectors+1                              ; 9f06: 8d 69 fd    .i.
     nop                                                               ; 9f09: ea          .
     nop                                                               ; 9f0a: ea          .
     nop                                                               ; 9f0b: ea          .
@@ -6551,12 +6549,13 @@ table_5 = sub_c9863+1
     sty l0070                                                         ; a3f2: 84 70       .p
     sty l0074                                                         ; a3f4: 84 74       .t
     sty l0076                                                         ; a3f6: 84 76       .v
+; ***************************************************************************************
 ; &a3f8 referenced 2 times by &a43b, &a440
-.ca3f8
+.cfind_command_2
     jsr sub_c8679                                                     ; a3f8: 20 79 86     y.
-    bcs ca442                                                         ; a3fb: b0 45       .E
+    bcs cfind_command_5                                               ; a3fb: b0 45       .E
     cmp #0                                                            ; a3fd: c9 00       ..
-    beq ca438                                                         ; a3ff: f0 37       .7
+    beq cfind_command_4                                               ; a3ff: f0 37       .7
     sta l0074                                                         ; a401: 85 74       .t
     ldy l0070                                                         ; a403: a4 70       .p
     jsr sub_c8700                                                     ; a405: 20 00 87     ..
@@ -6570,31 +6569,34 @@ table_5 = sub_c9863+1
     jsr convert_hex_to_decimal                                        ; a41b: 20 76 88     v.
     lda l0074                                                         ; a41e: a5 74       .t
     cmp #3                                                            ; a420: c9 03       ..
-    bne ca432                                                         ; a422: d0 0e       ..
+    bne cfind_command_3                                               ; a422: d0 0e       ..
     jsr print_inline_string                                           ; a424: 20 b7 84     ..            ; prints an inline string following jsr command
-    jsr l2020                                                         ; a427: 20 20 20
-    equs "Deleted"                                                    ; a42a: 44 65 6c... Del
+    equs "   Deleted"                                                 ; a427: 20 20 20...
     equb &ea                                                          ; a431: ea          .
 
+; ***************************************************************************************
 ; &a432 referenced 1 time by &a422
-.ca432
+.cfind_command_3
     jsr osnewl                                                        ; a432: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
     pla                                                               ; a435: 68          h
     sta l0070                                                         ; a436: 85 70       .p
+; ***************************************************************************************
 ; &a438 referenced 1 time by &a3ff
-.ca438
+.cfind_command_4
     jsr sub_c88e7                                                     ; a438: 20 e7 88     ..
-    bne ca3f8                                                         ; a43b: d0 bb       ..
+    bne cfind_command_2                                               ; a43b: d0 bb       ..
     jsr enough_catalogue_pages_left                                   ; a43d: 20 f0 88     ..
-    bcc ca3f8                                                         ; a440: 90 b6       ..
+    bcc cfind_command_2                                               ; a440: 90 b6       ..
+; ***************************************************************************************
 ; &a442 referenced 1 time by &a3fb
-.ca442
+.cfind_command_5
     lda l0074                                                         ; a442: a5 74       .t
-    bne ca449                                                         ; a444: d0 03       ..
+    bne cfind_command_complete                                        ; a444: d0 03       ..
     jmp error_file_not_found                                          ; a446: 4c b7 8a    L..
 
+; ***************************************************************************************
 ; &a449 referenced 1 time by &a444
-.ca449
+.cfind_command_complete
     jmp ready_for_new_command                                         ; a449: 4c b5 82    L..
 
 ; ***************************************************************************************
@@ -6620,19 +6622,24 @@ table_5 = sub_c9863+1
     equb &ea                                                          ; a484: ea          .
 
     jsr get_response_char_from_keyboard                               ; a485: 20 54 a1     T.
-    beq populate_blank_catalogue                                      ; a488: f0 03       ..             ; user responded yes
+    beq populate_blank_catalogue                                      ; a488: f0 03       ..             ; user response was Yes; user responded yes; creates a catalogue header
     jmp ready_for_new_command                                         ; a48a: 4c b5 82    L..
 
+; ***************************************************************************************
+; creates a catalogue header
+; 
+; Creates a catalogue header in the ramdisc variable page
 ; ***************************************************************************************
 ; &a48d referenced 1 time by &a488
 .populate_blank_catalogue
     ldx #&ff                                                          ; a48d: a2 ff       ..
+; ***************************************************************************************
 ; &a48f referenced 1 time by &a496
-.loop_ca48f
+.populate_blank_catalogue_2
     inx                                                               ; a48f: e8          .
     lda catalogue_header,x                                            ; a490: bd 1d a5    ...
     sta jim,x                                                         ; a493: 9d 00 fd    ...
-    bne loop_ca48f                                                    ; a496: d0 f7       ..
+    bne populate_blank_catalogue_2                                    ; a496: d0 f7       ..
     lda #&20 ; ' '                                                    ; a498: a9 20       .
     nop                                                               ; a49a: ea          .
 ; ***************************************************************************************
@@ -6653,7 +6660,7 @@ table_5 = sub_c9863+1
     stx subdrive_number                                               ; a4af: 8e 56 fd    .V.
     nop                                                               ; a4b2: ea          .
     nop                                                               ; a4b3: ea          .
-    stx lfd68                                                         ; a4b4: 8e 68 fd    .h.
+    stx number_of_free_ramdisc_sectors                                ; a4b4: 8e 68 fd    .h.
     nop                                                               ; a4b7: ea          .
     nop                                                               ; a4b8: ea          .
     stx free_sector_count_lsb                                         ; a4b9: 8e 6a fd    .j.
@@ -6664,7 +6671,8 @@ table_5 = sub_c9863+1
     inx                                                               ; a4c2: e8          .              ; X=&02
     nop                                                               ; a4c3: ea          .
     nop                                                               ; a4c4: ea          .
-    stx lfd69                                                         ; a4c5: 8e 69 fd    .i.
+    stx number_of_free_ramdisc_sectors+1                              ; a4c5: 8e 69 fd    .i.
+.check_memory_size
 ; check memory size of ramdisc
     lda #&10                                                          ; a4c8: a9 10       ..             ; ramdisc page 10, 1mb ramdisc only goes to &0F
     nop                                                               ; a4ca: ea          .
@@ -6672,10 +6680,11 @@ table_5 = sub_c9863+1
     lda jim                                                           ; a4ce: ad 00 fd    ...            ; get a copy of 0xfd00
     ldx #&bb                                                          ; a4d1: a2 bb       ..             ; change 0xdf00
     stx jim                                                           ; a4d3: 8e 00 fd    ...
+; ***************************************************************************************
 ; &a4d6 referenced 1 time by &a4d7
-.loop_ca4d6
+.check_memory_size_2
     dex                                                               ; a4d6: ca          .
-    bne loop_ca4d6                                                    ; a4d7: d0 fd       ..             ; waste time
+    bne check_memory_size_2                                           ; a4d7: d0 fd       ..             ; waste time
     ldy jim                                                           ; a4d9: ac 00 fd    ...            ; get a copy of the modified byte in 0xdf00
     nop                                                               ; a4dc: ea          .
     nop                                                               ; a4dd: ea          .
@@ -6761,15 +6770,16 @@ table_5 = sub_c9863+1
     jsr change_to_ramdisc_variable_page                               ; a593: 20 cc 87     ..
     lda ramdisc_drive_number                                          ; a596: ad 13 fd    ...
     cmp #&30 ; '0'                                                    ; a599: c9 30       .0
-    bcc ca5a1                                                         ; a59b: 90 04       ..
+    bcc rstat_command_invalid_drive                                   ; a59b: 90 04       ..
     cmp #&3a ; ':'                                                    ; a59d: c9 3a       .:
     bcc ca5a3                                                         ; a59f: 90 02       ..
+; ***************************************************************************************
 ; &a5a1 referenced 1 time by &a59b
-.ca5a1
+.rstat_command_invalid_drive
     lda #&3f ; '?'                                                    ; a5a1: a9 3f       .?
 ; &a5a3 referenced 1 time by &a59f
 .ca5a3
-    jsr oswrch                                                        ; a5a3: 20 ee ff     ..            ; Write character 63
+    jsr oswrch                                                        ; a5a3: 20 ee ff     ..            ; print drive number
     ldx #0                                                            ; a5a6: a2 00       ..
     stx zp_directory_letter                                           ; a5a8: 86 87       ..
     stx zp_current_drive_number                                       ; a5aa: 86 88       ..
@@ -6791,12 +6801,16 @@ table_5 = sub_c9863+1
 .ca5c2
     stx l0080                                                         ; a5c2: 86 80       ..
     ldx #5                                                            ; a5c4: a2 05       ..
+; ***************************************************************************************
+; Calculate the number of catalogue entries.
+; l0081 msb number of entries, l0080 lsb number of entries
+; ***************************************************************************************
 ; &a5c6 referenced 1 time by &a5cb
-.loop_ca5c6
+.calculate_catalogue_entries
     asl l0080                                                         ; a5c6: 06 80       ..
     rol l0081                                                         ; a5c8: 26 81       &.
     dex                                                               ; a5ca: ca          .
-    bne loop_ca5c6                                                    ; a5cb: d0 f9       ..
+    bne calculate_catalogue_entries                                   ; a5cb: d0 f9       ..
     tya                                                               ; a5cd: 98          .
     lsr a                                                             ; a5ce: 4a          J
     lsr a                                                             ; a5cf: 4a          J
@@ -6827,9 +6841,9 @@ table_5 = sub_c9863+1
     equb &ea                                                          ; a626: ea          .
 
     jsr change_to_ramdisc_variable_page                               ; a627: 20 cc 87     ..
-    lda lfd69                                                         ; a62a: ad 69 fd    .i.
+    lda number_of_free_ramdisc_sectors+1                              ; a62a: ad 69 fd    .i.
     jsr convert_hex_to_decimal                                        ; a62d: 20 76 88     v.
-    lda lfd68                                                         ; a630: ad 68 fd    .h.
+    lda number_of_free_ramdisc_sectors                                ; a630: ad 68 fd    .h.
     jsr convert_hex_to_decimal                                        ; a633: 20 76 88     v.
     jsr print_inline_string                                           ; a636: 20 b7 84     ..            ; prints an inline string following jsr command
 ; overlapping: ora l754e                                              ; a639: 0d 4e 75    .Nu
@@ -6842,7 +6856,7 @@ table_5 = sub_c9863+1
     jsr convert_hex_to_decimal                                        ; a650: 20 76 88     v.
     lda free_sector_count_lsb                                         ; a653: ad 6a fd    .j.
     jsr convert_hex_to_decimal                                        ; a656: 20 76 88     v.
-    jsr osnewl                                                        ; a659: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
+    jsr osnewl                                                        ; a659: 20 e7 ff     ..
     jmp ready_for_new_command                                         ; a65c: 4c b5 82    L..
 
 ; ***************************************************************************************
@@ -6869,10 +6883,12 @@ table_5 = sub_c9863+1
     ldx #&31 ; '1'                                                    ; a6a3: a2 31       .1
     pla                                                               ; a6a5: 68          h
     cmp #2                                                            ; a6a6: c9 02       ..
-    bne ca6ab                                                         ; a6a8: d0 01       ..
+    bne perform_ram_test_2                                            ; a6a8: d0 01       ..
     inx                                                               ; a6aa: e8          .              ; X=&32
+; memory size is 2Mb
+; ***************************************************************************************
 ; &a6ab referenced 1 time by &a6a8
-.ca6ab
+.perform_ram_test_2
     lda #&20 ; ' '                                                    ; a6ab: a9 20       .
     jsr oswrch                                                        ; a6ad: 20 ee ff     ..
     lda #&26 ; '&'                                                    ; a6b0: a9 26       .&
@@ -6937,7 +6953,7 @@ table_5 = sub_c9863+1
     beq ca732                                                         ; a72d: f0 03       ..
 ; &a72f referenced 1 time by &a719
 .ca72f
-    jsr sub_ca77e                                                     ; a72f: 20 7e a7     ~.
+    jsr draw_redit_header                                             ; a72f: 20 7e a7     ~.
 ; &a732 referenced 1 time by &a72d
 .ca732
     lda l0086                                                         ; a732: a5 86       ..
@@ -6969,61 +6985,68 @@ table_5 = sub_c9863+1
     lda #&26 ; '&'                                                    ; a760: a9 26       .&
     jsr oswrch                                                        ; a762: 20 ee ff     ..            ; Write character 38
     ldx #3                                                            ; a765: a2 03       ..
+; ***************************************************************************************
 ; &a767 referenced 1 time by &a76d
-.loop_ca767
+.user_pressed_escape_2
     lda l0081,x                                                       ; a767: b5 81       ..
     jsr convert_hex_to_decimal                                        ; a769: 20 76 88     v.
     dex                                                               ; a76c: ca          .
-    bpl loop_ca767                                                    ; a76d: 10 f8       ..
+    bpl user_pressed_escape_2                                         ; a76d: 10 f8       ..
     jsr print_inline_string                                           ; a76f: 20 b7 84     ..            ; prints an inline string following jsr command
     equs " errors"                                                    ; a772: 20 65 72...  er
     equb &0d, &ea                                                     ; a779: 0d ea       ..
 
     jmp error_escape_pressed                                          ; a77b: 4c ac 8a    L..
 
+; ***************************************************************************************
 ; &a77e referenced 1 time by &a72f
-.sub_ca77e
+.draw_redit_header
     txa                                                               ; a77e: 8a          .
     pha                                                               ; a77f: 48          H
+; ***************************************************************************************
 ; &a780 referenced 2 times by &a78e, &a7a8
-.ca780
+.move_cursor_1_space_right
     lda #9                                                            ; a780: a9 09       ..
     sta l0085                                                         ; a782: 85 85       ..
     jsr oswrch                                                        ; a784: 20 ee ff     ..            ; Write character 9
     lda #osbyte_read_char_at_cursor                                   ; a787: a9 87       ..
     jsr osbyte                                                        ; a789: 20 f4 ff     ..            ; Read character at the text cursor, and current screen MODE
     cpx #&20 ; ' '                                                    ; a78c: e0 20       .              ; X is the character at the text cursor
-    bne ca780                                                         ; a78e: d0 f0       ..
+    bne move_cursor_1_space_right                                     ; a78e: d0 f0       ..
     lda #9                                                            ; a790: a9 09       ..
-    jsr oswrch                                                        ; a792: 20 ee ff     ..            ; Write character 9
+    jsr oswrch                                                        ; a792: 20 ee ff     ..            ; move cursor right 1 space
     lda #osbyte_read_text_cursor_pos                                  ; a795: a9 86       ..
     jsr osbyte                                                        ; a797: 20 f4 ff     ..            ; Read input cursor position (Sets X=POS and Y=VPOS)
     cpx #&26 ; '&'                                                    ; a79a: e0 26       .&             ; X is the horizontal text position ('POS')
-    bcc ca7aa                                                         ; a79c: 90 0c       ..
+    bcc print_redit_sector_number                                     ; a79c: 90 0c       ..
     lda #&20 ; ' '                                                    ; a79e: a9 20       .
+; ***************************************************************************************
 ; &a7a0 referenced 1 time by &a7a6
-.loop_ca7a0
+.draw_redit_header_2
     jsr oswrch                                                        ; a7a0: 20 ee ff     ..            ; Write character 32
     dex                                                               ; a7a3: ca          .
     cpx #&21 ; '!'                                                    ; a7a4: e0 21       .!
-    bne loop_ca7a0                                                    ; a7a6: d0 f8       ..
-    beq ca780                                                         ; a7a8: f0 d6       ..             ; ALWAYS branch
+    bne draw_redit_header_2                                           ; a7a6: d0 f8       ..
+    beq move_cursor_1_space_right                                     ; a7a8: f0 d6       ..             ; ALWAYS branch
 
+; ***************************************************************************************
 ; &a7aa referenced 1 time by &a79c
-.ca7aa
+.print_redit_sector_number
     pla                                                               ; a7aa: 68          h
     pha                                                               ; a7ab: 48          H
     jsr convert_hex_to_decimal                                        ; a7ac: 20 76 88     v.
     ldx #0                                                            ; a7af: a2 00       ..
+; ***************************************************************************************
 ; &a7b1 referenced 1 time by &a7b8
-.loop_ca7b1
+.print_redit_sector_number_2
     inc l0081,x                                                       ; a7b1: f6 81       ..
-    bne ca7ba                                                         ; a7b3: d0 05       ..
+    bne print_redit_sector_number_complete                            ; a7b3: d0 05       ..
     inx                                                               ; a7b5: e8          .
     cpx #4                                                            ; a7b6: e0 04       ..
-    bne loop_ca7b1                                                    ; a7b8: d0 f7       ..
+    bne print_redit_sector_number_2                                   ; a7b8: d0 f7       ..
+; ***************************************************************************************
 ; &a7ba referenced 1 time by &a7b3
-.ca7ba
+.print_redit_sector_number_complete
     pla                                                               ; a7ba: 68          h
     tax                                                               ; a7bb: aa          .
     rts                                                               ; a7bc: 60          `
@@ -7042,13 +7065,15 @@ table_5 = sub_c9863+1
     cmp #&26 ; '&'                                                    ; a7cd: c9 26       .&
     beq ca7ed                                                         ; a7cf: f0 1c       ..
     cmp #&22 ; '"'                                                    ; a7d1: c9 22       ."
-    bne ca7d6                                                         ; a7d3: d0 01       ..
+    bne scan_command_2                                                ; a7d3: d0 01       ..
     iny                                                               ; a7d5: c8          .
+; ***************************************************************************************
 ; &a7d6 referenced 1 time by &a7d3
-.ca7d6
+.scan_command_2
     ldx #0                                                            ; a7d6: a2 00       ..
+; ***************************************************************************************
 ; &a7d8 referenced 1 time by &a7e9
-.loop_ca7d8
+.scan_command_3
     lda (os_text_ptr),y                                               ; a7d8: b1 f2       ..
     cmp #&0d                                                          ; a7da: c9 0d       ..
     beq check_for_bad_string                                          ; a7dc: f0 33       .3
@@ -7058,7 +7083,7 @@ table_5 = sub_c9863+1
     iny                                                               ; a7e5: c8          .
     inx                                                               ; a7e6: e8          .
     cpx #&50 ; 'P'                                                    ; a7e7: e0 50       .P
-    bne loop_ca7d8                                                    ; a7e9: d0 ed       ..
+    bne scan_command_3                                                ; a7e9: d0 ed       ..
     beq check_for_bad_string                                          ; a7eb: f0 24       .$             ; ALWAYS branch
 
 ; &a7ed referenced 1 time by &a7cf
@@ -7098,9 +7123,7 @@ table_5 = sub_c9863+1
 ; &a826 referenced 1 time by &a815
 .print_searching_ram
     jsr print_inline_string                                           ; a826: 20 b7 84     ..            ; prints an inline string following jsr command
-; overlapping: jsr l6553                                              ; a829: 20 53 65     Se
     equs " Searching ram..."                                          ; a829: 20 53 65...  Se
-; overlapping: adc (l0072,x)                                          ; a82c: 61 72       ar
     equb &0d, &0d, &ea                                                ; a83a: 0d 0d ea    ...
 
     lda #0                                                            ; a83d: a9 00       ..
@@ -7110,23 +7133,25 @@ table_5 = sub_c9863+1
     sta l0082                                                         ; a846: 85 82       ..
     lda #&fd                                                          ; a848: a9 fd       ..
     sta l0083                                                         ; a84a: 85 83       ..
+; ***************************************************************************************
 ; &a84c referenced 3 times by &a857, &a890, &a8a4
-.ca84c
+.print_searching_ram_2
     ldy #0                                                            ; a84c: a0 00       ..
+; ***************************************************************************************
 ; &a84e referenced 1 time by &a85e
-.loop_ca84e
+.print_searching_ram_3
     lda l0780,y                                                       ; a84e: b9 80 07    ...
     cmp (l0082),y                                                     ; a851: d1 82       ..
     beq ca85b                                                         ; a853: f0 06       ..
     inc l0082                                                         ; a855: e6 82       ..
-    bne ca84c                                                         ; a857: d0 f3       ..
+    bne print_searching_ram_2                                         ; a857: d0 f3       ..
     beq ca88d                                                         ; a859: f0 32       .2             ; ALWAYS branch
 
 ; &a85b referenced 1 time by &a853
 .ca85b
     iny                                                               ; a85b: c8          .
     cpy l0081                                                         ; a85c: c4 81       ..
-    bne loop_ca84e                                                    ; a85e: d0 ee       ..
+    bne print_searching_ram_3                                         ; a85e: d0 ee       ..
     jsr save_copy_of_address_register                                 ; a860: 20 5c 88     \.
     lda #8                                                            ; a863: a9 08       ..
     jsr oswrch                                                        ; a865: 20 ee ff     ..            ; backspace one character
@@ -7136,7 +7161,7 @@ table_5 = sub_c9863+1
     jsr oswrch                                                        ; a86f: 20 ee ff     ..            ; advance cursor one character
     cpx #&2e ; '.'                                                    ; a872: e0 2e       ..
     bne print_address_register_space                                  ; a874: d0 03       ..
-    jsr osnewl                                                        ; a876: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
+    jsr osnewl                                                        ; a876: 20 e7 ff     ..
 ; ***************************************************************************************
 ; &a879 referenced 1 time by &a874
 .print_address_register_space
@@ -7150,22 +7175,22 @@ table_5 = sub_c9863+1
 ; &a88d referenced 1 time by &a859
 .ca88d
     inc lsb_ramdisc_page                                              ; a88d: ee c0 fc    ...
-    bne ca84c                                                         ; a890: d0 ba       ..
+    bne print_searching_ram_2                                         ; a890: d0 ba       ..
     bit os_escape_flag                                                ; a892: 24 ff       $.
-    bmi ca8ac                                                         ; a894: 30 16       0.
+    bmi searching_ram_escape_pressed                                  ; a894: 30 16       0.
     lda #&2e ; '.'                                                    ; a896: a9 2e       ..
-    jsr oswrch                                                        ; a898: 20 ee ff     ..            ; Write character 46
+    jsr oswrch                                                        ; a898: 20 ee ff     ..            ; progress_indicator
     inc msb_ramdisc_page                                              ; a89b: ee c2 fc    ...
     nop                                                               ; a89e: ea          .
     lda msb_ramdisc_page                                              ; a89f: ad c2 fc    ...
     cmp l0080                                                         ; a8a2: c5 80       ..
-    bcc ca84c                                                         ; a8a4: 90 a6       ..
-    jsr osnewl                                                        ; a8a6: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
+    bcc print_searching_ram_2                                         ; a8a4: 90 a6       ..
+    jsr osnewl                                                        ; a8a6: 20 e7 ff     ..
     jmp ready_for_new_command                                         ; a8a9: 4c b5 82    L..
 
 ; &a8ac referenced 1 time by &a894
-.ca8ac
-    jsr osnewl                                                        ; a8ac: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
+.searching_ram_escape_pressed
+    jsr osnewl                                                        ; a8ac: 20 e7 ff     ..
     jmp error_escape_pressed                                          ; a8af: 4c ac 8a    L..
 
 ; ***************************************************************************************
@@ -7176,13 +7201,14 @@ table_5 = sub_c9863+1
     cmp #&47 ; 'G'                                                    ; a8b6: c9 47       .G
     bcs error_bad_hex                                                 ; a8b8: b0 0f       ..
     cmp #&3a ; ':'                                                    ; a8ba: c9 3a       .:
-    bcs ca8c2                                                         ; a8bc: b0 04       ..
+    bcs check_hex_humber_2                                            ; a8bc: b0 04       ..
     sec                                                               ; a8be: 38          8
     sbc #&30 ; '0'                                                    ; a8bf: e9 30       .0
     rts                                                               ; a8c1: 60          `
 
+; ***************************************************************************************
 ; &a8c2 referenced 1 time by &a8bc
-.ca8c2
+.check_hex_humber_2
     cmp #&41 ; 'A'                                                    ; a8c2: c9 41       .A
     bcc error_bad_hex                                                 ; a8c4: 90 03       ..
     sbc #&37 ; '7'                                                    ; a8c6: e9 37       .7
@@ -7206,35 +7232,36 @@ table_5 = sub_c9863+1
     cmp #&0d                                                          ; a8e0: c9 0d       ..
     beq subdrive_command_no_more_on_command_line                      ; a8e2: f0 0f       ..
     jsr validate_subdrive                                             ; a8e4: 20 b3 88     ..
-    stx lfd4e                                                         ; a8e7: 8e 4e fd    .N.
+    stx subdrive_msb_hex_number                                       ; a8e7: 8e 4e fd    .N.
     nop                                                               ; a8ea: ea          .
     nop                                                               ; a8eb: ea          .
     nop                                                               ; a8ec: ea          .
-    sta lfd4f                                                         ; a8ed: 8d 4f fd    .O.
-    jmp ca8fe                                                         ; a8f0: 4c fe a8    L..
+    sta subdrive_lsb_hex_number                                       ; a8ed: 8d 4f fd    .O.
+    jmp convert_catalogue_subdrive_no_to_subdrive_no                  ; a8f0: 4c fe a8    L..
 
 ; ***************************************************************************************
 ; &a8f3 referenced 1 time by &a8e2
 .subdrive_command_no_more_on_command_line
     lda #&30 ; '0'                                                    ; a8f3: a9 30       .0
-    sta lfd4e                                                         ; a8f5: 8d 4e fd    .N.
+    sta subdrive_msb_hex_number                                       ; a8f5: 8d 4e fd    .N.
     nop                                                               ; a8f8: ea          .
     nop                                                               ; a8f9: ea          .
     nop                                                               ; a8fa: ea          .
-    stx lfd4f                                                         ; a8fb: 8e 4f fd    .O.
+    stx subdrive_lsb_hex_number                                       ; a8fb: 8e 4f fd    .O.
+; ***************************************************************************************
 ; &a8fe referenced 1 time by &a8f0
-.ca8fe
+.convert_catalogue_subdrive_no_to_subdrive_no
     nop                                                               ; a8fe: ea          .
     nop                                                               ; a8ff: ea          .
     nop                                                               ; a900: ea          .
-    lda lfd4e                                                         ; a901: ad 4e fd    .N.
+    lda subdrive_msb_hex_number                                       ; a901: ad 4e fd    .N.
     jsr convert_ascii_to_number                                       ; a904: 20 ca 88     ..
     asl a                                                             ; a907: 0a          .
     asl a                                                             ; a908: 0a          .
     asl a                                                             ; a909: 0a          .
     asl a                                                             ; a90a: 0a          .
     sta l0070                                                         ; a90b: 85 70       .p
-    lda lfd4f                                                         ; a90d: ad 4f fd    .O.
+    lda subdrive_lsb_hex_number                                       ; a90d: ad 4f fd    .O.
     jsr convert_ascii_to_number                                       ; a910: 20 ca 88     ..
     clc                                                               ; a913: 18          .
     adc l0070                                                         ; a914: 65 70       ep
@@ -7244,13 +7271,14 @@ table_5 = sub_c9863+1
 ; ***************************************************************************************
 .store_command
     lda #&80                                                          ; a91c: a9 80       ..
-    bne ca922                                                         ; a91e: d0 02       ..             ; ALWAYS branch
+    bne undo_command_complete                                         ; a91e: d0 02       ..             ; ALWAYS branch
 
 ; ***************************************************************************************
 .undo_command
     lda #0                                                            ; a920: a9 00       ..
+; ***************************************************************************************
 ; &a922 referenced 1 time by &a91e
-.ca922
+.undo_command_complete
     jsr transfer_0200_to_7e00                                         ; a922: 20 28 a9     (.
     jmp ready_for_new_command                                         ; a925: 4c b5 82    L..
 
@@ -7277,11 +7305,12 @@ table_5 = sub_c9863+1
     jsr check_if_ramdisc_formatted                                    ; a940: 20 0c 89     ..
     jsr store_copy_of_os_text_ptr                                     ; a943: 20 27 89     '.
     jsr sub_c850f                                                     ; a946: 20 0f 85     ..
-    beq ca94e                                                         ; a949: f0 03       ..
+    beq unwipe_command_2                                              ; a949: f0 03       ..
     jmp ready_for_new_command                                         ; a94b: 4c b5 82    L..
 
+; ***************************************************************************************
 ; &a94e referenced 1 time by &a949
-.ca94e
+.unwipe_command_2
     jsr change_to_ramdisc_variable_page                               ; a94e: 20 cc 87     ..
     lda subdrive_number                                               ; a951: ad 56 fd    .V.
     sta l0073                                                         ; a954: 85 73       .s
@@ -7289,33 +7318,37 @@ table_5 = sub_c9863+1
     ldy #0                                                            ; a959: a0 00       ..
     sty l0070                                                         ; a95b: 84 70       .p
     sty l0074                                                         ; a95d: 84 74       .t
+; ***************************************************************************************
 ; &a95f referenced 2 times by &a97a, &a97f
-.ca95f
+.unwipe_command_3
     jsr sub_c8679                                                     ; a95f: 20 79 86     y.
-    bcs ca981                                                         ; a962: b0 1d       ..
+    bcs unwipe_command_complete                                       ; a962: b0 1d       ..
     cmp #3                                                            ; a964: c9 03       ..
-    bne ca977                                                         ; a966: d0 0f       ..
+    bne unwipe_command_4                                              ; a966: d0 0f       ..
     lda l0072                                                         ; a968: a5 72       .r
     cmp l0073                                                         ; a96a: c5 73       .s
-    bne ca977                                                         ; a96c: d0 09       ..
+    bne unwipe_command_4                                              ; a96c: d0 09       ..
     lda #1                                                            ; a96e: a9 01       ..
     sta l0074                                                         ; a970: 85 74       .t
     ldy l0070                                                         ; a972: a4 70       .p
     jsr sub_ca98b                                                     ; a974: 20 8b a9     ..
+; ***************************************************************************************
 ; &a977 referenced 2 times by &a966, &a96c
-.ca977
+.unwipe_command_4
     jsr sub_c88e7                                                     ; a977: 20 e7 88     ..
-    bne ca95f                                                         ; a97a: d0 e3       ..
+    bne unwipe_command_3                                              ; a97a: d0 e3       ..
     jsr enough_catalogue_pages_left                                   ; a97c: 20 f0 88     ..
-    bcc ca95f                                                         ; a97f: 90 de       ..
+    bcc unwipe_command_3                                              ; a97f: 90 de       ..
+; ***************************************************************************************
 ; &a981 referenced 1 time by &a962
-.ca981
+.unwipe_command_complete
     lda l0074                                                         ; a981: a5 74       .t
-    beq ca988                                                         ; a983: f0 03       ..
+    beq unwipe_command_error_file_not_found                           ; a983: f0 03       ..
     jmp ready_for_new_command                                         ; a985: 4c b5 82    L..
 
+; ***************************************************************************************
 ; &a988 referenced 1 time by &a983
-.ca988
+.unwipe_command_error_file_not_found
     jmp error_file_not_found                                          ; a988: 4c b7 8a    L..
 
 ; &a98b referenced 1 time by &a974
@@ -7395,20 +7428,23 @@ table_5 = sub_c9863+1
     ldx #0                                                            ; aa02: a2 00       ..
     stx l0070                                                         ; aa04: 86 70       .p
     stx l0071                                                         ; aa06: 86 71       .q
-    jsr cad5b                                                         ; aa08: 20 5b ad     [.
+    jsr print_redit_instructions_2                                    ; aa08: 20 5b ad     [.
     jsr sub_cac0c                                                     ; aa0b: 20 0c ac     ..
+; ***************************************************************************************
 ; &aa0e referenced 3 times by &aa66, &aa6f, &aaf6
-.caa0e
+.redit_command_2
     jsr sub_cac33                                                     ; aa0e: 20 33 ac     3.
     ldx #0                                                            ; aa11: a2 00       ..
     jsr define_text_window                                            ; aa13: 20 10 ad     ..
     ldx #0                                                            ; aa16: a2 00       ..
     jsr print_redit_instructions                                      ; aa18: 20 50 ad     P.
+; ***************************************************************************************
 ; &aa1b referenced 2 times by &aa4c, &aa60
-.caa1b
+.redit_command_3
     jsr restore_default_window                                        ; aa1b: 20 00 ad     ..
+; ***************************************************************************************
 ; &aa1e referenced 1 time by &aaac
-.caa1e
+.redit_command_4
     jsr caccf                                                         ; aa1e: 20 cf ac     ..
     ldx #&14                                                          ; aa21: a2 14       ..             ; X=number of spaces
     jsr print_space_x_times                                           ; aa23: 20 22 ad     ".            ; prints a number pf spaces
@@ -7423,87 +7459,94 @@ table_5 = sub_c9863+1
     ldy #4                                                            ; aa39: a0 04       ..
     jsr move_cursor                                                   ; aa3b: 20 f4 ac     ..
     jsr sub_caafb                                                     ; aa3e: 20 fb aa     ..
-    bcs caa72                                                         ; aa41: b0 2f       ./
+    bcs redit_command_6                                               ; aa41: b0 2f       ./
     sta l0082                                                         ; aa43: 85 82       ..
     jsr sub_caf3b                                                     ; aa45: 20 3b af     ;.
     php                                                               ; aa48: 08          .
     lda l0082                                                         ; aa49: a5 82       ..
     plp                                                               ; aa4b: 28          (
-    beq caa1b                                                         ; aa4c: f0 cd       ..
-    bcs caa69                                                         ; aa4e: b0 19       ..
+    beq redit_command_3                                               ; aa4c: f0 cd       ..
+    bcs redit_command_5                                               ; aa4e: b0 19       ..
     sta l0071                                                         ; aa50: 85 71       .q
     jsr sub_caafb                                                     ; aa52: 20 fb aa     ..
-    bcs caa72                                                         ; aa55: b0 1b       ..
+    bcs redit_command_6                                               ; aa55: b0 1b       ..
     sta l0082                                                         ; aa57: 85 82       ..
     jsr sub_caf3b                                                     ; aa59: 20 3b af     ;.
     php                                                               ; aa5c: 08          .
     lda l0082                                                         ; aa5d: a5 82       ..
     plp                                                               ; aa5f: 28          (
-    beq caa1b                                                         ; aa60: f0 b9       ..
-    bcs caa69                                                         ; aa62: b0 05       ..
+    beq redit_command_3                                               ; aa60: f0 b9       ..
+    bcs redit_command_5                                               ; aa62: b0 05       ..
     sta l0070                                                         ; aa64: 85 70       .p
-    jmp caa0e                                                         ; aa66: 4c 0e aa    L..
+    jmp redit_command_2                                               ; aa66: 4c 0e aa    L..
 
+; ***************************************************************************************
 ; &aa69 referenced 2 times by &aa4e, &aa62
-.caa69
+.redit_command_5
     jsr sub_cac33                                                     ; aa69: 20 33 ac     3.
-    jsr sub_cab39                                                     ; aa6c: 20 39 ab     9.
-    jmp caa0e                                                         ; aa6f: 4c 0e aa    L..
+    jsr redit_command_screen                                          ; aa6c: 20 39 ab     9.
+    jmp redit_command_2                                               ; aa6f: 4c 0e aa    L..
 
+; ***************************************************************************************
 ; &aa72 referenced 2 times by &aa41, &aa55
-.caa72
+.redit_command_6
     jsr caccf                                                         ; aa72: 20 cf ac     ..
     ldy #4                                                            ; aa75: a0 04       ..
     jsr move_cursor                                                   ; aa77: 20 f4 ac     ..
     ldx #0                                                            ; aa7a: a2 00       ..
+; ***************************************************************************************
 ; &aa7c referenced 6 times by &aaa0, &aaa6, &aab5, &aab9, &aabd, &aac6
-.caa7c
+.redit_command_read_keypress
     jsr read_keypress                                                 ; aa7c: 20 66 af     f.
-    bcc caa9a                                                         ; aa7f: 90 19       ..
+    bcc redit_command_escape_not_pressed                              ; aa7f: 90 19       ..
+; ***************************************************************************************
 ; &aa81 referenced 1 time by &aaf9
-.caa81
+.redit_command_escape_was_pressed
     lda #osbyte_acknowledge_escape                                    ; aa81: a9 7e       .~
     jsr osbyte                                                        ; aa83: 20 f4 ff     ..            ; Clear escape condition and perform escape effects
     lda #osbyte_set_cursor_editing                                    ; aa86: a9 04       ..
     ldx l0080                                                         ; aa88: a6 80       ..
     jsr osbyte                                                        ; aa8a: 20 f4 ff     ..            ; Enable/disable cursor editing based on X
     lda #&16                                                          ; aa8d: a9 16       ..
-    jsr oswrch                                                        ; aa8f: 20 ee ff     ..            ; Write character 22
+    jsr oswrch                                                        ; aa8f: 20 ee ff     ..            ; mode 7
     lda #7                                                            ; aa92: a9 07       ..
-    jsr oswrch                                                        ; aa94: 20 ee ff     ..            ; Write character 7
+    jsr oswrch                                                        ; aa94: 20 ee ff     ..
     jmp error_escape_pressed                                          ; aa97: 4c ac 8a    L..
 
+; ***************************************************************************************
 ; &aa9a referenced 1 time by &aa7f
-.caa9a
+.redit_command_escape_not_pressed
     cmp #&7f                                                          ; aa9a: c9 7f       ..
-    bne caaa8                                                         ; aa9c: d0 0a       ..
+    bne redit_command_user_pressed_tab                                ; aa9c: d0 0a       ..
     cpx #0                                                            ; aa9e: e0 00       ..
-    beq caa7c                                                         ; aaa0: f0 da       ..
+    beq redit_command_read_keypress                                   ; aaa0: f0 da       ..
     jsr oswrch                                                        ; aaa2: 20 ee ff     ..            ; Write character
     dex                                                               ; aaa5: ca          .
-    bpl caa7c                                                         ; aaa6: 10 d4       ..
+    bpl redit_command_read_keypress                                   ; aaa6: 10 d4       ..
+; ***************************************************************************************
 ; &aaa8 referenced 1 time by &aa9c
-.caaa8
+.redit_command_user_pressed_tab
     cmp #9                                                            ; aaa8: c9 09       ..
     bne caaaf                                                         ; aaaa: d0 03       ..
-    jmp caa1e                                                         ; aaac: 4c 1e aa    L..
+    jmp redit_command_4                                               ; aaac: 4c 1e aa    L..
 
 ; &aaaf referenced 1 time by &aaaa
 .caaaf
     cmp #&0d                                                          ; aaaf: c9 0d       ..
-    beq caac8                                                         ; aab1: f0 15       ..
+    beq redit_command_user_pressed_enter                              ; aab1: f0 15       ..
     cmp #&20 ; ' '                                                    ; aab3: c9 20       .
-    bcc caa7c                                                         ; aab5: 90 c5       ..
+    bcc redit_command_read_keypress                                   ; aab5: 90 c5       ..
     cmp #&7f                                                          ; aab7: c9 7f       ..
-    bcs caa7c                                                         ; aab9: b0 c1       ..
+    bcs redit_command_read_keypress                                   ; aab9: b0 c1       ..
     cpx #&12                                                          ; aabb: e0 12       ..
-    beq caa7c                                                         ; aabd: f0 bd       ..
+    beq redit_command_read_keypress                                   ; aabd: f0 bd       ..
     sta l2f00,x                                                       ; aabf: 9d 00 2f    ../
     jsr oswrch                                                        ; aac2: 20 ee ff     ..            ; Write character
     inx                                                               ; aac5: e8          .
-    bne caa7c                                                         ; aac6: d0 b4       ..
+    bne redit_command_read_keypress                                   ; aac6: d0 b4       ..
+; ***************************************************************************************
 ; &aac8 referenced 1 time by &aab1
-.caac8
+.redit_command_user_pressed_enter
     sta l2f00,x                                                       ; aac8: 9d 00 2f    ../
     jsr create_text_window                                            ; aacb: 20 05 ad     ..
     ldx #<(l2f00)                                                     ; aace: a2 00       ..
@@ -7526,11 +7569,11 @@ table_5 = sub_c9863+1
     cmp #&0d                                                          ; aaef: c9 0d       ..
     bne loop_caae5                                                    ; aaf1: d0 f2       ..
     jsr create_text_window                                            ; aaf3: 20 05 ad     ..
-    jmp caa0e                                                         ; aaf6: 4c 0e aa    L..
+    jmp redit_command_2                                               ; aaf6: 4c 0e aa    L..
 
 ; &aaf9 referenced 2 times by &ab00, &ab55
 .caaf9
-    bcs caa81                                                         ; aaf9: b0 86       ..
+    bcs redit_command_escape_was_pressed                              ; aaf9: b0 86       ..
 ; &aafb referenced 2 times by &aa3e, &aa52
 .sub_caafb
     ldx #0                                                            ; aafb: a2 00       ..
@@ -7542,19 +7585,19 @@ table_5 = sub_c9863+1
     beq cab18                                                         ; ab04: f0 12       ..
     sta l0081                                                         ; ab06: 85 81       ..
     cmp #&88                                                          ; ab08: c9 88       ..
-    beq cab35                                                         ; ab0a: f0 29       .)
+    beq clear_carry_return_ab35                                       ; ab0a: f0 29       .)
     cmp #&89                                                          ; ab0c: c9 89       ..
-    beq cab35                                                         ; ab0e: f0 25       .%
+    beq clear_carry_return_ab35                                       ; ab0e: f0 25       .%
     cmp #&0d                                                          ; ab10: c9 0d       ..
-    beq cab35                                                         ; ab12: f0 21       .!
+    beq clear_carry_return_ab35                                       ; ab12: f0 21       .!
     cmp #9                                                            ; ab14: c9 09       ..
-    beq cab37                                                         ; ab16: f0 1f       ..
+    beq set_carry_return_ab37                                         ; ab16: f0 1f       ..
 ; &ab18 referenced 1 time by &ab04
 .cab18
     jsr sub_caf77                                                     ; ab18: 20 77 af     w.
     bcc cab25                                                         ; ab1b: 90 08       ..
     lda #7                                                            ; ab1d: a9 07       ..
-    jsr oswrch                                                        ; ab1f: 20 ee ff     ..            ; Write character 7
+    jsr oswrch                                                        ; ab1f: 20 ee ff     ..            ; beep
     jmp caafd                                                         ; ab22: 4c fd aa    L..
 
 ; &ab25 referenced 1 time by &ab1b
@@ -7570,18 +7613,21 @@ table_5 = sub_c9863+1
     asl a                                                             ; ab31: 0a          .
     clc                                                               ; ab32: 18          .
     adc l0077                                                         ; ab33: 65 77       ew
+; ***************************************************************************************
 ; &ab35 referenced 3 times by &ab0a, &ab0e, &ab12
-.cab35
+.clear_carry_return_ab35
     clc                                                               ; ab35: 18          .
     rts                                                               ; ab36: 60          `
 
+; ***************************************************************************************
 ; &ab37 referenced 1 time by &ab16
-.cab37
+.set_carry_return_ab37
     sec                                                               ; ab37: 38          8
     rts                                                               ; ab38: 60          `
 
+; ***************************************************************************************
 ; &ab39 referenced 1 time by &aa6c
-.sub_cab39
+.redit_command_screen
     ldx #0                                                            ; ab39: a2 00       ..
     jsr define_text_window                                            ; ab3b: 20 10 ad     ..
     ldx #&81                                                          ; ab3e: a2 81       ..
@@ -7591,22 +7637,24 @@ table_5 = sub_c9863+1
     lda #0                                                            ; ab48: a9 00       ..
     sta l0072                                                         ; ab4a: 85 72       .r
     sta l0073                                                         ; ab4c: 85 73       .s
+; ***************************************************************************************
 ; &ab4e referenced 3 times by &ab63, &ab74, &aba1
-.cab4e
+.redit_command_screen_2
     jsr sub_cacd5                                                     ; ab4e: 20 d5 ac     ..
     clc                                                               ; ab51: 18          .
     jsr read_keypress                                                 ; ab52: 20 66 af     f.
     bcs caaf9                                                         ; ab55: b0 a2       ..
     bmi caba4                                                         ; ab57: 30 4b       0K
     cmp #9                                                            ; ab59: c9 09       ..
-    bne cab66                                                         ; ab5b: d0 09       ..
+    bne redit_command_screen_complete                                 ; ab5b: d0 09       ..
     lda l0072                                                         ; ab5d: a5 72       .r
     eor #1                                                            ; ab5f: 49 01       I.
     sta l0072                                                         ; ab61: 85 72       .r
-    jmp cab4e                                                         ; ab63: 4c 4e ab    LN.
+    jmp redit_command_screen_2                                        ; ab63: 4c 4e ab    LN.
 
+; ***************************************************************************************
 ; &ab66 referenced 1 time by &ab5b
-.cab66
+.redit_command_screen_complete
     cmp #&0d                                                          ; ab66: c9 0d       ..
     bne cab6b                                                         ; ab68: d0 01       ..
     rts                                                               ; ab6a: 60          `
@@ -7617,7 +7665,7 @@ table_5 = sub_c9863+1
     ldx l0072                                                         ; ab6d: a6 72       .r
     bne cab89                                                         ; ab6f: d0 18       ..
     jsr sub_caf77                                                     ; ab71: 20 77 af     w.
-    bcs cab4e                                                         ; ab74: b0 d8       ..
+    bcs redit_command_screen_2                                        ; ab74: b0 d8       ..
     sta l0076                                                         ; ab76: 85 76       .v
     ldx #1                                                            ; ab78: a2 01       ..
     jsr caafd                                                         ; ab7a: 20 fd aa     ..
@@ -7642,7 +7690,7 @@ table_5 = sub_c9863+1
     inc l0073                                                         ; ab9f: e6 73       .s
 ; &aba1 referenced 9 times by &ab9d, &abaa, &abae, &abb9, &abbd, &abc8, &abd7, &abde, &abe3
 .caba1
-    jmp cab4e                                                         ; aba1: 4c 4e ab    LN.
+    jmp redit_command_screen_2                                        ; aba1: 4c 4e ab    LN.
 
 ; &aba4 referenced 1 time by &ab57
 .caba4
@@ -7691,29 +7739,33 @@ table_5 = sub_c9863+1
 .cabe1
     cmp #&87                                                          ; abe1: c9 87       ..
     bne caba1                                                         ; abe3: d0 bc       ..
-    jsr sub_cabf5                                                     ; abe5: 20 f5 ab     ..
+    jsr copy_from_2e00_to_ramdisc                                     ; abe5: 20 f5 ab     ..
     rts                                                               ; abe8: 60          `
 
+; ***************************************************************************************
 ; &abe9 referenced 1 time by &ac36
-.sub_cabe9
+.copy_from_ramdisc_to_2e00
     ldx #0                                                            ; abe9: a2 00       ..
+; ***************************************************************************************
 ; &abeb referenced 1 time by &abf2
-.loop_cabeb
+.copy_from_ramdisc_to_2e00_2
     lda jim,x                                                         ; abeb: bd 00 fd    ...
     sta l2e00,x                                                       ; abee: 9d 00 2e    ...
     inx                                                               ; abf1: e8          .
-    bne loop_cabeb                                                    ; abf2: d0 f7       ..
+    bne copy_from_ramdisc_to_2e00_2                                   ; abf2: d0 f7       ..
     rts                                                               ; abf4: 60          `
 
+; ***************************************************************************************
 ; &abf5 referenced 1 time by &abe5
-.sub_cabf5
+.copy_from_2e00_to_ramdisc
     ldx #0                                                            ; abf5: a2 00       ..
+; ***************************************************************************************
 ; &abf7 referenced 1 time by &abfe
-.loop_cabf7
+.copy_from_2e00_to_ramdisc_2
     lda l2e00,x                                                       ; abf7: bd 00 2e    ...
     sta jim,x                                                         ; abfa: 9d 00 fd    ...
     inx                                                               ; abfd: e8          .
-    bne loop_cabf7                                                    ; abfe: d0 f7       ..
+    bne copy_from_2e00_to_ramdisc_2                                   ; abfe: d0 f7       ..
     rts                                                               ; ac00: 60          `
 
 ; ***************************************************************************************
@@ -7746,7 +7798,7 @@ table_5 = sub_c9863+1
 ; &ac33 referenced 3 times by &aa0e, &aa69, &af58
 .sub_cac33
     jsr change_ramdrive_page                                          ; ac33: 20 01 ac     ..
-    jsr sub_cabe9                                                     ; ac36: 20 e9 ab     ..
+    jsr copy_from_ramdisc_to_2e00                                     ; ac36: 20 e9 ab     ..
     jsr turn_off_cursor                                               ; ac39: 20 1c af     ..
     ldx #5                                                            ; ac3c: a2 05       ..
     jsr define_text_window                                            ; ac3e: 20 10 ad     ..
@@ -7931,12 +7983,13 @@ table_5 = sub_c9863+1
     cmp #&20 ; ' '                                                    ; ad2b: c9 20       .
     bcc cad33                                                         ; ad2d: 90 04       ..
     cmp #&7f                                                          ; ad2f: c9 7f       ..
-    bcc cad35                                                         ; ad31: 90 02       ..
+    bcc print_space_x_times_jmp_oswrch                                ; ad31: 90 02       ..
 ; &ad33 referenced 1 time by &ad2d
 .cad33
     lda #&2e ; '.'                                                    ; ad33: a9 2e       ..
+; ***************************************************************************************
 ; &ad35 referenced 1 time by &ad31
-.cad35
+.print_space_x_times_jmp_oswrch
     jmp oswrch                                                        ; ad35: 4c ee ff    L..            ; Write character 46
 
 ; ***************************************************************************************
@@ -7947,19 +8000,21 @@ table_5 = sub_c9863+1
     lsr a                                                             ; ad3a: 4a          J
     lsr a                                                             ; ad3b: 4a          J
     lsr a                                                             ; ad3c: 4a          J
-    jsr sub_cad43                                                     ; ad3d: 20 43 ad     C.
+    jsr print_hex_2                                                   ; ad3d: 20 43 ad     C.
     pla                                                               ; ad40: 68          h
     and #&0f                                                          ; ad41: 29 0f       ).
+; ***************************************************************************************
 ; &ad43 referenced 1 time by &ad3d
-.sub_cad43
+.print_hex_2
     clc                                                               ; ad43: 18          .
     adc #&30 ; '0'                                                    ; ad44: 69 30       i0
     cmp #&3a ; ':'                                                    ; ad46: c9 3a       .:
-    bcc cad4d                                                         ; ad48: 90 03       ..
+    bcc print_hex_complete                                            ; ad48: 90 03       ..
     clc                                                               ; ad4a: 18          .
     adc #7                                                            ; ad4b: 69 07       i.
+; ***************************************************************************************
 ; &ad4d referenced 1 time by &ad48
-.cad4d
+.print_hex_complete
     jmp oswrch                                                        ; ad4d: 4c ee ff    L..            ; Write character
 
 ; ***************************************************************************************
@@ -7970,14 +8025,15 @@ table_5 = sub_c9863+1
     jsr oswrch                                                        ; ad55: 20 ee ff     ..            ; Write character
     inx                                                               ; ad58: e8          .
     bne print_redit_instructions                                      ; ad59: d0 f5       ..
+; ***************************************************************************************
 ; &ad5b referenced 2 times by &aa08, &ad66
-.cad5b
+.print_redit_instructions_2
     lda redit_screen_layout,x                                         ; ad5b: bd 69 ad    .i.
     cmp #&ea                                                          ; ad5e: c9 ea       ..
     beq return_22                                                     ; ad60: f0 06       ..
     jsr oswrch                                                        ; ad62: 20 ee ff     ..            ; Write character
     inx                                                               ; ad65: e8          .
-    bne cad5b                                                         ; ad66: d0 f3       ..
+    bne print_redit_instructions_2                                    ; ad66: d0 f3       ..
 ; &ad68 referenced 2 times by &ad53, &ad60
 .return_22
     rts                                                               ; ad68: 60          `
@@ -8042,11 +8098,12 @@ table_5 = sub_c9863+1
     jsr oswrch                                                        ; af2d: 20 ee ff     ..
     ldx #7                                                            ; af30: a2 07       ..
     lda #0                                                            ; af32: a9 00       ..
+; ***************************************************************************************
 ; &af34 referenced 1 time by &af38
-.loop_caf34
+.change_cursor_status_2
     jsr oswrch                                                        ; af34: 20 ee ff     ..            ; Write character 0
     dex                                                               ; af37: ca          .
-    bne loop_caf34                                                    ; af38: d0 fa       ..
+    bne change_cursor_status_2                                        ; af38: d0 fa       ..
     rts                                                               ; af3a: 60          `
 
 ; &af3b referenced 2 times by &aa45, &aa59
@@ -8153,22 +8210,24 @@ table_5 = sub_c9863+1
     sty to_address                                                    ; afbc: 84 7c       .|
     lda l0079                                                         ; afbe: a5 79       .y
     cmp from_address                                                  ; afc0: c5 7a       .z
-    bne cafec                                                         ; afc2: d0 28       .(
+    bne print_copying_from_drive                                      ; afc2: d0 28       .(
     jsr print_inline_error                                            ; afc4: 20 de 84     ..            ; Print inline error
     equb &fe                                                          ; afc7: fe          .
     equs "Invalid with Ramdisc"                                       ; afc8: 49 6e 76... Inv
     equb 0                                                            ; afdc: 00          .
 
+; ***************************************************************************************
 ; &afdd referenced 2 times by &b00a, &b021
-.sub_cafdd
+.print_ramdisc
     jsr print_inline_string                                           ; afdd: 20 b7 84     ..            ; prints an inline string following jsr command
     equs " (Ramdisc)"                                                 ; afe0: 20 28 52...  (R
     equb &ea                                                          ; afea: ea          .
 
     rts                                                               ; afeb: 60          `
 
+; ***************************************************************************************
 ; &afec referenced 1 time by &afc2
-.cafec
+.print_copying_from_drive
     jsr print_inline_string                                           ; afec: 20 b7 84     ..            ; prints an inline string following jsr command
     equs " Copying from DR."                                          ; afef: 20 43 6f...  Co
     equb &ea                                                          ; b000: ea          .
@@ -8176,10 +8235,11 @@ table_5 = sub_c9863+1
     lda l0079                                                         ; b001: a5 79       .y
     jsr oswrch                                                        ; b003: 20 ee ff     ..            ; Write character
     cmp from_address+1                                                ; b006: c5 7b       .{
-    bne cb00d                                                         ; b008: d0 03       ..
-    jsr sub_cafdd                                                     ; b00a: 20 dd af     ..
+    bne print_to_drive                                                ; b008: d0 03       ..
+    jsr print_ramdisc                                                 ; b00a: 20 dd af     ..
+; ***************************************************************************************
 ; &b00d referenced 1 time by &b008
-.cb00d
+.print_to_drive
     jsr print_inline_string                                           ; b00d: 20 b7 84     ..            ; prints an inline string following jsr command
     equs " to DR."                                                    ; b010: 20 74 6f...  to
     equb &ea                                                          ; b017: ea          .
@@ -8188,21 +8248,22 @@ table_5 = sub_c9863+1
     jsr oswrch                                                        ; b01a: 20 ee ff     ..            ; Write character
     cmp from_address+1                                                ; b01d: c5 7b       .{
     bne cb024                                                         ; b01f: d0 03       ..
-    jsr sub_cafdd                                                     ; b021: 20 dd af     ..
+    jsr print_ramdisc                                                 ; b021: 20 dd af     ..
 ; &b024 referenced 1 time by &b01f
 .cb024
-    jsr sub_cbc59                                                     ; b024: 20 59 bc     Y.
+    jsr press_space_to_continue                                       ; b024: 20 59 bc     Y.
     ldy to_address                                                    ; b027: a4 7c       .|
     jsr store_copy_of_os_text_ptr                                     ; b029: 20 27 89     '.
     jsr sub_c850f                                                     ; b02c: 20 0f 85     ..
     lda from_address+1                                                ; b02f: a5 7b       .{
     cmp l0079                                                         ; b031: c5 79       .y
-    beq cb03b                                                         ; b033: f0 06       ..
+    beq print_copying_to_drive_complete                               ; b033: f0 06       ..
     jsr sub_cb052                                                     ; b035: 20 52 b0     R.
     jmp ready_for_new_command                                         ; b038: 4c b5 82    L..
 
+; ***************************************************************************************
 ; &b03b referenced 1 time by &b033
-.cb03b
+.print_copying_to_drive_complete
     jsr sub_cb329                                                     ; b03b: 20 29 b3     ).
     jmp ready_for_new_command                                         ; b03e: 4c b5 82    L..
 
@@ -8356,8 +8417,8 @@ table_5 = sub_c9863+1
     sta l78ac                                                         ; b118: 8d ac 78    ..x
     jsr oswrch                                                        ; b11b: 20 ee ff     ..            ; Write character
     lda #&20 ; ' '                                                    ; b11e: a9 20       .
-    jsr oswrch                                                        ; b120: 20 ee ff     ..            ; Write character 32
-    jsr oswrch                                                        ; b123: 20 ee ff     ..            ; Write character
+    jsr oswrch                                                        ; b120: 20 ee ff     ..
+    jsr oswrch                                                        ; b123: 20 ee ff     ..            ; print two spacex
     ldy l0072                                                         ; b126: a4 72       .r
     lda l7a06,y                                                       ; b128: b9 06 7a    ..z
     and #&0c                                                          ; b12b: 29 0c       ).
@@ -8687,10 +8748,8 @@ table_5 = sub_c9863+1
     jsr sub_cb3bb                                                     ; b393: 20 bb b3     ..
     jsr sub_cb3ce                                                     ; b396: 20 ce b3     ..
     bcs cb3a9                                                         ; b399: b0 0e       ..
-    jsr print_inline_error                                            ; b39b: 20 de 84     ..            ; Print inline error
-    dec l0044                                                         ; b39e: c6 44       .D
-    adc #&73 ; 's'                                                    ; b3a0: 69 73       is
-    equs "c full"                                                     ; b3a2: 63 20 66... c f
+    equb &20, &de, &84, &c6                                           ; b39b: 20 de 84...  ..
+    equs "Disc full"                                                  ; b39f: 44 69 73... Dis
     equb 0                                                            ; b3a8: 00          .
 
 ; &b3a9 referenced 1 time by &b399
@@ -8743,7 +8802,7 @@ table_5 = sub_c9863+1
 ; &b3f7 referenced 2 times by &b3ed, &b3f2
 .cb3f7
     jsr sub_cb4fb                                                     ; b3f7: 20 fb b4     ..
-    bcs cb460                                                         ; b3fa: b0 64       .d
+    bcs is_catalogue_full                                             ; b3fa: b0 64       .d
     rol a                                                             ; b3fc: 2a          *
     bcc cb402                                                         ; b3fd: 90 03       ..
     jmp error_file_locked                                             ; b3ff: 4c ca 8a    L..
@@ -8766,7 +8825,7 @@ table_5 = sub_c9863+1
     lda l79ff,y                                                       ; b418: b9 ff 79    ..y
     and #3                                                            ; b41b: 29 03       ).
     sta l7a07,y                                                       ; b41d: 99 07 7a    ..z
-    jsr cb46a                                                         ; b420: 20 6a b4     j.
+    jsr catalogue_has_space                                           ; b420: 20 6a b4     j.
     bcs cb427                                                         ; b423: b0 02       ..
     clc                                                               ; b425: 18          .
     rts                                                               ; b426: 60          `
@@ -8809,15 +8868,17 @@ table_5 = sub_c9863+1
     sec                                                               ; b45e: 38          8
     rts                                                               ; b45f: 60          `
 
+; ***************************************************************************************
 ; &b460 referenced 1 time by &b3fa
-.cb460
+.is_catalogue_full
     lda l7a05                                                         ; b460: ad 05 7a    ..z
     cmp #&f8                                                          ; b463: c9 f8       ..
-    bcc cb46a                                                         ; b465: 90 03       ..
+    bcc catalogue_has_space                                           ; b465: 90 03       ..
     jmp error_catalogue_full                                          ; b467: 4c fe 8d    L..
 
+; ***************************************************************************************
 ; &b46a referenced 2 times by &b420, &b465
-.cb46a
+.catalogue_has_space
     lda #0                                                            ; b46a: a9 00       ..
     sta l7899                                                         ; b46c: 8d 99 78    ..x
     lda #2                                                            ; b46f: a9 02       ..
@@ -8840,13 +8901,14 @@ table_5 = sub_c9863+1
     lda l7899                                                         ; b497: ad 99 78    ..x
     sta l7895                                                         ; b49a: 8d 95 78    ..x
     cpy #&f8                                                          ; b49d: c0 f8       ..
-    beq cb4a6                                                         ; b49f: f0 05       ..
+    beq set_carry_return_b4a6                                         ; b49f: f0 05       ..
     tya                                                               ; b4a1: 98          .
     clc                                                               ; b4a2: 18          .
     adc #8                                                            ; b4a3: 69 08       i.
     tay                                                               ; b4a5: a8          .
+; ***************************************************************************************
 ; &b4a6 referenced 1 time by &b49f
-.cb4a6
+.set_carry_return_b4a6
     sec                                                               ; b4a6: 38          8
     rts                                                               ; b4a7: 60          `
 
@@ -9218,7 +9280,7 @@ table_5 = sub_c9863+1
     beq return_30                                                     ; b72d: f0 07       ..
     cmp #&23 ; '#'                                                    ; b72f: c9 23       .#
     beq return_30                                                     ; b731: f0 03       ..
-    jmp cb7ca                                                         ; b733: 4c ca b7    L..
+    jmp error_incompatible                                            ; b733: 4c ca b7    L..
 
 ; &b736 referenced 2 times by &b72d, &b731
 .return_30
@@ -9287,7 +9349,7 @@ table_5 = sub_c9863+1
     equs " Insert source"                                             ; b78c: 20 49 6e...  In
     equb &ea                                                          ; b79a: ea          .
 
-    jsr sub_cb8fd                                                     ; b79b: 20 fd b8     ..
+    jsr print_disc_in_drive                                           ; b79b: 20 fd b8     ..
     jsr sub_cb981                                                     ; b79e: 20 81 b9     ..
     ldy #0                                                            ; b7a1: a0 00       ..
     lda #&bb                                                          ; b7a3: a9 bb       ..
@@ -9303,7 +9365,7 @@ table_5 = sub_c9863+1
     lda #&7e ; '~'                                                    ; b7b4: a9 7e       .~
     jsr osword                                                        ; b7b6: 20 f1 ff     ..            ; Read disc (or directory) size (see https://beebwiki.mdfs.net/OSWORDs)
     lda l0077                                                         ; b7b9: a5 77       .w
-    bne cb7ca                                                         ; b7bb: d0 0d       ..
+    bne error_incompatible                                            ; b7bb: d0 0d       ..
     clc                                                               ; b7bd: 18          .
     lda l0078                                                         ; b7be: a5 78       .x
     adc l0079                                                         ; b7c0: 65 79       ey
@@ -9311,8 +9373,9 @@ table_5 = sub_c9863+1
     beq cb7db                                                         ; b7c4: f0 15       ..
     cmp #&23 ; '#'                                                    ; b7c6: c9 23       .#
     beq cb7db                                                         ; b7c8: f0 11       ..
+; ***************************************************************************************
 ; &b7ca referenced 2 times by &b733, &b7bb
-.cb7ca
+.error_incompatible
     jsr print_inline_error                                            ; b7ca: 20 de 84     ..            ; Print inline error
     equb &c7                                                          ; b7cd: c7          .
     equs "Incompatible"                                               ; b7ce: 49 6e 63... Inc
@@ -9345,17 +9408,18 @@ table_5 = sub_c9863+1
     jsr change_to_ramdisc_variable_page                               ; b805: 20 cc 87     ..
     lda formatted_flag                                                ; b808: ad 60 fd    .`.
     cmp #1                                                            ; b80b: c9 01       ..
-    beq cb81d                                                         ; b80d: f0 0e       ..
+    beq print_track_disc_2                                            ; b80d: f0 0e       ..
     lda #0                                                            ; b80f: a9 00       ..
     sta l0073                                                         ; b811: 85 73       .s
     sta l0075                                                         ; b813: 85 75       .u
     lda #&0c                                                          ; b815: a9 0c       ..
     sta l0074                                                         ; b817: 85 74       .t
     sta l0076                                                         ; b819: 85 76       .v
-    bne cb837                                                         ; b81b: d0 1a       ..             ; ALWAYS branch
+    bne print_track_disc_3                                            ; b81b: d0 1a       ..             ; ALWAYS branch
 
+; ***************************************************************************************
 ; &b81d referenced 1 time by &b80d
-.cb81d
+.print_track_disc_2
     lda free_sector_count_lsb                                         ; b81d: ad 6a fd    .j.
     sta l0073                                                         ; b820: 85 73       .s
     nop                                                               ; b822: ea          .
@@ -9364,24 +9428,26 @@ table_5 = sub_c9863+1
     sta l0074                                                         ; b827: 85 74       .t
     nop                                                               ; b829: ea          .
     nop                                                               ; b82a: ea          .
-    lda lfd68                                                         ; b82b: ad 68 fd    .h.
+    lda number_of_free_ramdisc_sectors                                ; b82b: ad 68 fd    .h.
     sta l0075                                                         ; b82e: 85 75       .u
     nop                                                               ; b830: ea          .
     nop                                                               ; b831: ea          .
-    lda lfd69                                                         ; b832: ad 69 fd    .i.
+    lda number_of_free_ramdisc_sectors+1                              ; b832: ad 69 fd    .i.
     sta l0076                                                         ; b835: 85 76       .v
+; ***************************************************************************************
 ; &b837 referenced 1 time by &b81b
-.cb837
+.print_track_disc_3
     lda l0079                                                         ; b837: a5 79       .y
     cmp l0074                                                         ; b839: c5 74       .t
     bcc cb84a                                                         ; b83b: 90 0d       ..
-    bne cb847                                                         ; b83d: d0 08       ..
+    bne print_track_drive_complete                                    ; b83d: d0 08       ..
     lda l0078                                                         ; b83f: a5 78       .x
     cmp l0073                                                         ; b841: c5 73       .s
     bcc cb84a                                                         ; b843: 90 05       ..
     beq cb84a                                                         ; b845: f0 03       ..
+; ***************************************************************************************
 ; &b847 referenced 1 time by &b83d
-.cb847
+.print_track_drive_complete
     jmp error_disc_full                                               ; b847: 4c e6 8f    L..
 
 ; &b84a referenced 3 times by &b83b, &b843, &b845
@@ -9411,7 +9477,7 @@ table_5 = sub_c9863+1
 
     lda #0                                                            ; b881: a9 00       ..
     sta l7821                                                         ; b883: 8d 21 78    .!x
-    jsr sub_cb8fd                                                     ; b886: 20 fd b8     ..
+    jsr print_disc_in_drive                                           ; b886: 20 fd b8     ..
     jsr sub_cb981                                                     ; b889: 20 81 b9     ..
     jsr sub_cb91c                                                     ; b88c: 20 1c b9     ..
 ; &b88f referenced 1 time by &b8a0
@@ -9426,14 +9492,16 @@ table_5 = sub_c9863+1
     bne loop_cb88f                                                    ; b8a0: d0 ed       ..
     lda l7821                                                         ; b8a2: ad 21 78    .!x
     cmp l7820                                                         ; b8a5: cd 20 78    . x
-    beq cb8c2                                                         ; b8a8: f0 18       ..
+    beq print_another_copy                                            ; b8a8: f0 18       ..
+.print_CRC_error_detected
     jsr print_inline_string                                           ; b8aa: 20 b7 84     ..            ; prints an inline string following jsr command
 ; overlapping: jsr l4320                                              ; b8ad: 20 20 43      C
     equs "  CRC error detected"                                       ; b8ad: 20 20 43...   C
     equb &ea                                                          ; b8c1: ea          .
 
+; ***************************************************************************************
 ; &b8c2 referenced 1 time by &b8a8
-.cb8c2
+.print_another_copy
     jsr print_inline_string                                           ; b8c2: 20 b7 84     ..            ; prints an inline string following jsr command
 ; overlapping: ora l200d                                              ; b8c5: 0d 0d 20    ..
     equb &0d, &0d                                                     ; b8c5: 0d 0d       ..
@@ -9465,8 +9533,9 @@ table_5 = sub_c9863+1
     sta l7821                                                         ; b8f9: 8d 21 78    .!x
     rts                                                               ; b8fc: 60          `
 
+; ***************************************************************************************
 ; &b8fd referenced 2 times by &b79b, &b886
-.sub_cb8fd
+.print_disc_in_drive
     jsr print_inline_string                                           ; b8fd: 20 b7 84     ..            ; prints an inline string following jsr command
 ; overlapping: jsr l6964                                              ; b900: 20 64 69     di
     equs " disc in drive "                                            ; b900: 20 64 69...  di
@@ -9476,7 +9545,7 @@ table_5 = sub_c9863+1
     clc                                                               ; b912: 18          .
     adc #&30 ; '0'                                                    ; b913: 69 30       i0
     jsr oswrch                                                        ; b915: 20 ee ff     ..            ; Write character
-    jsr sub_cbc59                                                     ; b918: 20 59 bc     Y.
+    jsr press_space_to_continue                                       ; b918: 20 59 bc     Y.
     rts                                                               ; b91b: 60          `
 
 ; &b91c referenced 2 times by &b84a, &b88c
@@ -9678,23 +9747,26 @@ table_5 = sub_c9863+1
     jsr sub_cbbd8                                                     ; ba58: 20 d8 bb     ..
     ldx #&80                                                          ; ba5b: a2 80       ..
     jsr sub_cb95f                                                     ; ba5d: 20 5f b9     _.
+; ***************************************************************************************
 ; &ba60 referenced 1 time by &ba76
-.loop_cba60
+.ramload_command_2
     jsr cbb6d                                                         ; ba60: 20 6d bb     m.
-    bcs cba79                                                         ; ba63: b0 14       ..
+    bcs ramload_command_complete                                      ; ba63: b0 14       ..
     lda l0083                                                         ; ba65: a5 83       ..
     cmp #&31 ; '1'                                                    ; ba67: c9 31       .1
-    beq cba73                                                         ; ba69: f0 08       ..
+    beq ramload_command_3                                             ; ba69: f0 08       ..
     jsr sub_cbb3d                                                     ; ba6b: 20 3d bb     =.
     jsr cbb6d                                                         ; ba6e: 20 6d bb     m.
-    bcs cba79                                                         ; ba71: b0 06       ..
+    bcs ramload_command_complete                                      ; ba71: b0 06       ..
+; ***************************************************************************************
 ; &ba73 referenced 1 time by &ba69
-.cba73
+.ramload_command_3
     jsr sub_cbb49                                                     ; ba73: 20 49 bb     I.
-    jmp loop_cba60                                                    ; ba76: 4c 60 ba    L`.
+    jmp ramload_command_2                                             ; ba76: 4c 60 ba    L`.
 
+; ***************************************************************************************
 ; &ba79 referenced 2 times by &ba63, &ba71
-.cba79
+.ramload_command_complete
     jsr osnewl                                                        ; ba79: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
     jmp ready_for_new_command                                         ; ba7c: 4c b5 82    L..
 
@@ -9702,11 +9774,11 @@ table_5 = sub_c9863+1
 .ramsave_command
     jsr check_if_ramdisc_formatted                                    ; ba7f: 20 0c 89     ..
     nop                                                               ; ba82: ea          .
-    lda lfd68                                                         ; ba83: ad 68 fd    .h.
+    lda number_of_free_ramdisc_sectors                                ; ba83: ad 68 fd    .h.
     sta l0080                                                         ; ba86: 85 80       ..
     nop                                                               ; ba88: ea          .
     nop                                                               ; ba89: ea          .
-    lda lfd69                                                         ; ba8a: ad 69 fd    .i.
+    lda number_of_free_ramdisc_sectors+1                              ; ba8a: ad 69 fd    .i.
     sta l0081                                                         ; ba8d: 85 81       ..
     jsr print_inline_string                                           ; ba8f: 20 b7 84     ..            ; prints an inline string following jsr command
     equb &16, 7, &0a                                                  ; ba92: 16 07 0a    ...
@@ -9743,23 +9815,26 @@ table_5 = sub_c9863+1
     jsr sub_cbb94                                                     ; bb01: 20 94 bb     ..
     lda #&4b ; 'K'                                                    ; bb04: a9 4b       .K
     jsr sub_cb929                                                     ; bb06: 20 29 b9     ).
+; ***************************************************************************************
 ; &bb09 referenced 1 time by &bb1f
-.loop_cbb09
+.ramsave_command_3
     jsr cbb56                                                         ; bb09: 20 56 bb     V.
-    bcs cbb22                                                         ; bb0c: b0 14       ..
+    bcs ramsave_command_complete                                      ; bb0c: b0 14       ..
     lda l0083                                                         ; bb0e: a5 83       ..
     cmp #&31 ; '1'                                                    ; bb10: c9 31       .1
-    beq cbb1c                                                         ; bb12: f0 08       ..
+    beq ramsave_command_4                                             ; bb12: f0 08       ..
     jsr sub_cbb3d                                                     ; bb14: 20 3d bb     =.
     jsr cbb56                                                         ; bb17: 20 56 bb     V.
-    bcs cbb22                                                         ; bb1a: b0 06       ..
+    bcs ramsave_command_complete                                      ; bb1a: b0 06       ..
+; ***************************************************************************************
 ; &bb1c referenced 1 time by &bb12
-.cbb1c
+.ramsave_command_4
     jsr sub_cbb49                                                     ; bb1c: 20 49 bb     I.
-    jmp loop_cbb09                                                    ; bb1f: 4c 09 bb    L..
+    jmp ramsave_command_3                                             ; bb1f: 4c 09 bb    L..
 
+; ***************************************************************************************
 ; &bb22 referenced 2 times by &bb0c, &bb1a
-.cbb22
+.ramsave_command_complete
     jsr osnewl                                                        ; bb22: 20 e7 ff     ..            ; Write newline (characters 10 and 13)
     jmp ready_for_new_command                                         ; bb25: 4c b5 82    L..
 
@@ -9961,8 +10036,9 @@ table_5 = sub_c9863+1
 ; &bc57 referenced 1 time by &bc4e
 .cbc57
     stx zp_current_drive_number                                       ; bc57: 86 88       ..
+; ***************************************************************************************
 ; &bc59 referenced 2 times by &b024, &b918
-.sub_cbc59
+.press_space_to_continue
     jsr print_inline_string                                           ; bc59: 20 b7 84     ..            ; prints an inline string following jsr command
     equb &0d                                                          ; bc5c: 0d          .
     equs " Press the SPACE BAR to continue..."                        ; bc5d: 20 50 72...  Pr
@@ -9986,13 +10062,14 @@ table_5 = sub_c9863+1
 ; overlapping: ror l6574                                              ; bc90: 6e 74 65    nte
     equb &ea                                                          ; bc9f: ea          .
 
+; ***************************************************************************************
 ; &bca0 referenced 1 time by &bca9
-.loop_cbca0
+.print_Enter_1_or_2_2
     jsr get_key_stroke_from_keyboard                                  ; bca0: 20 b3 bc     ..
     cmp #&31 ; '1'                                                    ; bca3: c9 31       .1
     beq print_character_and_NL                                        ; bca5: f0 04       ..
     cmp #&32 ; '2'                                                    ; bca7: c9 32       .2
-    bne loop_cbca0                                                    ; bca9: d0 f5       ..
+    bne print_Enter_1_or_2_2                                          ; bca9: d0 f5       ..
 ; ***************************************************************************************
 ; &bcab referenced 2 times by &bc86, &bca5
 .print_character_and_NL
@@ -10008,11 +10085,12 @@ table_5 = sub_c9863+1
     ldx #buffer_keyboard                                              ; bcb5: a2 00       ..
     jsr osbyte                                                        ; bcb7: 20 f4 ff     ..            ; Flush the keyboard buffer (X=0)
     jsr osrdch                                                        ; bcba: 20 e0 ff     ..            ; Read a character from the current input stream
-    bcs cbcc0                                                         ; bcbd: b0 01       ..
+    bcs get_key_stroke_from_keyboard_ack_escape                       ; bcbd: b0 01       ..
     rts                                                               ; bcbf: 60          `
 
+; ***************************************************************************************
 ; &bcc0 referenced 1 time by &bcbd
-.cbcc0
+.get_key_stroke_from_keyboard_ack_escape
     lda #osbyte_acknowledge_escape                                    ; bcc0: a9 7e       .~
     jsr osbyte                                                        ; bcc2: 20 f4 ff     ..            ; Clear escape condition and perform escape effects
     jmp error_escape_pressed                                          ; bcc5: 4c ac 8a    L..
@@ -10131,9 +10209,9 @@ save pydis_start, pydis_end
 ;     convert_hex_to_decimal:                              29
 ;     lfd07:                                               28
 ;     osnewl:                                              28
-;     print_inline_error:                                  28
 ;     ptr1:                                                28
 ;     ptr1+0:                                              28
+;     print_inline_error:                                  27
 ;     l0075:                                               25
 ;     ready_for_new_command:                               24
 ;     ramdisc_drive_number:                                22
@@ -10166,8 +10244,9 @@ save pydis_start, pydis_end
 ;     free_sector_count_lsb:                               12
 ;     free_sector_count_msb:                               12
 ;     lfd10:                                               12
-;     lfd68:                                               12
-;     lfd69:                                               12
+;     number_of_free_ramdisc_sectors:                      12
+;     number_of_free_ramdisc_sectors+0:                    12
+;     number_of_free_ramdisc_sectors+1:                    12
 ;     check_if_ramdisc_is_formatted:                       11
 ;     enough_catalogue_pages_left:                         11
 ;     ignore_spaces_in_command_line:                       11
@@ -10223,7 +10302,6 @@ save pydis_start, pydis_end
 ;     sub_c8679:                                            7
 ;     sub_c8700:                                            7
 ;     sub_c9040:                                            7
-;     caa7c:                                                6
 ;     check_for_digit:                                      6
 ;     command_list:                                         6
 ;     define_text_window:                                   6
@@ -10241,6 +10319,7 @@ save pydis_start, pydis_end
 ;     os_escape_flag:                                       6
 ;     osrdsc_ptr:                                           6
 ;     print_hex:                                            6
+;     redit_command_read_keypress:                          6
 ;     save_zp_variables_to_ramdisc_variable_page:           6
 ;     setup_transfer_address_data:                          6
 ;     sub_cb929:                                            6
@@ -10322,11 +10401,7 @@ save pydis_start, pydis_end
 ;     c9eba:                                                3
 ;     ca34e:                                                3
 ;     ca398:                                                3
-;     ca84c:                                                3
-;     caa0e:                                                3
 ;     caafd:                                                3
-;     cab35:                                                3
-;     cab4e:                                                3
 ;     caccf:                                                3
 ;     caf58:                                                3
 ;     cb0c3:                                                3
@@ -10337,6 +10412,7 @@ save pydis_start, pydis_end
 ;     check_for_tube:                                       3
 ;     check_rom_service_calls:                              3
 ;     clear_carry_and_return_8a64:                          3
+;     clear_carry_return_ab35:                              3
 ;     deal_with_wildcards:                                  3
 ;     default_drive_flag:                                   3
 ;     error_bad_hex:                                        3
@@ -10364,16 +10440,17 @@ save pydis_start, pydis_end
 ;     lfd0f:                                                3
 ;     lfd15:                                                3
 ;     lfd16:                                                3
-;     lfd4e:                                                3
-;     lfd4f:                                                3
 ;     lfd7f:                                                3
 ;     lfddf:                                                3
 ;     mode_7_move_cursor_down_a_line:                       3
 ;     not_crossing_page_boundary:                           3
 ;     osrdch:                                               3
 ;     osword_block_write_10_sectors_track_0:                3
+;     print_searching_ram_2:                                3
 ;     print_x_spaces:                                       3
 ;     pull_registers_from_stack:                            3
+;     redit_command_2:                                      3
+;     redit_command_screen_2:                               3
 ;     respond_to_service_call:                              3
 ;     return_12:                                            3
 ;     rom_autoboot_service_call:                            3
@@ -10389,6 +10466,8 @@ save pydis_start, pydis_end
 ;     sub_cad2b:                                            3
 ;     sub_cb3bb:                                            3
 ;     sub_cb5cb:                                            3
+;     subdrive_lsb_hex_number:                              3
+;     subdrive_msb_hex_number:                              3
 ;     title:                                                3
 ;     validate_ramdisc_control_byte_ffc1:                   3
 ;     c8239:                                                2
@@ -10433,33 +10512,23 @@ save pydis_start, pydis_end
 ;     ca23d:                                                2
 ;     ca257:                                                2
 ;     ca37c:                                                2
-;     ca3f8:                                                2
-;     ca780:                                                2
-;     ca95f:                                                2
-;     ca977:                                                2
 ;     ca9f6:                                                2
-;     caa1b:                                                2
-;     caa69:                                                2
-;     caa72:                                                2
 ;     caaf9:                                                2
 ;     cace5:                                                2
-;     cad5b:                                                2
 ;     cafbb:                                                2
+;     catalogue_has_space:                                  2
 ;     cb0e3:                                                2
 ;     cb187:                                                2
 ;     cb325:                                                2
 ;     cb33a:                                                2
 ;     cb350:                                                2
 ;     cb3f7:                                                2
-;     cb46a:                                                2
 ;     cb4cd:                                                2
 ;     cb4fd:                                                2
 ;     cb562:                                                2
-;     cb7ca:                                                2
 ;     cb7db:                                                2
 ;     cb8ec:                                                2
-;     cba79:                                                2
-;     cbb22:                                                2
+;     cfind_command_2:                                      2
 ;     check_drive_number_valid:                             2
 ;     check_for_drive_token:                                2
 ;     check_for_period_in_string_at_ptr2:                   2
@@ -10475,6 +10544,7 @@ save pydis_start, pydis_end
 ;     error_bad_filename:                                   2
 ;     error_catalogue_full:                                 2
 ;     error_disc_error:                                     2
+;     error_incompatible:                                   2
 ;     error_rename_syntax:                                  2
 ;     found_text_on_command_line:                           2
 ;     get_key_stroke_from_keyboard:                         2
@@ -10518,6 +10588,7 @@ save pydis_start, pydis_end
 ;     lfd7e:                                                2
 ;     lfd80:                                                2
 ;     lfde0:                                                2
+;     move_cursor_1_space_right:                            2
 ;     new_extended_vector_table:                            2
 ;     no_parameters_for_this_command:                       2
 ;     not_a_digit1:                                         2
@@ -10527,14 +10598,23 @@ save pydis_start, pydis_end
 ;     osword_block_number_of_parameters:                    2
 ;     osword_block_read:                                    2
 ;     parameter_list_offset:                                2
+;     press_space_to_continue:                              2
 ;     print_Enter_1_or_2:                                   2
 ;     print_NL_and_return:                                  2
 ;     print_character_and_NL:                               2
+;     print_disc_in_drive:                                  2
 ;     print_enter_backup_disc_number:                       2
 ;     print_list_ramdisc_commands:                          2
+;     print_ramdisc:                                        2
+;     print_redit_instructions_2:                           2
 ;     ptr1+1:                                               2
 ;     ramdisc_control_byte_1:                               2
 ;     ramdisc_control_byte_2:                               2
+;     ramload_command_complete:                             2
+;     ramsave_command_complete:                             2
+;     redit_command_3:                                      2
+;     redit_command_5:                                      2
+;     redit_command_6:                                      2
 ;     reload_raw_command_line_char:                         2
 ;     restore_default_window:                               2
 ;     return_11:                                            2
@@ -10574,25 +10654,24 @@ save pydis_start, pydis_end
 ;     sub_cac0c:                                            2
 ;     sub_caf3b:                                            2
 ;     sub_caf77:                                            2
-;     sub_cafdd:                                            2
 ;     sub_cb65f:                                            2
 ;     sub_cb689:                                            2
 ;     sub_cb713:                                            2
 ;     sub_cb8e0:                                            2
-;     sub_cb8fd:                                            2
 ;     sub_cb91c:                                            2
 ;     sub_cbb28:                                            2
 ;     sub_cbb3d:                                            2
 ;     sub_cbb49:                                            2
 ;     sub_cbb84:                                            2
 ;     sub_cbbbd:                                            2
-;     sub_cbc59:                                            2
 ;     switch_to_ramdisc_vector_page:                        2
 ;     test_ramdisc_memory:                                  2
 ;     toggle_control_bytes_switch_to_vector_page:           2
 ;     toggle_control_registers:                             2
+;     unwipe_command_3:                                     2
+;     unwipe_command_4:                                     2
 ;     validate_subdrive:                                    2
-;     write_drive_number_then_2xNL:                         2
+;     write_drive_number_then_2_newlines:                   2
 ;     bbc_b_plus:                                           1
 ;     bbc_master:                                           1
 ;     bputv_extended_vector:                                1
@@ -10786,44 +10865,21 @@ save pydis_start, pydis_end
 ;     ca3a2:                                                1
 ;     ca3a9:                                                1
 ;     ca3e1:                                                1
-;     ca432:                                                1
-;     ca438:                                                1
-;     ca442:                                                1
-;     ca449:                                                1
-;     ca5a1:                                                1
 ;     ca5a3:                                                1
 ;     ca5c2:                                                1
-;     ca6ab:                                                1
 ;     ca703:                                                1
 ;     ca72f:                                                1
 ;     ca732:                                                1
 ;     ca743:                                                1
-;     ca7aa:                                                1
-;     ca7ba:                                                1
-;     ca7d6:                                                1
 ;     ca7ed:                                                1
 ;     ca7ef:                                                1
 ;     ca85b:                                                1
 ;     ca88d:                                                1
-;     ca8ac:                                                1
-;     ca8c2:                                                1
-;     ca8fe:                                                1
-;     ca922:                                                1
-;     ca94e:                                                1
-;     ca981:                                                1
-;     ca988:                                                1
 ;     ca9da:                                                1
-;     caa1e:                                                1
-;     caa81:                                                1
-;     caa9a:                                                1
-;     caaa8:                                                1
 ;     caaaf:                                                1
-;     caac8:                                                1
 ;     caaef:                                                1
 ;     cab18:                                                1
 ;     cab25:                                                1
-;     cab37:                                                1
-;     cab66:                                                1
 ;     cab6b:                                                1
 ;     cab89:                                                1
 ;     cab94:                                                1
@@ -10838,16 +10894,12 @@ save pydis_start, pydis_end
 ;     cac86:                                                1
 ;     cacec:                                                1
 ;     cad33:                                                1
-;     cad35:                                                1
-;     cad4d:                                                1
 ;     caf4e:                                                1
 ;     caf5f:                                                1
 ;     caf87:                                                1
-;     cafec:                                                1
+;     calculate_catalogue_entries:                          1
 ;     catalogue_header:                                     1
-;     cb00d:                                                1
 ;     cb024:                                                1
-;     cb03b:                                                1
 ;     cb065:                                                1
 ;     cb069:                                                1
 ;     cb080:                                                1
@@ -10872,9 +10924,7 @@ save pydis_start, pydis_end
 ;     cb427:                                                1
 ;     cb438:                                                1
 ;     cb45b:                                                1
-;     cb460:                                                1
 ;     cb477:                                                1
-;     cb4a6:                                                1
 ;     cb4a8:                                                1
 ;     cb4ae:                                                1
 ;     cb530:                                                1
@@ -10892,17 +10942,11 @@ save pydis_start, pydis_end
 ;     cb771:                                                1
 ;     cb773:                                                1
 ;     cb7e3:                                                1
-;     cb81d:                                                1
-;     cb837:                                                1
-;     cb847:                                                1
 ;     cb869:                                                1
-;     cb8c2:                                                1
 ;     cb93a:                                                1
 ;     cb946:                                                1
 ;     cb99c:                                                1
 ;     cba00:                                                1
-;     cba73:                                                1
-;     cbb1c:                                                1
 ;     cbb92:                                                1
 ;     cbba2:                                                1
 ;     cbbb0:                                                1
@@ -10911,21 +10955,34 @@ save pydis_start, pydis_end
 ;     cbbf5:                                                1
 ;     cbc0b:                                                1
 ;     cbc57:                                                1
-;     cbcc0:                                                1
+;     cfind_command_3:                                      1
+;     cfind_command_4:                                      1
+;     cfind_command_5:                                      1
+;     cfind_command_complete:                               1
 ;     change_cursor_status:                                 1
+;     change_cursor_status_2:                               1
 ;     change_ramdrive_page:                                 1
 ;     check_drive_number_valid_error:                       1
 ;     check_for_double_quotes:                              1
 ;     check_for_invalid_directory_name:                     1
+;     check_hex_humber_2:                                   1
 ;     check_if_file_exists:                                 1
 ;     check_if_file_locked:                                 1
+;     check_memory_size_2:                                  1
 ;     check_title_syntax:                                   1
 ;     check_unknown_osword:                                 1
 ;     clear_carry_and_return:                               1
 ;     clear_carry_return_af5d:                              1
 ;     clear_carry_return_af97:                              1
 ;     compare_input_to_command_list:                        1
+;     convert_catalogue_subdrive_no_to_subdrive_no:         1
+;     copy_from_2e00_to_ramdisc:                            1
+;     copy_from_2e00_to_ramdisc_2:                          1
+;     copy_from_ramdisc_to_2e00:                            1
+;     copy_from_ramdisc_to_2e00_2:                          1
 ;     dir_command_has_directory:                            1
+;     draw_redit_header:                                    1
+;     draw_redit_header_2:                                  1
 ;     drive_is_0_to_3:                                      1
 ;     drive_number_below_0:                                 1
 ;     drive_number_valid:                                   1
@@ -10947,21 +11004,21 @@ save pydis_start, pydis_end
 ;     fill_remaining_catalogue_with_spaces:                 1
 ;     get_command_address:                                  1
 ;     get_directory_letter:                                 1
+;     get_key_stroke_from_keyboard_ack_escape:              1
 ;     hardcoded_osword_block:                               1
 ;     ignore_spaces:                                        1
+;     is_catalogue_full:                                    1
 ;     jmp_escape_error:                                     1
 ;     jmp_to_error_file_not_found:                          1
 ;     jmp_to_oswrch:                                        1
 ;     jump_lock_attribute:                                  1
 ;     jump_to_error_file_open:                              1
 ;     jump_to_error_file_open2:                             1
-;     l0044:                                                1
 ;     l00b9:                                                1
 ;     l0104:                                                1
 ;     l0105:                                                1
 ;     l02fe:                                                1
 ;     l0784:                                                1
-;     l2020:                                                1
 ;     l77ff:                                                1
 ;     l7804:                                                1
 ;     l780d:                                                1
@@ -11080,28 +11137,17 @@ save pydis_start, pydis_end
 ;     loop_ca299:                                           1
 ;     loop_ca2ba:                                           1
 ;     loop_ca33b:                                           1
-;     loop_ca48f:                                           1
-;     loop_ca4d6:                                           1
 ;     loop_ca4ff:                                           1
 ;     loop_ca502:                                           1
 ;     loop_ca513:                                           1
 ;     loop_ca5bc:                                           1
-;     loop_ca5c6:                                           1
-;     loop_ca767:                                           1
-;     loop_ca7a0:                                           1
-;     loop_ca7b1:                                           1
-;     loop_ca7d8:                                           1
-;     loop_ca84e:                                           1
 ;     loop_ca9a9:                                           1
 ;     loop_caae5:                                           1
-;     loop_cabeb:                                           1
-;     loop_cabf7:                                           1
 ;     loop_cac4a:                                           1
 ;     loop_cac67:                                           1
 ;     loop_cac94:                                           1
 ;     loop_cacb2:                                           1
 ;     loop_cad17:                                           1
-;     loop_caf34:                                           1
 ;     loop_cb0fd:                                           1
 ;     loop_cb1c9:                                           1
 ;     loop_cb1e8:                                           1
@@ -11122,11 +11168,8 @@ save pydis_start, pydis_end
 ;     loop_cb7a5:                                           1
 ;     loop_cb84d:                                           1
 ;     loop_cb88f:                                           1
-;     loop_cba60:                                           1
-;     loop_cbb09:                                           1
 ;     loop_cbbc1:                                           1
 ;     loop_cbbff:                                           1
-;     loop_cbca0:                                           1
 ;     loop_print_space_x_times:                             1
 ;     mb_software_and_subcommand:                           1
 ;     morley_rom_turned_on:                                 1
@@ -11147,26 +11190,54 @@ save pydis_start, pydis_end
 ;     pad_filename_with_spaces:                             1
 ;     page_ram_bank_select_b8_b15:                          1
 ;     parameter_list:                                       1
+;     perform_ram_test_2:                                   1
 ;     perform_transfer:                                     1
 ;     populate_blank_catalogue:                             1
+;     populate_blank_catalogue_2:                           1
+;     print_Enter_1_or_2_2:                                 1
 ;     print_address_register_space:                         1
+;     print_another_copy:                                   1
 ;     print_banner:                                         1
 ;     print_command_parameters:                             1
 ;     print_compact_are_you_sure:                           1
+;     print_copying_from_drive:                             1
+;     print_copying_to_drive_complete:                      1
 ;     print_filename:                                       1
 ;     print_help_and_subcommand:                            1
+;     print_hex_2:                                          1
+;     print_hex_complete:                                   1
 ;     print_parameters:                                     1
 ;     print_ramdisc_fs:                                     1
+;     print_redit_sector_number:                            1
+;     print_redit_sector_number_2:                          1
+;     print_redit_sector_number_complete:                   1
 ;     print_searching_ram:                                  1
+;     print_searching_ram_3:                                1
+;     print_space_x_times_jmp_oswrch:                       1
 ;     print_switched_off:                                   1
+;     print_to_drive:                                       1
 ;     print_track_disc:                                     1
+;     print_track_disc_2:                                   1
+;     print_track_disc_3:                                   1
+;     print_track_drive_complete:                           1
 ;     print_unformatted:                                    1
 ;     print_valid_character:                                1
 ;     ram_disc_commands:                                    1
 ;     ramdisc_switched_off:                                 1
+;     ramload_command_2:                                    1
+;     ramload_command_3:                                    1
 ;     ramsave_command_2:                                    1
+;     ramsave_command_3:                                    1
+;     ramsave_command_4:                                    1
 ;     read_command_line_next_char:                          1
 ;     read_operation:                                       1
+;     redit_command_4:                                      1
+;     redit_command_escape_not_pressed:                     1
+;     redit_command_escape_was_pressed:                     1
+;     redit_command_screen:                                 1
+;     redit_command_screen_complete:                        1
+;     redit_command_user_pressed_enter:                     1
+;     redit_command_user_pressed_tab:                       1
 ;     redit_instructions:                                   1
 ;     redit_screen_layout:                                  1
 ;     remove_return_address_from_stack:                     1
@@ -11192,9 +11263,15 @@ save pydis_start, pydis_end
 ;     return_9:                                             1
 ;     romsel_copy:                                          1
 ;     rstat_command:                                        1
+;     rstat_command_invalid_drive:                          1
 ;     save_default_drive:                                   1
 ;     save_rom_pointer_table_and_replace_with_new:          1
+;     scan_command_2:                                       1
+;     scan_command_3:                                       1
+;     searching_ram_escape_pressed:                         1
 ;     service_handler:                                      1
+;     set_carry_return_ab37:                                1
+;     set_carry_return_b4a6:                                1
 ;     single_byte_table_1:                                  1
 ;     single_byte_table_10_value_03:                        1
 ;     single_byte_table_2_value_18:                         1
@@ -11225,14 +11302,9 @@ save pydis_start, pydis_end
 ;     sub_ca11a:                                            1
 ;     sub_ca141:                                            1
 ;     sub_ca3ac:                                            1
-;     sub_ca77e:                                            1
 ;     sub_ca98b:                                            1
-;     sub_cab39:                                            1
-;     sub_cabe9:                                            1
-;     sub_cabf5:                                            1
 ;     sub_cacd5:                                            1
 ;     sub_cacd9:                                            1
-;     sub_cad43:                                            1
 ;     sub_cb052:                                            1
 ;     sub_cb0a9:                                            1
 ;     sub_cb0ec:                                            1
@@ -11262,10 +11334,15 @@ save pydis_start, pydis_end
 ;     tube_was_found:                                       1
 ;     turn_off_cursor:                                      1
 ;     turn_on_cursor:                                       1
+;     undo_command_complete:                                1
 ;     unformatted_string:                                   1
 ;     unknown_osword_routine:                               1
+;     unwipe_command_2:                                     1
+;     unwipe_command_complete:                              1
+;     unwipe_command_error_file_not_found:                  1
 ;     update_zp_free_sector_count:                          1
 ;     user_pressed_escape:                                  1
+;     user_pressed_escape_2:                                1
 ;     user_said_yes:                                        1
 ;     valid_filehandle_found:                               1
 ;     validate_ramdisc_control_byte_ffc3:                   1
@@ -11281,11 +11358,11 @@ save pydis_start, pydis_end
 
 ; Stats:
 ;     Total size (Code + Data) = 16384 bytes
-;     Code                     = 13492 bytes (82%)
-;     Data                     = 2892 bytes (18%)
+;     Code                     = 13482 bytes (82%)
+;     Data                     = 2902 bytes (18%)
 ;
-;     Number of instructions   = 6554
-;     Number of data bytes     = 1178 bytes
+;     Number of instructions   = 6550
+;     Number of data bytes     = 1182 bytes
 ;     Number of data words     = 14 bytes
-;     Number of string bytes   = 1700 bytes
+;     Number of string bytes   = 1706 bytes
 ;     Number of strings        = 137
