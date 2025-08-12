@@ -16,7 +16,6 @@ l0001                       = &0001
 l0002                       = &0002
 l0003                       = &0003
 l0007                       = &0007
-l0041                       = &0041
 l0070                       = &0070
 l0071                       = &0071
 l0072                       = &0072
@@ -95,9 +94,7 @@ l2009                       = &2009
 l2e00                       = &2e00
 l2f00                       = &2f00
 l4520                       = &4520
-l6142                       = &6142
 l6143                       = &6143
-l6572                       = &6572
 l6574                       = &6574
 l77fe                       = &77fe
 l77ff                       = &77ff
@@ -6016,8 +6013,8 @@ l981e = sub_c981d+1
 ; &a193 referenced 2 times by &a181, &a185
 .ca193
     jsr inline_error                                                  ; a193: 20 05 84     ..
-    dec l6142                                                         ; a196: ce 42 61    .Ba
-    equs "d directory"                                                ; a199: 64 20 64... d d
+    equb &ce                                                          ; a196: ce          .
+    equs "Bad directory"                                              ; a197: 42 61 64... Bad
     equb 0                                                            ; a1a4: 00          .
 
 ; ***************************************************************************************
@@ -6190,10 +6187,8 @@ l981e = sub_c981d+1
 ; &a2cf referenced 1 time by &a290
 .ca2cf
     jsr inline_error                                                  ; a2cf: 20 05 84     ..
-    cpy l0041                                                         ; a2d2: c4 41       .A
-    jmp (l6572)                                                       ; a2d4: 6c 72 65    lre
-
-    equs "ady exists"                                                 ; a2d7: 61 64 79... ady
+    equb &c4                                                          ; a2d2: c4          .
+    equs "Already exists"                                             ; a2d3: 41 6c 72... Alr
     equb 0                                                            ; a2e1: 00          .
 
 ; ***************************************************************************************
@@ -6416,7 +6411,7 @@ l981e = sub_c981d+1
 ; &a46f referenced 1 time by &a476
 .loop_ca46f
     inx                                                               ; a46f: e8          .
-    lda la4fd,x                                                       ; a470: bd fd a4    ...
+    lda Catalogue_header,x                                            ; a470: bd fd a4    ...
     sta jim,x                                                         ; a473: 9d 00 fd    ...
     bne loop_ca46f                                                    ; a476: d0 f7       ..
     lda #&20 ; ' '                                                    ; a478: a9 20       .
@@ -6506,7 +6501,7 @@ l981e = sub_c981d+1
     jmp c82ea                                                         ; a4fa: 4c ea 82    L..
 
 ; &a4fd referenced 1 time by &a470
-.la4fd
+.Catalogue_header
     equs "            "                                               ; a4fd: 20 20 20...
     equb &0d                                                          ; a509: 0d          .
     equs "Drive 4             Option 0 (off) "                        ; a50a: 44 72 69... Dri
@@ -6859,8 +6854,8 @@ l981e = sub_c981d+1
     cpx #0                                                            ; a7f3: e0 00       ..
     bne ca806                                                         ; a7f5: d0 0f       ..
     jsr inline_error                                                  ; a7f7: 20 05 84     ..
-    sbc l6142,x                                                       ; a7fa: fd 42 61    .Ba
-    equs "d string"                                                   ; a7fd: 64 20 73... d s
+    equb &fd                                                          ; a7fa: fd          .
+    equs "Bad string"                                                 ; a7fb: 42 61 64... Bad
     equb 0                                                            ; a805: 00          .
 
 ; &a806 referenced 1 time by &a7f5
@@ -6955,8 +6950,8 @@ l981e = sub_c981d+1
 ; &a8a9 referenced 3 times by &a894, &a898, &a8a4
 .ca8a9
     jsr inline_error                                                  ; a8a9: 20 05 84     ..
-    sbc l6142,x                                                       ; a8ac: fd 42 61    .Ba
-    equs "d hex"                                                      ; a8af: 64 20 68... d h
+    equb &fd                                                          ; a8ac: fd          .
+    equs "Bad hex"                                                    ; a8ad: 42 61 64... Bad
     equb 0                                                            ; a8b4: 00          .
 
 ; ***************************************************************************************
@@ -7507,7 +7502,7 @@ l981e = sub_c981d+1
 .sub_cac13
     jsr sub_cabe1                                                     ; ac13: 20 e1 ab     ..
     jsr sub_cabc9                                                     ; ac16: 20 c9 ab     ..
-    jsr sub_caefc                                                     ; ac19: 20 fc ae     ..
+    jsr turn_cursor_off                                               ; ac19: 20 fc ae     ..
     ldx #5                                                            ; ac1c: a2 05       ..
     jsr sub_cacf0                                                     ; ac1e: 20 f0 ac     ..
     ldx #5                                                            ; ac21: a2 05       ..
@@ -7587,7 +7582,7 @@ l981e = sub_c981d+1
     dec l0074                                                         ; aca5: c6 74       .t
     lda l0074                                                         ; aca7: a5 74       .t
     bne cac66                                                         ; aca9: d0 bb       ..
-    jsr sub_caf00                                                     ; acab: 20 00 af     ..
+    jsr turn_cursor_on                                                ; acab: 20 00 af     ..
     rts                                                               ; acae: 60          `
 
 ; &acaf referenced 3 times by &a9fe, &aa52, &ac10
@@ -7748,8 +7743,8 @@ l981e = sub_c981d+1
 .table_12
     equb   3, &1e, &4c, &1b, &0c, 3, &18, &4c, 6, 0, 7, &18, &4c, 8   ; ae06: 03 1e 4c... ..L
     equb &1e                                                          ; ae14: 1e          .
-; step printer; move cursor (76,27); cls; stop printer; define graphics window (&4c, 6,
-; 0,7, &18, &4c, 8, &1e)
+; step printer; move cursor home, I, escape , cls; stop printer; define graphics window
+; (&4c, 6, 0,7, &18, &4c, 8, &1e)
 ; &ae15 referenced 1 time by &ad30
 .lae15
     equs "TAB between sector and *command,  RETURN to enter editor"   ; ae15: 54 41 42... TAB
@@ -7765,22 +7760,25 @@ l981e = sub_c981d+1
     equs "ESCAPE to BASIC,  COPY to rewrite sector."                  ; aed2: 45 53 43... ESC
     equb 0                                                            ; aefb: 00          .
 
+; ***************************************************************************************
 ; &aefc referenced 1 time by &ac19
-.sub_caefc
+.turn_cursor_off
     ldx #0                                                            ; aefc: a2 00       ..
-    beq caf02                                                         ; aefe: f0 02       ..             ; ALWAYS branch
+    beq change_cursor_status                                          ; aefe: f0 02       ..             ; ALWAYS branch
 
+; ***************************************************************************************
 ; &af00 referenced 1 time by &acab
-.sub_caf00
+.turn_cursor_on
     ldx #1                                                            ; af00: a2 01       ..
+; ***************************************************************************************
 ; &af02 referenced 1 time by &aefe
-.caf02
+.change_cursor_status
     lda #&17                                                          ; af02: a9 17       ..
-    jsr oswrch                                                        ; af04: 20 ee ff     ..            ; Write character 23
+    jsr oswrch                                                        ; af04: 20 ee ff     ..            ; vdu 23; Write character 23
     lda #1                                                            ; af07: a9 01       ..
-    jsr oswrch                                                        ; af09: 20 ee ff     ..            ; Write character 1
+    jsr oswrch                                                        ; af09: 20 ee ff     ..            ; change cursor state
     txa                                                               ; af0c: 8a          .
-    jsr oswrch                                                        ; af0d: 20 ee ff     ..            ; Write character
+    jsr oswrch                                                        ; af0d: 20 ee ff     ..
     ldx #7                                                            ; af10: a2 07       ..
     lda #0                                                            ; af12: a9 00       ..
 ; &af14 referenced 1 time by &af18
@@ -7840,30 +7838,32 @@ l981e = sub_c981d+1
 ; &af57 referenced 2 times by &aaf8, &ab51
 .sub_caf57
     cmp #&30 ; '0'                                                    ; af57: c9 30       .0
-    bcc caf79                                                         ; af59: 90 1e       ..
+    bcc set_carry_return_af79                                         ; af59: 90 1e       ..
     cmp #&3a ; ':'                                                    ; af5b: c9 3a       .:
     bcs caf67                                                         ; af5d: b0 08       ..
     jsr oswrch                                                        ; af5f: 20 ee ff     ..            ; Write character
     sec                                                               ; af62: 38          8
     sbc #&30 ; '0'                                                    ; af63: e9 30       .0
-    bpl caf77                                                         ; af65: 10 10       ..
+    bpl clear_carry_return_af77                                       ; af65: 10 10       ..
 ; &af67 referenced 1 time by &af5d
 .caf67
     and #&5f ; '_'                                                    ; af67: 29 5f       )_
     cmp #&41 ; 'A'                                                    ; af69: c9 41       .A
-    bcc caf79                                                         ; af6b: 90 0c       ..
+    bcc set_carry_return_af79                                         ; af6b: 90 0c       ..
     cmp #&47 ; 'G'                                                    ; af6d: c9 47       .G
-    bcs caf79                                                         ; af6f: b0 08       ..
+    bcs set_carry_return_af79                                         ; af6f: b0 08       ..
     jsr oswrch                                                        ; af71: 20 ee ff     ..            ; Write character
     sec                                                               ; af74: 38          8
     sbc #&37 ; '7'                                                    ; af75: e9 37       .7
+; ***************************************************************************************
 ; &af77 referenced 1 time by &af65
-.caf77
+.clear_carry_return_af77
     clc                                                               ; af77: 18          .
     rts                                                               ; af78: 60          `
 
+; ***************************************************************************************
 ; &af79 referenced 3 times by &af59, &af6b, &af6f
-.caf79
+.set_carry_return_af79
     sec                                                               ; af79: 38          8
     rts                                                               ; af7a: 60          `
 
@@ -7872,10 +7872,10 @@ l981e = sub_c981d+1
     jsr check_if_drive_formatted                                      ; af7b: 20 23 88     #.
     lda ramdisc_drive_number                                          ; af7e: ad 13 fd    ...
     sta l007b                                                         ; af81: 85 7b       .{
-    jsr sub_cb008                                                     ; af83: 20 08 b0     ..
+    jsr check_drive_number_valid                                      ; af83: 20 08 b0     ..
     sta l0079                                                         ; af86: 85 79       .y
     iny                                                               ; af88: c8          .
-    jsr sub_cb008                                                     ; af89: 20 08 b0     ..
+    jsr check_drive_number_valid                                      ; af89: 20 08 b0     ..
     sta l007a                                                         ; af8c: 85 7a       .z
     cmp l007b                                                         ; af8e: c5 7b       .{
     beq caf9b                                                         ; af90: f0 09       ..
@@ -7940,16 +7940,18 @@ l981e = sub_c981d+1
     jsr sub_cb2d8                                                     ; b002: 20 d8 b2     ..
     jmp c82ea                                                         ; b005: 4c ea 82    L..
 
+; ***************************************************************************************
 ; &b008 referenced 2 times by &af83, &af89
-.sub_cb008
+.check_drive_number_valid
     jsr check_for_a_digit                                             ; b008: 20 bb 87     ..
-    bcs cb015                                                         ; b00b: b0 08       ..
+    bcs check_drive_number_valid_error                                ; b00b: b0 08       ..
     cmp #&34 ; '4'                                                    ; b00d: c9 34       .4
     bcc return_23                                                     ; b00f: 90 07       ..
     cmp l007b                                                         ; b011: c5 7b       .{
     beq return_23                                                     ; b013: f0 03       ..
+; ***************************************************************************************
 ; &b015 referenced 1 time by &b00b
-.cb015
+.check_drive_number_valid_error
     jmp error_bad_drive                                               ; b015: 4c c0 a1    L..
 
 ; &b018 referenced 2 times by &b00f, &b013
@@ -10055,7 +10057,6 @@ save pydis_start, pydis_end
 ;     cab2e:                                                          3
 ;     cacaf:                                                          3
 ;     caf38:                                                          3
-;     caf79:                                                          3
 ;     cb078:                                                          3
 ;     cb805:                                                          3
 ;     cb999:                                                          3
@@ -10070,7 +10071,6 @@ save pydis_start, pydis_end
 ;     l00b4:                                                          3
 ;     l00b8:                                                          3
 ;     l00bb:                                                          3
-;     l6142:                                                          3
 ;     l7802:                                                          3
 ;     l780a:                                                          3
 ;     l789a:                                                          3
@@ -10099,6 +10099,7 @@ save pydis_start, pydis_end
 ;     rom_workspace:                                                  3
 ;     set_carry_and_return_859e:                                      3
 ;     set_carry_return_880c:                                          3
+;     set_carry_return_af79:                                          3
 ;     single_byte_table_1_value_0:                                    3
 ;     skip_spaces_in_command_line:                                    3
 ;     sub_c86c2:                                                      3
@@ -10187,6 +10188,7 @@ save pydis_start, pydis_end
 ;     cba24:                                                          2
 ;     cbacd:                                                          2
 ;     cbc56:                                                          2
+;     check_drive_number_valid:                                       2
 ;     check_for_command_with_leading_M:                               2
 ;     check_hex_for_digit:                                            2
 ;     check_hex_for_subdrive:                                         2
@@ -10297,7 +10299,6 @@ save pydis_start, pydis_end
 ;     sub_cace5:                                                      2
 ;     sub_caf1b:                                                      2
 ;     sub_caf57:                                                      2
-;     sub_cb008:                                                      2
 ;     sub_cb61a:                                                      2
 ;     sub_cb644:                                                      2
 ;     sub_cb6ce:                                                      2
@@ -10317,6 +10318,7 @@ save pydis_start, pydis_end
 ;     validate_drive_number:                                          2
 ;     validate_rom_workspace:                                         2
 ;     write_to_rom_workspace:                                         2
+;     Catalogue_header:                                               1
 ;     banner_switched_off:                                            1
 ;     boot_file:                                                      1
 ;     c81e2:                                                          1
@@ -10583,16 +10585,13 @@ save pydis_start, pydis_end
 ;     cad13:                                                          1
 ;     cad15:                                                          1
 ;     cad2d:                                                          1
-;     caf02:                                                          1
 ;     caf2e:                                                          1
 ;     caf3f:                                                          1
 ;     caf67:                                                          1
-;     caf77:                                                          1
 ;     cafb6:                                                          1
 ;     cafd7:                                                          1
 ;     cafee:                                                          1
 ;     cb002:                                                          1
-;     cb015:                                                          1
 ;     cb02f:                                                          1
 ;     cb033:                                                          1
 ;     cb045:                                                          1
@@ -10661,6 +10660,8 @@ save pydis_start, pydis_end
 ;     cbc91:                                                          1
 ;     cbca0:                                                          1
 ;     cbcb6:                                                          1
+;     change_cursor_status:                                           1
+;     check_drive_number_valid_error:                                 1
 ;     check_for_empty_catalogue:                                      1
 ;     check_for_unknown_osword:                                       1
 ;     check_for_unknowwn_star_command:                                1
@@ -10671,6 +10672,7 @@ save pydis_start, pydis_end
 ;     check_if_file_locked:                                           1
 ;     check_is_digit:                                                 1
 ;     clear_carry_return_880a:                                        1
+;     clear_carry_return_af77:                                        1
 ;     command_parameters:                                             1
 ;     command_table+1:                                                1
 ;     convert_hex_digit_to_ascii:                                     1
@@ -10700,7 +10702,6 @@ save pydis_start, pydis_end
 ;     jump_to_c958c:                                                  1
 ;     jump_to_error_file_not_found:                                   1
 ;     jump_to_return_address_after_string:                            1
-;     l0041:                                                          1
 ;     l00b9:                                                          1
 ;     l0101:                                                          1
 ;     l0102:                                                          1
@@ -10710,7 +10711,6 @@ save pydis_start, pydis_end
 ;     l0784:                                                          1
 ;     l1898:                                                          1
 ;     l4520:                                                          1
-;     l6572:                                                          1
 ;     l6574:                                                          1
 ;     l77ff:                                                          1
 ;     l7801:                                                          1
@@ -10738,7 +10738,6 @@ save pydis_start, pydis_end
 ;     l99fd:                                                          1
 ;     l9a57:                                                          1
 ;     la0ee:                                                          1
-;     la4fd:                                                          1
 ;     lad49:                                                          1
 ;     lae15:                                                          1
 ;     lb712:                                                          1
@@ -10964,8 +10963,6 @@ save pydis_start, pydis_end
 ;     sub_cacb5:                                                      1
 ;     sub_cacb9:                                                      1
 ;     sub_cad23:                                                      1
-;     sub_caefc:                                                      1
-;     sub_caf00:                                                      1
 ;     sub_cb019:                                                      1
 ;     sub_cb05e:                                                      1
 ;     sub_cb0a1:                                                      1
@@ -10987,6 +10984,8 @@ save pydis_start, pydis_end
 ;     table_12:                                                       1
 ;     toggle_control_bytes_switch_to_vector_page:                     1
 ;     transfer_x_to_a_clear_carry_return:                             1
+;     turn_cursor_off:                                                1
+;     turn_cursor_on:                                                 1
 ;     turn_on_bit_7:                                                  1
 ;     unknown_osword_routine:                                         1
 ;     update_zp_free_sector_count:                                    1
@@ -10999,11 +10998,11 @@ save pydis_start, pydis_end
 
 ; Stats:
 ;     Total size (Code + Data) = 16384 bytes
-;     Code                     = 13467 bytes (82%)
-;     Data                     = 2917 bytes (18%)
+;     Code                     = 13453 bytes (82%)
+;     Data                     = 2931 bytes (18%)
 ;
-;     Number of instructions   = 6549
-;     Number of data bytes     = 1209 bytes
+;     Number of instructions   = 6544
+;     Number of data bytes     = 1213 bytes
 ;     Number of data words     = 14 bytes
-;     Number of string bytes   = 1694 bytes
+;     Number of string bytes   = 1704 bytes
 ;     Number of strings        = 125
