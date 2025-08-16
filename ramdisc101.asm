@@ -1428,13 +1428,14 @@ oscli                       = &fff7
 ; &86c2 referenced 3 times by &8680, &8688, &868f
 .print_hex_word_from_ramdisc
     ldx #2                                                            ; 86c2: a2 02       ..
+; ***************************************************************************************
 ; &86c4 referenced 1 time by &86cc
-.loop_c86c4
+.print_hex_word_next_byte
     lda jim,y                                                         ; 86c4: b9 00 fd    ...
     jsr hex_to_decimal                                                ; 86c7: 20 9d 87     ..
     dey                                                               ; 86ca: 88          .
     dex                                                               ; 86cb: ca          .
-    bpl loop_c86c4                                                    ; 86cc: 10 f6       ..
+    bpl print_hex_word_next_byte                                      ; 86cc: 10 f6       ..
     lda #&20 ; ' '                                                    ; 86ce: a9 20       .
     jsr store_current_ramdisc_page                                    ; 86d0: 20 83 87     ..
     jsr oswrch                                                        ; 86d3: 20 ee ff     ..            ; Write character
@@ -1506,7 +1507,7 @@ oscli                       = &fff7
     nop                                                               ; 871d: ea          .
     ldx lfddf                                                         ; 871e: ae df fd    ...
     inx                                                               ; 8721: e8          .
-    bne c8732                                                         ; 8722: d0 0e       ..
+    bne exit_restore_zp_variables_from_ramdisc                        ; 8722: d0 0e       ..
     ldx #&1f                                                          ; 8724: a2 1f       ..
 ; ***************************************************************************************
 ; &8726 referenced 1 time by &872c
@@ -1517,8 +1518,9 @@ oscli                       = &fff7
     bpl write_ramdisc_zp_variables_to_zp                              ; 872c: 10 f8       ..
     inx                                                               ; 872e: e8          .
     stx lfddf                                                         ; 872f: 8e df fd    ...
+; ***************************************************************************************
 ; &8732 referenced 1 time by &8722
-.c8732
+.exit_restore_zp_variables_from_ramdisc
     pla                                                               ; 8732: 68          h
     tax                                                               ; 8733: aa          .
     pla                                                               ; 8734: 68          h
@@ -2203,8 +2205,9 @@ oscli                       = &fff7
     sta l008d                                                         ; 8ad7: 85 8d       ..
     rts                                                               ; 8ad9: 60          `
 
+; ***************************************************************************************
 ; &8ada referenced 17 times by &8b48, &8b5a, &8b74, &8bb5, &8bfa, &8c0c, &8c34, &8c45, &9753, &9795, &97e2, &97e9, &9a54, &9aa3, &9ad5, &9c98, &9cb6
-.c8ada
+.restore_command_and_parameters_restore_zp_variables
     pla                                                               ; 8ada: 68          h
     pla                                                               ; 8adb: 68          h
     pla                                                               ; 8adc: 68          h
@@ -2273,7 +2276,7 @@ oscli                       = &fff7
 ; &8b45 referenced 1 time by &8b40
 .c8b45
     jsr sub_c8c51                                                     ; 8b45: 20 51 8c     Q.
-    jmp c8ada                                                         ; 8b48: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8b48: 4c da 8a    L..
 
 ; &8b4b referenced 1 time by &8b3b
 .c8b4b
@@ -2286,7 +2289,7 @@ oscli                       = &fff7
 ; &8b57 referenced 1 time by &8b52
 .c8b57
     jsr sub_c8d28                                                     ; 8b57: 20 28 8d     (.
-    jmp c8ada                                                         ; 8b5a: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8b5a: 4c da 8a    L..
 
 ; &8b5d referenced 1 time by &8b4d
 .c8b5d
@@ -2303,7 +2306,7 @@ oscli                       = &fff7
     bcc c8b77                                                         ; 8b6e: 90 07       ..
     lda #0                                                            ; 8b70: a9 00       ..
     sta l008d                                                         ; 8b72: 85 8d       ..
-    jmp c8ada                                                         ; 8b74: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8b74: 4c da 8a    L..
 
 ; &8b77 referenced 1 time by &8b6e
 .c8b77
@@ -2348,7 +2351,7 @@ oscli                       = &fff7
     sta (l008e),y                                                     ; 8bb3: 91 8e       ..
 ; &8bb5 referenced 1 time by &8bad
 .c8bb5
-    jmp c8ada                                                         ; 8bb5: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8bb5: 4c da 8a    L..
 
 ; &8bb8 referenced 1 time by &8b69
 .c8bb8
@@ -2394,7 +2397,7 @@ oscli                       = &fff7
     ldy #2                                                            ; 8bf3: a0 02       ..
     ldx l0076                                                         ; 8bf5: a6 76       .v
     jsr sub_c8ffa                                                     ; 8bf7: 20 fa 8f     ..
-    jmp c8ada                                                         ; 8bfa: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8bfa: 4c da 8a    L..
 
 ; &8bfd referenced 1 time by &8bf1
 .c8bfd
@@ -2407,7 +2410,7 @@ oscli                       = &fff7
     inx                                                               ; 8c07: e8          .
     inx                                                               ; 8c08: e8          .
     jsr sub_c8ffa                                                     ; 8c09: 20 fa 8f     ..
-    jmp c8ada                                                         ; 8c0c: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8c0c: 4c da 8a    L..
 
 ; &8c0f referenced 2 times by &8bed, &8bff
 .c8c0f
@@ -2432,7 +2435,7 @@ oscli                       = &fff7
 .c8c2f
     ldy l0076                                                         ; 8c2f: a4 76       .v
     sta lfd07,y                                                       ; 8c31: 99 07 fd    ...
-    jmp c8ada                                                         ; 8c34: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8c34: 4c da 8a    L..
 
 ; &8c37 referenced 1 time by &8c11
 .c8c37
@@ -2442,7 +2445,7 @@ oscli                       = &fff7
     ldy l0076                                                         ; 8c3e: a4 76       .v
     lda #1                                                            ; 8c40: a9 01       ..
     sta lfd07,y                                                       ; 8c42: 99 07 fd    ...
-    jmp c8ada                                                         ; 8c45: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 8c45: 4c da 8a    L..
 
 ; &8c48 referenced 4 times by &8b42, &8b54, &8b62, &8c39
 .c8c48
@@ -3238,7 +3241,7 @@ oscli                       = &fff7
     nop                                                               ; 90ed: ea          .
     lda ramdisc_drive_number,y                                        ; 90ee: b9 13 fd    ...
     sta l0003,x                                                       ; 90f1: 95 03       ..
-    jmp c917b                                                         ; 90f3: 4c 7b 91    L{.
+    jmp restore_y_rts                                                 ; 90f3: 4c 7b 91    L{.
 
 ; &90f6 referenced 1 time by &90d2
 .c90f6
@@ -3303,7 +3306,7 @@ oscli                       = &fff7
     tax                                                               ; 9153: aa          .
 ; &9154 referenced 2 times by &911f, &9121
 .c9154
-    jmp c917b                                                         ; 9154: 4c 7b 91    L{.
+    jmp restore_y_rts                                                 ; 9154: 4c 7b 91    L{.
 
 ; &9157 referenced 1 time by &90f8
 .c9157
@@ -3327,8 +3330,9 @@ oscli                       = &fff7
     lda lfd17,y                                                       ; 9175: b9 17 fd    ...
     nop                                                               ; 9178: ea          .
     sta l0003,x                                                       ; 9179: 95 03       ..
+; ***************************************************************************************
 ; &917b referenced 2 times by &90f3, &9154
-.c917b
+.restore_y_rts
     pla                                                               ; 917b: 68          h
     tay                                                               ; 917c: a8          .
 ; &917d referenced 1 time by &9159
@@ -3361,7 +3365,7 @@ oscli                       = &fff7
     rts                                                               ; 91a1: 60          `
 
 ; &91a2 referenced 1 time by &91b1
-.l91a2
+.single_byte_table_15_value_06
     equb 6                                                            ; 91a2: 06          .
 
 .sub_c91a3
@@ -3377,7 +3381,7 @@ oscli                       = &fff7
     pha                                                               ; 91ae: 48          H
     tya                                                               ; 91af: 98          .
     pha                                                               ; 91b0: 48          H
-    ldx l91a2                                                         ; 91b1: ae a2 91    ...
+    ldx single_byte_table_15_value_06                                 ; 91b1: ae a2 91    ...
     jmp c8ae8                                                         ; 91b4: 4c e8 8a    L..
 
 ; &91b7 referenced 2 times by &91a9, &952b
@@ -3483,7 +3487,7 @@ oscli                       = &fff7
     rts                                                               ; 9254: 60          `
 
 ; &9255 referenced 1 time by &9264
-.l9255
+.single_byte_table_14_value_9
     equb 9                                                            ; 9255: 09          .
 
 ; &9256 referenced 1 time by &9504
@@ -3500,7 +3504,7 @@ oscli                       = &fff7
 .c9262
     tya                                                               ; 9262: 98          .
     pha                                                               ; 9263: 48          H
-    ldx l9255                                                         ; 9264: ae 55 92    .U.
+    ldx single_byte_table_14_value_9                                  ; 9264: ae 55 92    .U.
     jmp c8ae8                                                         ; 9267: 4c e8 8a    L..
 
 ; &926a referenced 1 time by &9260
@@ -4313,7 +4317,7 @@ oscli                       = &fff7
     sta lfdfc                                                         ; 9750: 8d fc fd    ...
 ; &9753 referenced 1 time by &9742
 .c9753
-    jmp c8ada                                                         ; 9753: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9753: 4c da 8a    L..
 
 ; &9756 referenced 1 time by &971c
 .c9756
@@ -4354,7 +4358,7 @@ oscli                       = &fff7
 ; &9792 referenced 3 times by &9785, &9789, &978d
 .c9792
     jsr sub_c97f5                                                     ; 9792: 20 f5 97     ..
-    jmp c8ada                                                         ; 9795: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9795: 4c da 8a    L..
 
 ; &9798 referenced 1 time by &9771
 .c9798
@@ -4398,13 +4402,13 @@ oscli                       = &fff7
     sta lsb_ramdisc_page                                              ; 97da: 8d c0 fc    ...
     lda #&80                                                          ; 97dd: a9 80       ..
     jsr sub_c97f5                                                     ; 97df: 20 f5 97     ..
-    jmp c8ada                                                         ; 97e2: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 97e2: 4c da 8a    L..
 
 ; &97e5 referenced 1 time by &979c
 .c97e5
     lda #0                                                            ; 97e5: a9 00       ..
     sta l008d                                                         ; 97e7: 85 8d       ..
-    jmp c8ada                                                         ; 97e9: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 97e9: 4c da 8a    L..
 
 ; &97ec referenced 3 times by &972f, &976b, &978f
 .c97ec
@@ -4823,7 +4827,7 @@ l981e = sub_c981d+1
     jsr validate_filename                                             ; 9a4c: 20 36 84     6.
     bne c9a3d                                                         ; 9a4f: d0 ec       ..
     jsr sub_ca1e2                                                     ; 9a51: 20 e2 a1     ..
-    jmp c8ada                                                         ; 9a54: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9a54: 4c da 8a    L..
 
 ; &9a57 referenced 1 time by &9a97
 .boot_option_text
@@ -4866,7 +4870,7 @@ l981e = sub_c981d+1
     inx                                                               ; 9a9e: e8          .
     cpx #5                                                            ; 9a9f: e0 05       ..
     bne write_boot_option_text_to_drive                               ; 9aa1: d0 f4       ..
-    jmp c8ada                                                         ; 9aa3: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9aa3: 4c da 8a    L..
 
 ; &9aa6 referenced 2 times by &9a73, &9a86
 .c9aa6
@@ -4906,7 +4910,7 @@ l981e = sub_c981d+1
 ; &9ad3 referenced 1 time by &9acf
 .c9ad3
     stx l008e                                                         ; 9ad3: 86 8e       ..
-    jmp c8ada                                                         ; 9ad5: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9ad5: 4c da 8a    L..
 
 ; &9ad8 referenced 1 time by &9aab
 .c9ad8
@@ -5191,7 +5195,7 @@ l981e = sub_c981d+1
     jsr restore_previously_saved_ramdisc_page                         ; 9c95: 20 90 87     ..
 ; &9c98 referenced 2 times by &9c85, &9c8d
 .c9c98
-    jmp c8ada                                                         ; 9c98: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9c98: 4c da 8a    L..
 
 ; &9c9b referenced 1 time by &9b58
 .c9c9b
@@ -5209,7 +5213,7 @@ l981e = sub_c981d+1
     stx l008e                                                         ; 9cb0: 86 8e       ..
     ldy #&44 ; 'D'                                                    ; 9cb2: a0 44       .D
     sty l008f                                                         ; 9cb4: 84 8f       ..
-    jmp c8ada                                                         ; 9cb6: 4c da 8a    L..
+    jmp restore_command_and_parameters_restore_zp_variables           ; 9cb6: 4c da 8a    L..
 
 ; &9cb9 referenced 8 times by &9a3d, &9aa6, &9ab7, &9aef, &9b0b, &9b72, &9c9e, &9cac
 .c9cb9
@@ -9917,10 +9921,10 @@ save pydis_start, pydis_end
 ;     l007a:                                                         20
 ;     l0084:                                                         19
 ;     l0085:                                                         18
-;     c8ada:                                                         17
 ;     l0079:                                                         17
 ;     l007c:                                                         17
 ;     l7800:                                                         17
+;     restore_command_and_parameters_restore_zp_variables:           17
 ;     current_drive_number:                                          16
 ;     l008d:                                                         16
 ;     osbyte:                                                        16
@@ -10168,7 +10172,6 @@ save pydis_start, pydis_end
 ;     c8db4:                                                          2
 ;     c8f4e:                                                          2
 ;     c9154:                                                          2
-;     c917b:                                                          2
 ;     c91b7:                                                          2
 ;     c91fe:                                                          2
 ;     c9231:                                                          2
@@ -10303,6 +10306,7 @@ save pydis_start, pydis_end
 ;     ramdisc_page_in_zp_variable+0:                                  2
 ;     ramdisc_page_in_zp_variable+1:                                  2
 ;     reload_char_again:                                              2
+;     restore_y_rts:                                                  2
 ;     return_1:                                                       2
 ;     return_11:                                                      2
 ;     return_22:                                                      2
@@ -10385,7 +10389,6 @@ save pydis_start, pydis_end
 ;     c8667:                                                          1
 ;     c8678:                                                          1
 ;     c86b8:                                                          1
-;     c8732:                                                          1
 ;     c8a46:                                                          1
 ;     c8a5a:                                                          1
 ;     c8a9b:                                                          1
@@ -10715,6 +10718,7 @@ save pydis_start, pydis_end
 ;     error_too_many_files_open:                                      1
 ;     error_unformatted:                                              1
 ;     escape_as_pressed:                                              1
+;     exit_restore_zp_variables_from_ramdisc:                         1
 ;     file_exists:                                                    1
 ;     file_name_on_command_line:                                      1
 ;     filename_check_fails:                                           1
@@ -10765,8 +10769,6 @@ save pydis_start, pydis_end
 ;     l7892:                                                          1
 ;     l78a8:                                                          1
 ;     l79ff:                                                          1
-;     l91a2:                                                          1
-;     l9255:                                                          1
 ;     la0ee:                                                          1
 ;     lb712:                                                          1
 ;     lb968:                                                          1
@@ -10781,7 +10783,6 @@ save pydis_start, pydis_end
 ;     loop_c83a5:                                                     1
 ;     loop_c849b:                                                     1
 ;     loop_c84b8:                                                     1
-;     loop_c86c4:                                                     1
 ;     loop_c8870:                                                     1
 ;     loop_c8888:                                                     1
 ;     loop_c8897:                                                     1
@@ -10916,6 +10917,7 @@ save pydis_start, pydis_end
 ;     print_filename:                                                 1
 ;     print_hex_jmp_oswrch:                                           1
 ;     print_hex_nibble:                                               1
+;     print_hex_word_next_byte:                                       1
 ;     print_inline_string_get_next_char:                              1
 ;     print_inline_string_no_page_boundary:                           1
 ;     print_parameter_list:                                           1
@@ -10964,6 +10966,8 @@ save pydis_start, pydis_end
 ;     scan_command_print_searching_ram:                               1
 ;     service_handler:                                                1
 ;     should_i_print_banner:                                          1
+;     single_byte_table_14_value_9:                                   1
+;     single_byte_table_15_value_06:                                  1
 ;     single_byte_table_2_value_0c:                                   1
 ;     single_byte_table_3_value_0:                                    1
 ;     single_byte_table_3_value_12:                                   1
