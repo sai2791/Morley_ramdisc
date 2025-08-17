@@ -61,6 +61,48 @@ def immaddr(addr_lo, addr_hi):
 def nac(addr):
     no_automatic_comment(addr)
 
+def my_label_maker(d):
+    # This example replaces any instances of one label name with another,
+    # when found between a range of binary addresses.
+    if d.in_range(0x84ae, 0x84c4):
+        d.replace("l0080", "zp_filename")
+    elif d.in_range(0x848e, 0x8494):
+        d.replace("lfd3e", "variable_page_dir_name")
+    elif d.in_range(0x83de, 0x842b):
+        d.replace("l0070", "return_ptr")
+        d.replace("zp_sub_drive_number", "return_ptr+1")
+        d.replace("l00fd", "error_ptr")
+        d.replace("l00fe", "error_ptr+1")
+        d.replace("l0100", "stack")
+        d.replace("l0101", "stack+1")
+        d.replace("l0102", "stack+2")
+    elif d.in_range(0x8436, 0x844e):
+        d.replace("l0088", "zp_current_drive_number")
+        d.replace("l0087", "zp_current_directory")
+        d.replace("lfd3e", "ramdrive_current_directory")
+    elif d.in_range(0x8582, 0x858b):
+        d.replace("l0075", "zp_lsb_ramdisc_page")
+        d.replace("l0076", "y_index_offset")
+    elif d.in_range(0x8708, 0x8735):
+        d.replace("l0070", "zp_variables")
+        d.replace("lfde0", "ramdisc_copy_of_zp_variables")
+        d.replace("lfddf", "variables_current_marker")
+    elif d.in_range(0x8736, 0x8782):
+        d.replace("l0070", "zp_variables")
+    elif d.in_range(0x884e, 0x885a):
+        d.replace("l00f3", "os_text_ptr+1")
+    elif d.in_range(0x89a7, 0x89d3):
+        d.replace("l007a", "lsb_bbc_mem")
+        d.replace("l007b", "msb_bbc_mem")
+        d.replace("l007f", "no_of_sectors_to_copy")
+
+
+    
+
+set_label_maker_hook(my_label_maker)
+
+config.set_show_cpu_state(True)
+
 #config.set_show_stats(False)
 #config.set_label_references(False)
 string(0x8057)
@@ -299,7 +341,7 @@ entry(0xbc2c)
 subroutine(0xbc04, "press_space_to_continue")
 entry(0xbc4b)
 label(0xbc73, "text_END")
-byte(0xbc77,12)
+byte(0xbc77,11)
 # byte above looks like code
 nonentry(0xbc77)
 subroutine(0x99e2, "loop_through_file_handles")
@@ -315,8 +357,8 @@ nonentry(0xbccf)
 subroutine(0xbccc, "print_insert_backup_disc_number")
 label(0x8208, "banner_switched_off")
 subroutine(0x826c, "print_unformatted")
-subroutine(0x86f3, "switch_to_ramdisc_variable_page_00fe")
-subroutine(0x86e6, "switch_to_ramdisc_vector_storage_page_00fd")
+subroutine(0x86f3, "switch_to_ramdisc_variable_page_00fe", None, "swaps to ramdisc variable page")
+subroutine(0x86e6, "switch_to_ramdisc_vector_storage_page_00fd", None, "Swaps to ramdisc vector storage page")
 subroutine(0x86da, "switch_to_ramdisc_catalogue_page_0000")
 subroutine(0x8783, "store_current_ramdisc_page")
 subroutine(0x8790, "restore_previously_saved_ramdisc_page")
@@ -363,8 +405,7 @@ label(0xef, "osword_osbyte_last_a_reg")
 label(0xf0, "osword_osbyte_last_x_reg")
 label(0xf1, "osword_osbyte_last_y_reg")
 label(0xfd28, "boot_option")
-comment(0x86fa, "boot_option_decimal")
-subroutine(0x8700, "store_zp_variables_on_ramdisc_variable_page_00fe")
+subroutine(0x8700, "store_zp_variables_on_ramdisc_variable_page_00fe", "prepare to save zp variables", "Switches to ramdisc variables page and sets up index used for reading zp variables")
 subroutine(0x8736, "store_current_ramdisc_page_switch_to_temporary_wkspace_00fc")
 label(0x874b, "store_zp_variables_in_temporary_wkspace_00fc")
 immaddr(0x8747, 0x8742)
@@ -418,7 +459,7 @@ subroutine(0x89ee, "save_extended_vectors_to_ramdisc_vector_page")
 label(0x8a19, "install_ramdisc_vectors_in_extended_vectors_table")
 label(0x8a0a, "copy_original_extended_vectors_to_ramdisc_vector_page")
 subroutine(0x8623, "load_a_zero_clear_carry_return")
-subroutine(0x8620, "transfer_x_to_a_clear_carry_return")
+subroutine(0x8620, "deal_with_wildcards_4")
 comment(0x8629, "directory name?", align=Align.INLINE)
 comment(0x862b, "mask off top bit", align=Align.INLINE)
 nac(0x8630)
@@ -433,7 +474,7 @@ comment(0x8661, "file is locked", align=Align.INLINE)
 nac(0x86b2)
 label(0xff, "os_escape_flag")
 subroutine(0x86bf, "escape_as_pressed")
-subroutine(0x8708, "write_zp_variables_to_ramdisc")
+subroutine(0x8708, "write_zp_variables_to_ramdisc", "writes zp variables to the ramdisc", "Writes zero page variables from 0070 to 008f to the ramdisc variable page 00fe, fde0 to fdff. X register to used as index through locations", None, None, False, None, False)
 subroutine(0x8726, "write_ramdisc_zp_variables_to_zp")
 subroutine(0x87bb, "check_for_a_digit")
 subroutine(0x87cb, "get_next_character_from_command_line")
@@ -600,6 +641,22 @@ comment(0x9819, "filename and directory letter", align=Align.INLINE)
 subroutine(0x9810, "check_handle_filename")
 subroutine(0x97ff, "jump_to_error_file_open")
 subroutine(0x980d, "check_next_file_handle")
+label(0x71, "zp_sub_drive_number")
+subroutine(0x8580, "set_carry_push_flags")
+subroutine(0x85ef, "deal_with_wildcards_2")
+subroutine(0x8611, "deal_with_wildcards_each_char_in_filename")
+subroutine(0x8617, "deal_with_wildcards_3")
+subroutine(0x8627, "print_directory_dot")
+subroutine(0x8667, "print_filename_print_2_spaces")
+subroutine(0x8678, "print_filename_3")
+subroutine(0x86b8, "print_filename_check_for_escape_rts")
+comment(0x8710, "marker, 0xff for current, otherwise should be 0x00", align=Align.INLINE)
+label(0x88e4, "print_parameter_list_move_cursor")
+subroutine(0x88f8, "print_parameter_list_print_text")
+entry(0xbc82)
+
+
+
 
 
 
